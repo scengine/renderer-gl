@@ -629,7 +629,6 @@ int SCE_RBuildImageMipmaps (SCE_RImage *img)
         SCEE_Log (SCE_INVALID_OPERATION);
         SCEE_LogMsg ("DevIL fails to build mipmaps: %s",
                      iluErrorString (ilGetError ()));
-        SCE_btend ();
         return SCE_ERROR;
     }
 
@@ -647,14 +646,12 @@ int SCE_RBuildImageMipmaps (SCE_RImage *img)
 void* SCE_RLoadImage (FILE *fp, const char *fname, void *unused)
 {
     SCE_RImage *img = NULL;
-
+    (void)unused;
     img = SCE_RCreateImage ();
     if (!img) {
         SCEE_LogSrc ();
         return NULL;
     }
-
-    unused = NULL;
 
     SCE_RBindImage (img);
 
@@ -662,7 +659,7 @@ void* SCE_RLoadImage (FILE *fp, const char *fname, void *unused)
         SCEE_Log (SCE_INVALID_OPERATION);
         SCEE_LogMsg ("DevIL can't load '%s': %s",
                      fname, iluErrorString (ilGetError ()));
-        SCE_RDeleteImage_ ();
+        SCE_RDeleteImage (img);
         return NULL;
     }
 
