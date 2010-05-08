@@ -41,8 +41,6 @@
 
 /** @{ */
 
-static SCE_RFramebuffer *bound = NULL;
-
 static SCEint max_attachement_buffers = 0;
 
 int SCE_RFramebufferInit (void)
@@ -55,16 +53,6 @@ void SCE_RFramebufferQuit (void)
 {
 }
 
-void SCE_RBindFramebuffer (SCE_RFramebuffer *fb)
-{
-    bound = fb;
-    if (bound)
-        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, bound->id);
-    else
-        glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
-}
-
-
 /**
  * \brief Initializes a framebuffer structure
  * \param fb the structure to initialize
@@ -74,8 +62,7 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer *fb)
     unsigned int i;
 
     fb->id = 0;
-    for (i=0; i<SCE_NUM_RENDER_BUFFERS; i++)
-    {
+    for (i = 0; i < SCE_NUM_RENDER_BUFFERS; i++) {
         fb->buffers[i].id = 0;
         fb->buffers[i].tex = NULL;
         fb->buffers[i].user = SCE_TRUE;
@@ -92,36 +79,14 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer *fb)
 SCE_RFramebuffer* SCE_RCreateFramebuffer (void)
 {
     SCE_RFramebuffer *fb = NULL;
-
-    SCE_btstart ();
-    fb = SCE_malloc (sizeof *fb);
-    if (!fb)
-    {
+    if (!(fb = SCE_malloc (sizeof *fb))) {
         SCEE_LogSrc ();
-        SCE_btend ();
         return NULL;
     }
-
     SCE_RInitFramebuffer (fb);
     glGenFramebuffersEXT (1, &fb->id);
-
-    SCE_btend ();
     return fb;
 }
-
-#define SCE_RDEFAULTFUNC(action)\
-SCE_RFramebuffer *back = bound;\
-SCE_RBindFramebuffer (fb);\
-action;\
-SCE_RBindFramebuffer (back);
-
-#define SCE_RDEFAULTFUNCR(t, action)\
-t r;\
-SCE_RFramebuffer *back = bound;\
-SCE_RBindFramebuffer (fb);\
-r = action;\
-SCE_RBindFramebuffer (back);\
-return r;
 
 /**
  * \brief Deletes an existing frame buffer
@@ -129,36 +94,25 @@ return r;
  */
 void SCE_RDeleteFramebuffer (SCE_RFramebuffer *fb)
 {
-    SCE_RDEFAULTFUNC (SCE_RDeleteFramebuffer_ ())
-}
-void SCE_RDeleteFramebuffer_ (void)
-{
-    SCE_btstart ();
-    if (bound)
-    {
+    if (fb) {
         unsigned int i;
-        for (i=0; i<SCE_NUM_RENDER_BUFFERS; i++)
-        {
-            if (!bound->buffers[i].user)
-                SCE_RDeleteTexture (bound->buffers[i].tex);
+        for (i = 0; i < SCE_NUM_RENDER_BUFFERS; i++) {
+            if (!fb->buffers[i].user)
+                SCE_RDeleteTexture (fb->buffers[i].tex);
 
-            if (bound->buffers[i].id)
-                glDeleteRenderbuffersEXT (1, &bound->buffers[i].id);
+            if (fb->buffers[i].id)
+                glDeleteRenderbuffersEXT (1, &fb->buffers[i].id);
         }
-
-        glDeleteFramebuffersEXT (1, &bound->id);
-        SCE_free (bound);
-        bound = NULL;
+        glDeleteFramebuffersEXT (1, &fb->id);
+        SCE_free (fb);
     }
-    SCE_btend ();
 }
 
 
 /* converti un simple ID de type d'attachement en type opengl */
 static int SCE_RIDToGLBuffer (SCEuint type)
 {
-    switch (type)
-    {
+    switch (type) {
     case SCE_DEPTH_BUFFER: return GL_DEPTH_ATTACHMENT_EXT;
     case SCE_STENCIL_BUFFER: return GL_STENCIL_ATTACHMENT_EXT;
     default: return GL_COLOR_ATTACHMENT0_EXT + type;
@@ -167,8 +121,7 @@ static int SCE_RIDToGLBuffer (SCEuint type)
 
 static const char* SCE_RGetFramebufferError (SCEenum err)
 {
-    switch (err)
-    {
+    switch (err) {
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
         return "incomplete attachement";
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
@@ -214,50 +167,39 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
 int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
                            SCE_RTexture *tex, int mipmap, int canfree)
 {
-    SCE_RDEFAULTFUNCR (int,
-                       SCE_RAddRenderTexture_(id, target, tex, mipmap, canfree))
-}
-int SCE_RAddRenderTexture_ (SCEuint id, SCEenum target, SCE_RTexture *tex,
-                            int mipmap, int canfree /*, int layer*/)
-{
     int type, status;
 
     /* TODO: verifier le nombre de render targets encore autorises et veiller
        a ne pas depasser SCE_RGetMaxAttachmentBuffers() */
 
-    SCE_btstart ();
     type = SCE_RIDToGLBuffer (id);
 
     /* si la precedente texture n'a pas ete envoyee par l'utilisateur,
        on la supprime */
-    if (!bound->buffers[id].user)
-        SCE_RDeleteTexture (bound->buffers[id].tex);
+    if (!fb->buffers[id].user)
+        SCE_RDeleteTexture (fb->buffers[id].tex);
 
     /* si un buffer existe deja, on le supprime */
-    if (bound->buffers[id].id)
-    {
-        glDeleteRenderbuffersEXT (1, &bound->buffers[id].id);
-        bound->buffers[id].id = 0;
+    if (fb->buffers[id].id) {
+        glDeleteRenderbuffersEXT (1, &fb->buffers[id].id);
+        fb->buffers[id].id = 0;
     }
 
-    bound->buffers[id].user = !canfree;
-    bound->buffers[id].tex = tex;
+    fb->buffers[id].user = !canfree;
+    fb->buffers[id].tex = tex;
 
     /* verification du target */
     if (target < SCE_TEX_POSX || target > SCE_TEX_NEGZ)
         target = SCE_RGetTextureTarget (tex);
-    else if (tex->target != SCE_TEX_CUBE)
-    {
+    else if (tex->target != SCE_TEX_CUBE) {
         /* target designant une face de cubemap, mais la texture
            n'est pas de type cubemap : erreur */
         SCEE_Log (SCE_INVALID_ARG);
         SCEE_LogMsg ("invalid target, the texture is not a cubemap");
-        SCE_btend ();
         return SCE_ERROR;
     }
 
-    if (!SCE_RIsTextureUsingMipmaps (tex))
-    {
+    if (!SCE_RIsTextureUsingMipmaps (tex)) {
         SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
         mipmap = SCE_FALSE; /* very important */
     }
@@ -268,6 +210,7 @@ int SCE_RAddRenderTexture_ (SCEuint id, SCEenum target, SCE_RTexture *tex,
     SCE_RSetTextureParam (tex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     SCE_RSetTextureParam (tex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     */
+    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
     /* TODO: add texture arrays, texture rectangle & 3D textures managment */
 #if 0
     if (target == SCE_TEX_RECTANGLE_NV)
@@ -287,32 +230,27 @@ int SCE_RAddRenderTexture_ (SCEuint id, SCEenum target, SCE_RTexture *tex,
                                target, tex->id, mipmap);
     /* si aucune color render texture n'existe, on desactive le tampon */
     if (id == SCE_DEPTH_BUFFER &&
-        !bound->buffers[SCE_ROLOR_BUFFER0].tex &&
-        !bound->buffers[SCE_ROLOR_BUFFER1].tex &&
-        !bound->buffers[SCE_ROLOR_BUFFER2].tex) /* etc. */
-    {
+        !fb->buffers[SCE_ROLOR_BUFFER0].tex &&
+        !fb->buffers[SCE_ROLOR_BUFFER1].tex &&
+        !fb->buffers[SCE_ROLOR_BUFFER2].tex) { /* etc. */
         glDrawBuffer (GL_NONE);
     }
     glReadBuffer (GL_NONE);
     /* TODO: wtf iz dat */
     /*status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);*/
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
         SCEE_Log (status);
         SCEE_LogMsg ("framebuffer check failed: %s",
                        SCE_RGetFramebufferError (status));
-        SCE_btend ();
         return SCE_ERROR;
     }
 
-    /* recuperation des dimensions */
-    bound->w = SCE_RGetTextureWidth (tex, target, 0);
-    bound->h = SCE_RGetTextureHeight (tex, target, 0);
-    /* activation */
-    bound->buffers[id].actived = SCE_TRUE;
+    fb->w = SCE_RGetTextureWidth (tex, target, 0);
+    fb->h = SCE_RGetTextureHeight (tex, target, 0);
+    fb->buffers[id].actived = SCE_TRUE;
+    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 
-    SCE_btend ();
     return SCE_OK;
 }
 
@@ -336,18 +274,12 @@ int SCE_RAddRenderTexture_ (SCEuint id, SCEenum target, SCE_RTexture *tex,
 int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
                           int fmt, int w, int h)
 {
-    SCE_RDEFAULTFUNCR (int, SCE_RAddRenderBuffer_ (id, fmt, w, h))
-}
-int SCE_RAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
-{
     int type, status;
 
-    SCE_btstart ();
     type = SCE_RIDToGLBuffer (id);
 
     /* assignation des valeurs par defaut */
-    if (fmt <= 0)
-    {
+    if (fmt <= 0) {
         if (id == SCE_DEPTH_BUFFER)
             fmt = GL_DEPTH_COMPONENT24;
         else if (id == SCE_STENCIL_BUFFER)
@@ -355,48 +287,48 @@ int SCE_RAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
     }
 
     if (w <= 0)
-        w = bound->w;
+        w = fb->w;
     else
-        bound->w = w;
+        fb->w = w;
     if (h <= 0)
-        h = bound->h;
+        h = fb->h;
     else
-        bound->h = h;
+        fb->h = h;
 
     /* si une texture existait deja, on la supprime */
-    if (!bound->buffers[id].user)
-    {
-        SCE_RDeleteTexture (bound->buffers[id].tex);
-        bound->buffers[id].tex = NULL;  /* ! important ! */
+    if (!fb->buffers[id].user) {
+        SCE_RDeleteTexture (fb->buffers[id].tex);
+        fb->buffers[id].tex = NULL;  /* ! important ! */
     }
 
+    /* I guess that it can be achieved later
+       (like just before FramebufferRenderbuffer()) */
+    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
+
     /* si le buffer n'existe pas, il faut le creer */
-    if (!glIsRenderbufferEXT (bound->buffers[id].id))
-        glGenRenderbuffersEXT (1, &bound->buffers[id].id);
+    if (!glIsRenderbufferEXT (fb->buffers[id].id))
+        glGenRenderbuffersEXT (1, &fb->buffers[id].id);
 
     /* creation du render buffer */
-    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bound->buffers[id].id);
+    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, fb->buffers[id].id);
     glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, fmt, w, h);
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, 0);
 
     /* on l'ajoute au FBO */
     glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, type, GL_RENDERBUFFER_EXT,
-                                  bound->buffers[id].id);
+                                  fb->buffers[id].id);
 
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
         SCEE_Log (status);
         SCEE_LogMsg ("framebuffer check failed: %s",
                        SCE_RGetFramebufferError (status));
-        SCE_btend ();
         return SCE_ERROR;
     }
 
-    /* activation */
-    bound->buffers[id].actived = SCE_TRUE;
+    glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+    fb->buffers[id].actived = SCE_TRUE;
 
-    SCE_btend ();
     return SCE_OK;
 }
 
@@ -422,39 +354,27 @@ int SCE_RAddRenderBuffer_ (SCEuint id, int fmt, int w, int h)
  * \sa SCE_RAddRenderTexture()
  * \todo rename this function to 'AddNew'
  */
-int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCEuint id,
-                              int pxf, int fmt, int type, int w, int h)
-{
-    SCE_RDEFAULTFUNCR (int,SCE_RCreateRenderTexture_ (id, pxf, fmt, type, w, h))
-}
-int SCE_RCreateRenderTexture_ (SCEuint id, int pxf, int fmt,
-                               int type, int w, int h)
+int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCEuint id, int pxf,
+                              int fmt, int type, int w, int h)
 {
     SCE_RTexture *tex = NULL;
     SCE_RTexData data;
 
-    SCE_btstart ();
-    /* creation de la texture */
     tex = SCE_RCreateTexture (SCE_TEX_2D);
-    if (!tex)
-    {
+    if (!tex) {
         SCEE_LogSrc ();
-        SCE_btend ();
         return SCE_ERROR;
     }
 
     SCE_RInitTexData (&data);
 
-    /* utilisation des valeurs par defaut en cas de non specification */
-    if (pxf <= 0)
-    {
+    if (pxf <= 0) {
         if (id == SCE_DEPTH_BUFFER)
             pxf = GL_DEPTH_COMPONENT24;
         else
             pxf = GL_RGBA;
     }
-    if (fmt <= 0)
-    {
+    if (fmt <= 0) {
         if (id == SCE_DEPTH_BUFFER)
             fmt = GL_DEPTH_COMPONENT;
         else
@@ -463,34 +383,25 @@ int SCE_RCreateRenderTexture_ (SCEuint id, int pxf, int fmt,
     if (type <= 0)
         type = SCE_UNSIGNED_BYTE;
 
-    /* assignation des donnees */
     data.w = w;
     data.h = h;
     data.type = type;
     data.pxf = pxf;
     data.fmt = fmt;
 
-    SCE_RBindTexture (tex);
-    if (SCE_RAddTextureTexDataDup_ (0, &data) < 0)
-    {
+    if (SCE_RAddTextureTexDataDup (tex, 0, &data) < 0) {
         SCEE_LogSrc ();
         SCE_RDeleteTexture (tex);
-        SCE_btend ();
         return SCE_ERROR;
     }
-    if (SCE_RBuildTexture_ (0, 0) < 0)
-    {
+    if (SCE_RBuildTexture (tex, 0, 0) < 0) {
         SCEE_LogSrc ();
         SCE_RDeleteTexture (tex);
-        SCE_btend ();
         return SCE_ERROR;
     }
-    SCE_RBindTexture (NULL);
 
-    /* ajout de la texture en tant que render buffer */
-    SCE_RAddRenderTexture_ (id, SCE_TEX_2D, tex, 0, SCE_TRUE);
+    SCE_RAddRenderTexture (fb, id, SCE_TEX_2D, tex, 0, SCE_TRUE);
 
-    SCE_btend ();
     return SCE_OK;
 }
 
@@ -504,10 +415,6 @@ int SCE_RCreateRenderTexture_ (SCEuint id, int pxf, int fmt,
 SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer *fb, SCEuint id)
 {
     return fb->buffers[id].tex;
-}
-SCE_RTexture* SCE_RGetRenderTexture_ (SCEuint id)
-{
-    return bound->buffers[id].tex;
 }
 
 
@@ -550,8 +457,7 @@ static void SCE_RSetDrawBuffers (SCE_RFramebuffer *fb)
     unsigned int i, j = 0;
     SCEenum drawids[SCE_MAX_ATTACHMENT_BUFFERS] = {0};
 
-    for (i=0; i<max_attachement_buffers; i++)
-    {
+    for (i = 0; i < max_attachement_buffers; i++) {
         if (fb->buffers[i].actived)
             drawids[j++] = GL_COLOR_ATTACHMENT0_EXT + i;
     }
@@ -572,16 +478,15 @@ static void SCE_RSetDrawBuffers (SCE_RFramebuffer *fb)
  */
 void SCE_RUseFramebuffer (SCE_RFramebuffer *fb, SCE_SIntRect *r)
 {
-    static int viewport[4];         /* viewport avant l'utilisation du fbo */
-    static int bound_ = SCE_FALSE; /* booleen, true: un fbo est deja binde */
+    static int viewport[4];        /* save previous viewport */
+    static int bound = SCE_FALSE;
 
-    if (fb)
-    {
+    if (fb) {
         int *p = SCE_Rectangle_GetBottomLeftPoint (r);
         /* on recupere d'abord le viewport, pour ensuite le restituer
            (uniquement si aucun fbo n'est deja binde,
             sinon on prendrait son viewport) */
-        if (!bound_)
+        if (!bound)
             glGetIntegerv (GL_VIEWPORT, viewport);
 
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
@@ -594,13 +499,11 @@ void SCE_RUseFramebuffer (SCE_RFramebuffer *fb, SCE_SIntRect *r)
         if (SCE_RHasCap (SCE_MRT))
             SCE_RSetDrawBuffers (fb);
 
-        bound_ = SCE_TRUE;
-    }
-    else if (bound_)
-    {
+        bound = SCE_TRUE;
+    } else if (bound) {
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
         glViewport (viewport[0], viewport[1], viewport[2], viewport[3]);
-        bound_ = SCE_FALSE;
+        bound = SCE_FALSE;
     }
 }
 

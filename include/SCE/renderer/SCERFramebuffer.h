@@ -63,8 +63,7 @@ typedef struct sce_rrenderbuffer SCE_RRenderBuffer;
  *
  * This structure stores a texture or a OpenGL render buffer.
  */
-struct sce_rrenderbuffer
-{
+struct sce_rrenderbuffer {
     SCEuint id;        /**< OpenGL render buffer's identifier */
     SCE_RTexture *tex; /**< The render texture */
     int user;          /**< Is user the owner of \c tex ? */
@@ -80,8 +79,7 @@ typedef struct sce_rframebuffer SCE_RFramebuffer;
  *
  * This is a FBO.
  */
-struct sce_rframebuffer
-{
+struct sce_rframebuffer {
     SCEuint id;             /**< OpenGL identifier of the FBO */
     /** All the targets of \c id, used for Multiple Render Targets extension */
     SCE_RRenderBuffer buffers[SCE_NUM_RENDER_BUFFERS];
@@ -93,33 +91,25 @@ struct sce_rframebuffer
 int SCE_RFramebufferInit (void);
 void SCE_RFramebufferQuit (void);
 
-void SCE_RBindFramebuffer (SCE_RFramebuffer*) SCE_GNUC_DEPRECATED;
-
 void SCE_RInitFramebuffer (SCE_RFramebuffer*);
 SCE_RFramebuffer* SCE_RCreateFramebuffer (void);
 void SCE_RDeleteFramebuffer (SCE_RFramebuffer*);
-void SCE_RDeleteFramebuffer_ (void);
 
 int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCEuint, SCEenum,
                            SCE_RTexture*, int, int);
-int SCE_RAddRenderTexture_ (SCEuint, SCEenum, SCE_RTexture*, int, int);
 
 int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCEuint, int, int, int);
-int SCE_RAddRenderBuffer_ (SCEuint, int, int, int);
 
 int SCE_RCreateRenderTexture (SCE_RFramebuffer*, SCEuint,
                               int, int, int, int, int);
-int SCE_RCreateRenderTexture_ (SCEuint, int, int, int, int, int);
 
 SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer*, SCEuint);
-SCE_RTexture* SCE_RGetRenderTexture_ (SCEuint);
 
 void SCE_RActivateRenderBuffer (SCE_RFramebuffer*, int, int);
 void SCE_REnableRenderBuffer (SCE_RFramebuffer*, int);
 void SCE_RDisableRenderBuffer (SCE_RFramebuffer*, int);
 
 void SCE_RClearRenderbuffer (SCE_RFramebuffer*, SCEuint, int);
-void SCE_RClearRenderbuffer_ (SCEuint, int);
 
 unsigned int SCE_RGetMaxAttachmentBuffers (void);
 
