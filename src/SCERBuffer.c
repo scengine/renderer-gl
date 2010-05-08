@@ -329,10 +329,9 @@ static void SCE_RUpdateBufferMapClassic (SCE_RBuffer *buf)
     ptr = glMapBuffer (target, GL_WRITE_ONLY);
 #ifdef SCE_DEBUG
     if (!ptr) {
-        /* TODO: make shortcut for this code */
+        /* TODO: make a 'shortcut' for this code */
         SCEE_Log (SCE_GL_ERROR);
-        SCEE_LogMsg ("GL error on glMapBuffer(): %s",
-                     gluErrorString (glGetError ()));
+        SCEE_LogMsg ("GL error on glMapBuffer()");
         return;                 /* lonlz */
     }
 #endif
@@ -360,11 +359,9 @@ static void SCE_RUpdateBufferMapRange (SCE_RBuffer *buf)
        GL_OUT_OF_MEMORY, which can occur in this function */
 #ifdef SCE_DEBUG
     if (!ptr) {
-        /* TODO: make shortcut for this code */
+        /* TODO: shortcut */
         SCEE_Log (SCE_GL_ERROR);
-        SCEE_LogMsg ("GL error on glMapBufferRange(): %s",
-                     gluErrorString (glGetError ()));
-        /* TODO: kick use of GLU */
+        SCEE_LogMsg ("GL error on glMapBufferRange()");
         return;                 /* lonlz */
     }
 #endif
