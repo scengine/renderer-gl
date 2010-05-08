@@ -203,20 +203,6 @@ void SCE_RScaleMatrixv (float *v)
 }
 /**/
 
-#if 0
-void SCE_RLook3D(
-  float p0, float p1, float p2,
-  float v0, float v1, float v2,
-  float i0, float i1, float i2)
-{
-    gluLookAt(p0, p1, p2, v0, v1, v2, i0, i1, i2);
-}
-void SCE_RLook3Dv(const float *p, const float *v, const float *i)
-{
-    gluLookAt(p[0], p[1], p[2], v[0], v[1], v[2], i[0], i[1], i[2]);
-}
-#endif
-
 /**
  * \brief Calls glFrustum()
  */

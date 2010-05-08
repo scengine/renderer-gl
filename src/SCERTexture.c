@@ -1059,37 +1059,6 @@ static void SCE_RMakeTexture3DUp (SCE_RTexData *d)
     glTexSubImage3D (d->target, d->level, 0, 0, 0, d->w, d->h, d->d, d->fmt,
                      sce_rgltypes[d->type], d->data);
 }
-/* GLU-dependent removed */
-#if 0
-static void SCE_RMakeTexture1DMp (SCE_RTexData *d)
-{
-    int err = gluBuild1DMipmaps (d->target, d->pxf, d->w,
-                                 d->fmt, sce_rgltypes[d->type], d->data);
-    if (err != 0) {
-        SCEE_Log (SCE_INVALID_OPERATION);
-        SCEE_LogMsg ("gluBuild1DMipmaps fails : %s\n", gluErrorString (err));
-    }
-}
-static void SCE_RMakeTexture2DMp (SCE_RTexData *d)
-{
-    int err = gluBuild2DMipmaps (d->target, d->pxf, d->w, d->h,
-                                 d->fmt, sce_rgltypes[d->type], d->data);
-    if (err != 0) {
-        SCEE_Log (SCE_INVALID_OPERATION);
-        SCEE_LogMsg ("gluBuild2DMipmaps fails : %s\n", gluErrorString (err));
-    }
-}
-static void SCE_RMakeTexture3DMp (SCE_RTexData *d)
-{
-    int err;
-    err = gluBuild3DMipmaps (d->target, d->pxf, d->w, d->h, d->d,
-                             d->fmt, sce_rgltypes[d->type], d->data);
-    if (err != 0) {
-        SCEE_Log (SCE_INVALID_OPERATION);
-        SCEE_LogMsg ("gluBuild3DMipmaps fails : %s\n", gluErrorString (err));
-    }
-}
-#endif
 /* determine quelle fonction utiliser pour le stockage des donnees */
 static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
 {
