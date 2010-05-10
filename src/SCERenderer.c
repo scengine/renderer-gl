@@ -43,39 +43,39 @@ int SCE_RInit (FILE *outlog, SCEbitfield flags)
 {
     int ret = SCE_OK;
     if (pthread_mutex_lock (&init_mutex) != 0) {
-        ret = SCE_ERROR;
+        SCE_Init_Error (stderr); /* hm. */
         SCEE_Log (42);
         SCEE_LogMsg ("failed to lock initialization mutex");
-    } else {
-        init_n++;
-        if (init_n < 1) {
-            if (SCE_Init_Core (outlog, flags) < 0 ||
-                SCE_RTypeInit () < 0 ||
-                SCE_RSupportInit () < 0 ||
-                SCE_RBufferInit () < 0 ||
-                SCE_RVertexArrayInit () < 0 ||
-                SCE_RImageInit () < 0 ||
-                SCE_RTextureInit () < 0 ||
-                SCE_RFramebufferInit () < 0 ||
-                SCE_RShaderInit (flags & SCE_RINIT_CG_SHADERS) < 0 ||
-                SCE_ROcclusionQueryInit () < 0) {
-                ret = SCE_ERROR;
-            } else {
-                SCE_RUseMaterial (NULL);
+        return SCE_ERROR;
+    }
+    init_n++;
+    if (init_n == 1) {
+        if (SCE_Init_Core (outlog, flags) < 0 ||
+            SCE_RTypeInit () < 0 ||
+            SCE_RSupportInit () < 0 ||
+            SCE_RBufferInit () < 0 ||
+            SCE_RVertexArrayInit () < 0 ||
+            SCE_RImageInit () < 0 ||
+            SCE_RTextureInit () < 0 ||
+            SCE_RFramebufferInit () < 0 ||
+            SCE_RShaderInit (flags & SCE_RINIT_CG_SHADERS) < 0 ||
+            SCE_ROcclusionQueryInit () < 0) {
+            ret = SCE_ERROR;
+        } else {
+            SCE_RUseMaterial (NULL);
 
-                /* enabling some default states */
-                glEnable (GL_NORMALIZE);
-                glEnable (GL_CULL_FACE);
-                glEnable (GL_DEPTH_TEST);
-                ret = SCE_OK;
-            }
+            /* enabling some default states */
+            glEnable (GL_NORMALIZE);
+            glEnable (GL_CULL_FACE);
+            glEnable (GL_DEPTH_TEST);
+            ret = SCE_OK;
         }
-        pthread_mutex_unlock (&init_mutex);
-        if (ret == SCE_ERROR) {
-            SCE_RQuit ();
-            SCEE_LogSrc ();
-            SCEE_LogSrcMsg ("failed to initialize the GL renderer");
-        }
+    }
+    pthread_mutex_unlock (&init_mutex);
+    if (ret == SCE_ERROR) {
+        SCE_RQuit ();
+        SCEE_LogSrc ();
+        SCEE_LogSrcMsg ("failed to initialize the GL renderer");
     }
     return ret;
 }

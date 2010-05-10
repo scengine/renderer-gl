@@ -265,6 +265,7 @@ void SCE_RSetVertexBufferNumVertices (SCE_RVertexBuffer *vb, size_t n)
     vb->n_vertices = n;
 }
 
+/** \deprecated */
 static void SCE_RUseVAMode (SCE_RVertexBuffer *vb)
 {
     SCE_SListIterator *it = NULL;
