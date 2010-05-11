@@ -193,7 +193,7 @@ SCE_RTexData* SCE_RCreateTexDataFromImage (SCE_RImage *img)
 {
     SCE_RTexData *d = NULL;
 
-    d = SCE_malloc (sizeof *d);
+    d = SCE_RCreateTexData ();
     if (!d) {
         SCEE_LogSrc ();
         return NULL;
@@ -258,13 +258,18 @@ SCE_RTexData* SCE_RDupTexData (SCE_RTexData *d)
 {
     SCE_RTexData *data = NULL;
 
-    data = SCE_malloc (sizeof *data);
+    data = SCE_RCreateTexData ();
     if (!data) {
         SCEE_LogSrc ();
         return NULL;
     }
 
     *data = *d;
+    /* NOTE: bouh bouh ugly */
+    SCE_List_InitIt (&data->it);
+    SCE_List_SetData (&data->it, data);
+    /* and what about data->user, data->data_user ? */
+
     if (data->data_size > 0) {
         data->data = SCE_malloc (data->data_size);
         if (!data->data) {
@@ -770,6 +775,7 @@ int SCE_RAddTextureTexDataDup (SCE_RTexture *tex, int target, SCE_RTexData *d)
         SCEE_LogSrc ();
         return SCE_ERROR;
     }
+    data->user = SCE_FALSE;     /* tak */
     SCE_RAddTextureTexData (tex, target, data, SCE_TRUE);
     return SCE_OK;
 }
@@ -1063,7 +1069,6 @@ static void SCE_RMakeTexture3DUp (SCE_RTexData *d)
 static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
 {
     SCE_RMakeTextureFunc make = NULL;
-
     if (comp) {
         if (type == SCE_TEX_1D)
             make = (texsub ? SCE_RMakeTexture1DCompUp : SCE_RMakeTexture1DComp);
@@ -1079,6 +1084,7 @@ static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
         else if (type == SCE_TEX_3D)
             make = (texsub ? SCE_RMakeTexture3DUp : SCE_RMakeTexture3D);
     }
+    /* NOTE: make may be NULL here */
     return make;
 }
 /* construit une texture avec les infos minimales */

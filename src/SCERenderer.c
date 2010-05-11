@@ -104,6 +104,7 @@ void SCE_RQuit (void)
 
 /**
  * \brief Defines the color used for cleared the color buffer
+ * \todo move these functions somewhere else
  */
 void SCE_RClearColor (float r, float g, float b, float a)
 {

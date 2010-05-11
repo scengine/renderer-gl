@@ -167,7 +167,10 @@ float SCE_RGetLightQuadraticAtt (SCE_RLight *light)
 void SCE_RActivateLighting (int activated)
 {
     use_lighting = activated;
-    SCE_RSetState (GL_LIGHTING, activated);
+    if (activated)
+        glEnable (GL_LIGHTING);
+    else
+        glDisable (GL_LIGHTING);
 }
 
 void SCE_RUseLight (SCE_RLight *light)
