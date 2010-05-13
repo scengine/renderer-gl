@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 24/03/2008
-   updated: 12/11/2008 */
+   updated: 13/05/2010 */
 
 #include "SCE/renderer/SCEGLee.h"
 #include <SCE/utils/SCEUtils.h>
@@ -33,13 +33,10 @@ static SCE_TVector3 pos = {0., 0., 0.};
 int SCE_RPointSpriteInit (void)
 {
     SCE_RVertexDeclaration dec;
-    SCE_btstart ();
 #define SCE_POINTASSERT(c)\
-    if (c)\
-    {\
+    if (c) {\
         SCE_RDeleteVertexBuffer (vb);\
         SCEE_LogSrc ();\
-        SCE_btend ();\
         return SCE_ERROR;\
     }
     SCE_POINTASSERT (!(vb = SCE_RCreateVertexBuffer ()))
@@ -69,12 +66,10 @@ void SCE_RInitPointSprite (SCE_RPointSprite *point)
 SCE_RPointSprite* SCE_RCreatePointSprite (void)
 {
     SCE_RPointSprite *point = NULL;
-    SCE_btstart ();
     if (!(point = SCE_malloc (sizeof *point)))
         SCEE_LogSrc ();
     else
         SCE_RInitPointSprite (point);
-    SCE_btend ();
     return point;
 }
 

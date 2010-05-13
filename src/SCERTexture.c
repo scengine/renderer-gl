@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 18/04/2010 */
+   updated: 13/05/2010 */
 
 #include <string.h>
 #include <SCE/utils/SCEUtils.h>
@@ -110,7 +110,6 @@ int SCE_RTextureInit (void)
     if (resource_type < 0)
         goto fail;
 
-    SCE_btend ();
     return SCE_OK;
 fail:
     SCEE_LogSrc ();
