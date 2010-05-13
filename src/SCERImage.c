@@ -422,7 +422,13 @@ SCE_RIMGGET (Height,    IL_IMAGE_HEIGHT)
 SCE_RIMGGET (Depth,     IL_IMAGE_DEPTH)
 SCE_RIMGGET (Format,    IL_IMAGE_FORMAT)
 SCE_RIMGGET (PixelSize, IL_IMAGE_BYTES_PER_PIXEL)
-SCE_RIMGGET (DataType,  IL_IMAGE_TYPE)
+/* SCE_RIMGGET (DataType,  IL_IMAGE_TYPE) */
+int SCE_RGetImageDataType (SCE_RImage *img)
+{
+    int t;
+    SCE_RBindImage (img);
+    SCE_RGLTypeToSCE (ilGetInteger (IL_IMAGE_TYPE));
+}
 
 #undef SCE_RIMGGET
 

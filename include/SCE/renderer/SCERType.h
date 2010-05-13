@@ -67,9 +67,7 @@ float SCE_RGetFloat (SCEenum);
 void SCE_RGetIntegerv (SCEenum, int*);
 void SCE_RGetFloatv (SCEenum, float*);
 
-#if 0
-SCEenum SCE_RGLType (SCE_EType);
-#endif
+SCE_EType SCE_RGLTypeToSCE (SCEenum);
 
 #ifdef __cplusplus
 } /* extern "C" */

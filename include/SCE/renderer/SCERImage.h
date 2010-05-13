@@ -33,6 +33,7 @@ extern "C" {
 
 /**
  * \brief Types of texture
+ * \todo usage of GL macros in a header
  */
 enum sce_rtextype {
     SCE_TEX_1D = GL_TEXTURE_1D,

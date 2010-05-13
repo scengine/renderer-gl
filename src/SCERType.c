@@ -98,8 +98,26 @@ void SCE_RGetFloatv (SCEenum t, float *v)
     glGetFloatv (t, v);
 }
 
+SCE_EType SCE_RGLTypeToSCE (SCEenum t)
+{
+#define SCE_TYPE_CASE(t)\
+    case GL_##t: return SCE_##t
+
+    switch (t) {
+        SCE_TYPE_CASE (UNSIGNED_BYTE);
+        SCE_TYPE_CASE (SHORT);
+        SCE_TYPE_CASE (UNSIGNED_SHORT);
+        SCE_TYPE_CASE (INT);
+        SCE_TYPE_CASE (UNSIGNED_INT);
+        SCE_TYPE_CASE (FLOAT);
+        SCE_TYPE_CASE (DOUBLE);
+    }
+    return 0;
+#undef SCE_TYPE_CASE
+}
+
 #if 0
-SCEenum SCE_RGLType (SCE_EType t)
+SCEenum SCE_RSCETypeToGL (SCE_EType t)
 {
     return rgltypes[t];
 }

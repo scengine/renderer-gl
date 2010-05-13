@@ -1135,6 +1135,7 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
     if (tex->target == SCE_TEX_CUBE)
         n = 6;
 
+    SCE_RBindTexture (tex);
     if (use_mipmap) {
         if (hw_mipmap && SCE_RHasCap (SCE_TEX_HW_GEN_MIPMAP)) {
             SCE_RSetTextureParam (tex, GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);
@@ -1142,7 +1143,8 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
                 make (t, &tex->data[i], ((n > 1) ? SCE_TEX_POSX+i:0), SCE_FALSE);
         } else {
             if (hw_mipmap)
-                SCEE_SendMsg ("hardware mipmap generation isn't supported");
+                SCEE_SendMsg ("SCERTexture: hardware mipmap "
+                              "generation isn't supported");
             for (i = 0; i < n; i++)
                 make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i : 0), SCE_TRUE);
         }
