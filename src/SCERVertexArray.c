@@ -295,7 +295,8 @@ void SCE_RRenderInstanced (SCE_EPrimitiveType prim, SCEuint n_vertices,
 void SCE_RRenderIndexed (SCE_EPrimitiveType prim, SCE_RIndexArray *ia,
                          SCEuint n_indices)
 {
-    glDrawElements (sce_rprimtypes[prim], n_indices, ia->type, ia->data);
+    glDrawElements (sce_rprimtypes[prim], n_indices,
+                    sce_rgltypes[ia->type], ia->data);
 }
 void SCE_RRenderIndexedInstanced (SCE_EPrimitiveType prim, SCE_RIndexArray *ia,
                                   SCEuint n_indices, SCEuint n_instances)
