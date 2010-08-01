@@ -22,10 +22,8 @@
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
 
-#include <SCE/utils/SCEUtils.h>
-
 /* include APIs */
-#include "SCE/renderer/SCEGLee.h"
+#include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 
@@ -33,6 +31,8 @@
  #include <Cg/cg.h>
  #include <Cg/cgGL.h>
 #endif
+
+#include <SCE/utils/SCEUtils.h>
 
 #ifdef __cplusplus
 extern "C" {

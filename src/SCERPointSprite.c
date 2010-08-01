@@ -19,7 +19,7 @@
 /* created: 24/03/2008
    updated: 13/05/2010 */
 
-#include "SCE/renderer/SCEGLee.h"
+#include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
 
 #include "SCE/renderer/SCERPointSprite.h"

@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 31/01/2006
-   updated: 01/08/2009 */
+   updated: 01/08/2010 */
 
 #ifndef SCERSUPPORT_H
 #define SCERSUPPORT_H
@@ -51,7 +51,7 @@ enum sce_rcapability {
     SCE_PBO,                    /**< Pixel buffer objects (PBO) support */
     SCE_VERTEX_SHADER_GLSL,     /**< GLSL vertex shader support */
     SCE_FRAGMENT_SHADER_GLSL,   /**< GLSL fragment shader support */
-    SCE_RG_SHADERS,             /**< Cg shaders support */
+    SCE_CG_SHADERS,             /**< Cg shaders support */
     SCE_OCCLUSION_QUERY,        /**< Occlusion queries support */
     SCE_MRT,                    /**< Multiple render targets (MRT) support */
     SCE_HW_INSTANCING,          /**< Hardware instancing support */
@@ -68,7 +68,7 @@ typedef enum sce_rcapability SCE_RCap;
 int SCE_RSupportInit (void);
 void SCE_RSupportQuit (void);
 
-int SCE_RFindExtension (const char*);
+int SCE_RGlewSupport (const char*);
 int SCE_RIsSupported (const char*);
 
 int SCE_RHasCap (SCE_RCap);

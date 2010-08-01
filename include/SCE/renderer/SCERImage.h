@@ -22,10 +22,10 @@
 #ifndef SCERIMAGE_H
 #define SCERIMAGE_H
 
-#include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCEGLee.h"
+#include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <SCE/utils/SCEUtils.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +56,7 @@ enum sce_rpixelformat {
 };
 typedef enum sce_rpixelformat SCE_RPixelFormat;
 
-/* TODO: tmp hack, GLee doesn't support this extension */
+/* TODO: tmp hack, actually GLee didn't support the extension */
 #define SCE_PXF_3DC /*GL_COMPRESSED_RGB_3DC_ATI*/ 0
 
 /**

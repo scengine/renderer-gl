@@ -20,8 +20,8 @@
    updated: 17/04/2010 */
 
 #include <string.h>
+#include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCEGLee.h"
 #include "SCE/renderer/SCERType.h"
 
 /* according to the definition in SCEType.h (TODO: ugly dependencie) */

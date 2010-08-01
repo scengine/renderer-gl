@@ -17,18 +17,18 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 31/01/2006
-   updated: 01/08/2009 */
+   updated: 01/08/2010 */
 
 #include <string.h>
+#include <GL/glew.h>            /* use of GLEW */
 #include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCEGLee.h"
 #include "SCE/renderer/SCERSupport.h"
 
 /**
- * \file SCECSupport.c
+ * \file SCERSupport.c
  * \copydoc extenstionsupport
  * \brief OpenGL extensions support managment
- * \file SCECSupport.h
+ * \file SCERSupport.h
  * \copydoc extenstionsupport
  * \brief OpenGL extensions support managment
  */
@@ -93,10 +93,10 @@ static void SCE_RCheckCaps (void)
     SCE_RIsSupported ("GL_ARB_shading_language_100");
 
 #if 0
-    caps[SCE_RG_SHADERS] =
-    SCE_RIsSupported ("..."); /* NOTE: a completer... ou pas ? */
+    caps[SCE_CG_SHADERS] =
+    SCE_RIsSupported ("...");
 #endif
-    caps[SCE_RG_SHADERS] = 0;
+    caps[SCE_CG_SHADERS] = 0;
 
     caps[SCE_OCCLUSION_QUERY] =
     SCE_RIsSupported ("GL_ARB_occlusion_query") ||
@@ -116,7 +116,6 @@ static void SCE_RCheckCaps (void)
  */
 int SCE_RSupportInit (void)
 {
-    /* recherche des extensions supportees */
     SCE_RCheckCaps ();
     return SCE_OK;
 }
@@ -124,6 +123,7 @@ void SCE_RSupportQuit (void)
 {
 }
 
+#if 0
 /**
  * \brief Search an occurrence of \p ext in glGetString(GL_EXTENSIONS)
  * \param ext an OpenGL extension name
@@ -137,10 +137,10 @@ int SCE_RFindExtension (const char *ext)
     return (strstr ((const char*)glGetString (GL_EXTENSIONS), ext) ?
             SCE_TRUE : SCE_FALSE);
 }
+#endif
 
-#if 0
 /**
- * \brief Wrapper for the GLEW's SCE_RIsSupported() function
+ * \brief Wrapper for the GLEW's glewIsSupported() function
  * \param ext an OpenGL extension name
  * \returns SCE_TRUE if both GLEW and the running OpenGL implementation supports
  *          the extension, SCE_FALSE otherwise
@@ -150,8 +150,9 @@ int SCE_RFindExtension (const char *ext)
 int SCE_RGlewSupport (const char *ext)
 {
     return glewIsSupported (ext);
+    /* what about glewGetExtension() ?
+       (which uses glGetString(GL_EXTENSIONS) deprecated call) */
 }
-#endif
 
 /**
  * \brief Checks if an OpenGL extension is supported by the running
@@ -163,7 +164,7 @@ int SCE_RGlewSupport (const char *ext)
  */
 int SCE_RIsSupported (const char *ext)
 {
-    return SCE_RFindExtension (ext);
+    return SCE_RGlewSupport (ext);
 }
 
 /**

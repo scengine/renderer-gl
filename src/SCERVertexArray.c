@@ -19,7 +19,7 @@
 /* created: 26/07/2009
    updated: 21/08/2009 */
 
-#include "SCE/renderer/SCEGLee.h"
+#include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERTexture.h" /* CGetMaxTextureUnits() */
 #include "SCE/renderer/SCERVertexArray.h"
@@ -38,10 +38,6 @@
  * \brief OpenGL vertex arrays
  * @{
  */
-
-/* NOTE: GLee doesn't define these names.. ? */
-#define glDrawArraysInstanced glDrawArraysInstancedARB
-#define glDrawElementsInstanced glDrawElementsInstancedARB
 
 static SCE_SList vaused;
 static int vao_used = SCE_FALSE;

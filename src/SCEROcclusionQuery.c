@@ -19,8 +19,8 @@
 /* created: 23/03/2008
    updated: 07/04/2008 */
 
+#include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCEGLee.h"
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCEROcclusionQuery.h"

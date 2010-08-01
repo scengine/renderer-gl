@@ -12,5 +12,4 @@ sce_include_renderer_HEADERS = SCERBuffer.h \
                                SCERShader.h \
                                SCERSupport.h \
                                SCERTexture.h \
-                               SCERType.h \
-                               SCEGLee.h
+                               SCERType.h

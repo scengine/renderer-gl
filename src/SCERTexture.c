@@ -20,6 +20,7 @@
    updated: 13/05/2010 */
 
 #include <string.h>
+#include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERSupport.h"

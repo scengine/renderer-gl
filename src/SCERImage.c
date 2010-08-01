@@ -20,7 +20,7 @@
    updated: 18/04/2010 */
 
 #include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCEGLee.h"
+#include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include "SCE/renderer/SCERType.h"

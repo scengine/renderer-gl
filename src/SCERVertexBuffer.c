@@ -19,12 +19,9 @@
 /* created: 29/07/2009
    updated: 18/04/2010 */
 
+#include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERVertexBuffer.h"
-
-/* NOTE: GLee doesn't define these names.. ? */
-#define glDrawArraysInstanced glDrawArraysInstancedARB
-#define glDrawElementsInstanced glDrawElementsInstancedARB
 
 #define SCE_BUFFER_OFFSET(p) ((char*)NULL + (p))
 

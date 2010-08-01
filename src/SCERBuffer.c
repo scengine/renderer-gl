@@ -20,6 +20,7 @@
    updated: 21/08/2009 */
 
 #include <string.h>             /* memcpy */
+#include <GL/glew.h>
 
 #include <SCE/utils/SCEUtils.h>  /* MIN/MAX */
 #include "SCE/renderer/SCERSupport.h"

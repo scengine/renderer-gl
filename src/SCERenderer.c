@@ -39,6 +39,19 @@
 static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 static unsigned int init_n = 0;
 
+
+static int SCE_RInitGlew (void)
+{
+    SCEenum err;
+    err = glewInit ();
+    if (err != GLEW_OK) {
+        SCEE_Log (6724);
+        SCEE_LogMsg ("failed to initialize GLEW: %s", glewGetErrorString (err));
+        return SCE_ERROR;
+    }
+    return SCE_OK;
+}
+
 int SCE_RInit (FILE *outlog, SCEbitfield flags)
 {
     int ret = SCE_OK;
@@ -51,6 +64,7 @@ int SCE_RInit (FILE *outlog, SCEbitfield flags)
     init_n++;
     if (init_n == 1) {
         if (SCE_Init_Core (outlog, flags) < 0 ||
+            SCE_RInitGlew () < 0 ||
             SCE_RTypeInit () < 0 ||
             SCE_RSupportInit () < 0 ||
             SCE_RBufferInit () < 0 ||
@@ -65,6 +79,7 @@ int SCE_RInit (FILE *outlog, SCEbitfield flags)
             SCE_RUseMaterial (NULL);
 
             /* enabling some default states */
+            /* TODO: it sucks and it is no longer in the core profile */
             glEnable (GL_NORMALIZE);
             glEnable (GL_CULL_FACE);
             glEnable (GL_DEPTH_TEST);
