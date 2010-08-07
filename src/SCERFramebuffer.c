@@ -24,16 +24,16 @@
 #include "SCE/renderer/SCERFramebuffer.h"
 
 /**
- * \file SCECFramebuffer.c
- * \copydoc coreframebuffer
+ * \file SCERFramebuffer.c
+ * \copydoc glframebuffer
  * 
- * \file SCECFramebuffer.h
- * \copydoc coreframebuffer
+ * \file SCERFramebuffer.h
+ * \copydoc glframebuffer
  */
 
 /**
- * \defgroup coreframebuffer Frame Buffer Objects and render to texture
- * \ingroup core
+ * \defgroup glframebuffer Frame Buffer Objects and render to texture
+ * \ingroup renderer-gl
  * \internal
  *
  * Offers frame buffers' managment functions for render to texture
@@ -420,6 +420,7 @@ SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer *fb, SCEuint id)
 
 /**
  * \brief Activate a render buffer
+ * \param fb a framebuffer
  * \param id the render target's identifier
  * \param actived boolean which indicates the status of \p id
  */

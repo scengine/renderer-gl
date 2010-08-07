@@ -36,7 +36,7 @@
 
 /**
  * \defgroup rtexture Texture
- * \ingroup renderer
+ * \ingroup renderer-gl
  * \internal
  * \brief Functions that gives a full support of textures managment
  */
@@ -380,7 +380,8 @@ int SCE_RGetMaxTexture3DSize (void)
 
 /**
  * \brief Sets the filter of a texture when it goes far away from the view point
- * \param level is the level of filtering, can set SCE_TEX_NEAREST,
+ * \param tex a texture
+ * \param filter the filtering type, can set SCE_TEX_NEAREST,
  * SCE_TEX_LINEAR, SCE_TEX_BILINEAR, SCE_TEX_TRILINEAR.
  *
  * \sa SCE_RPixelizeTexture()
@@ -392,6 +393,7 @@ void SCE_RSetTextureFilter (SCE_RTexture *tex, SCEint filter)
 
 /**
  * \brief Defines if a texture is pixelized when is near
+ * \param tex a testure
  * \param p can be SCE_TRUE or SCE_FALSE
  *
  * \sa SCE_RSetTextureFilter()

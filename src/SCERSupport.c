@@ -35,7 +35,7 @@
 
 /**
  * \defgroup extenstionsupport OpenGL extensions support managment
- * \ingroup core
+ * \ingroup renderer-gl
  * \brief OpenGL extensions support managment
  * 
  * This module is usefull to determine if an OpenGL extension is supported by

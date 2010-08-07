@@ -27,15 +27,15 @@
 #include "SCE/renderer/SCERBuffer.h"
 
 /**
- * \file SCECBuffer.c
- * \copydoc
- * \file SCECBuffer.h
- * \copydoc
+ * \file SCERBuffer.c
+ * \copydoc glbuffers
+ * \file SCERBuffer.h
+ * \copydoc glbuffers
  */
 
 /**
- * \defgroup corebuffers GL buffers
- * \ingroup core
+ * \defgroup glbuffers GL buffers
+ * \ingroup renderer-gl
  * \internal
  * \brief OpenGL buffers generic management
  * @{
@@ -173,6 +173,7 @@ void SCE_RModifiedBuffer (SCE_RBuffer *buf, const size_t *range)
 }
 /**
  * \brief Mark a buffer as unmodified: will not be updated by
+ * \param buf a buffer
  * SCE_RUpdateModifiedBuffers()
  * \sa SCE_RModifiedBuffer(), SCE_RModifiedBufferData()
  */
@@ -183,6 +184,7 @@ void SCE_RUnmodifiedBuffer (SCE_RBuffer *buf)
 }
 /**
  * \brief Defines a buffer data as modified
+ * \param data a buffer's data to add
  * \param range modified range in bytes, NULL means 'all'
  * \sa SCE_RUpdateModifiedBuffers(), SCE_RUpdateBuffer(),
  * SCE_RUnmodifiedBufferData()
@@ -217,6 +219,7 @@ void SCE_RModifiedBufferData (SCE_RBufferData *data, const size_t *range)
 }
 /**
  * \brief Defines a buffer data as unmodified (will not be updated)
+ * \param data a buffer's data to add
  * \sa SCE_RModifiedBufferData()
  */
 void SCE_RUnmodifiedBufferData (SCE_RBufferData *data)
@@ -228,6 +231,8 @@ void SCE_RUnmodifiedBufferData (SCE_RBufferData *data)
 
 /**
  * \brief Adds a buffer data to a buffer
+ * \param buf a buffer
+ * \param data the buffer's data to add
  * \sa SCE_RAddBufferNewData(), SCE_RRemoveBufferData()
  */
 void SCE_RAddBufferData (SCE_RBuffer *buf, SCE_RBufferData *data)
@@ -239,6 +244,7 @@ void SCE_RAddBufferData (SCE_RBuffer *buf, SCE_RBufferData *data)
 }
 /**
  * \brief Create and adds a new buffer data
+ * \param buf a buffer
  * \param s size of the new buffer data in bytes
  * \param p pointer to the data of the buffer data
  * \sa SCE_RAddBufferData(), SCE_RRemoveBufferData()
@@ -258,6 +264,7 @@ SCE_RBufferData* SCE_RAddBufferNewData (SCE_RBuffer *buf, size_t s, void *p)
 }
 /**
  * \brief Removes a buffer data from its buffer
+ * \param data a buffer's data
  * \sa SCE_RAddBufferData(), SCE_RAddBufferNewData()
  */
 void SCE_RRemoveBufferData (SCE_RBufferData *data)
@@ -270,6 +277,7 @@ void SCE_RRemoveBufferData (SCE_RBufferData *data)
 
 /**
  * \brief Builds a buffer
+ * \param buf a buffer
  * \param target type of the buffer (todo: use an enum)
  * \param usage buffer usage
  */
@@ -397,6 +405,7 @@ void SCE_RUpdateModifiedBuffers (void)
 
 /**
  * \brief Sets up a buffer as activated
+ * \param buf a buffer
  */
 void SCE_RUseBuffer (SCE_RBuffer *buf)
 {

@@ -25,15 +25,15 @@
 #include "SCE/renderer/SCERVertexArray.h"
 
 /**
- * \file SCECVertexArray.c
- * \copydoc
- * \file SCECVertexArray.h
- * \copydoc
+ * \file SCERVertexArray.c
+ * \copydoc vertexarray
+ * \file SCERVertexArray.h
+ * \copydoc vertexarray
  */
 
 /**
  * \defgroup vertexarray GL vertex arrays
- * \ingroup core
+ * \ingroup renderer-gl
  * \internal
  * \brief OpenGL vertex arrays
  * @{

@@ -26,18 +26,18 @@
 #include "SCE/renderer/SCEROcclusionQuery.h"
 
 /**
- * \file SCECOcclusionQuery.c
+ * \file SCEROcclusionQuery.c
  * \copydoc occlusionquery
  * \brief Occlusion queries managment
  * 
- * \file SCECOcclusionQuery.h
+ * \file SCEROcclusionQuery.h
  * \copydoc occlusionquery
  * \brief Occlusion queries managment
  */
 
 /**
  * \defgroup occlusionquery Occlusion queries managment
- * \ingroup core
+ * \ingroup renderer-gl
  * \brief Occlusion queries managment
  */
 

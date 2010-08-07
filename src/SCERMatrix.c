@@ -22,18 +22,18 @@
 #include "SCE/renderer/SCERMatrix.h"
 
 /**
- * \file SCECMatrix.c
- * \copydoc corematrix
+ * \file SCERMatrix.c
+ * \copydoc glmatrix
  * \brief OpenGL's matrices managment
  * 
- * \file SCECMatrix.h
- * \copydoc corematrix
+ * \file SCERMatrix.h
+ * \copydoc glmatrix
  * \brief OpenGL's matrices managment
  */
 
 /**
- * \defgroup corematrix OpenGL's matrices managment
- * \ingroup core
+ * \defgroup glmatrix OpenGL's matrices managment
+ * \ingroup renderer-gl
  * \internal
  * \brief Manage OpenGL's matrices
  */

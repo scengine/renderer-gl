@@ -37,7 +37,7 @@
 
 /**
  * \defgroup rimage Images managment using DevIL library
- * \ingroup renderer
+ * \ingroup renderer-gl
  * \internal
  * \brief Interfacing the DevIL's API and implement some features to be ready
  * for the core textures manager \c coretexture
