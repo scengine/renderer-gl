@@ -102,7 +102,9 @@ void SCE_RQuit (void)
         SCEE_LogMsg ("failed to lock initialization mutex");
     } else {
         init_n--;
-        if (init_n < 1) {
+        if (init_n < 0) {
+            init_n = 0;         /* user made an useless call */
+        } else if (init_n == 0) {
             SCE_ROcclusionQueryQuit ();
             SCE_RShaderQuit ();
             SCE_RFramebufferQuit ();
