@@ -113,6 +113,7 @@ void SCE_RQuit (void)
             SCE_RVertexArrayQuit ();
             SCE_RBufferQuit ();
             SCE_RSupportQuit ();
+            SCE_Quit_Core ();
         }
         pthread_mutex_unlock (&init_mutex);
     }
