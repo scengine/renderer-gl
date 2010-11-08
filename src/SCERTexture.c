@@ -720,11 +720,9 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
-        d->target = target;  /* assignation du target */
         d->canfree = canfree;
-        d->user = SCE_FALSE;
 
-        SCE_List_Appendl (&tex->data[i], &d->it);
+        SCE_RAddTextureTexData (tex, target, d, SCE_TRUE);
         d = NULL;
     }
 
