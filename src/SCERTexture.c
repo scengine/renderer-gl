@@ -81,6 +81,10 @@ static int force_fmt = SCE_FALSE, forced_fmt;
 /* nombre de textures utilisees de chaque type */
 static int n_textype[4];
 
+/* anisotropic level for created textures */
+static SCEfloat aniso_level = 1.0;
+
+
 static void* SCE_RLoadTextureResource (const char*, int, void*);
 
 /**
@@ -132,6 +136,22 @@ void SCE_RTextureQuit (void)
 int SCE_RGetTextureResourceType (void)
 {
     return resource_type;
+}
+
+void SCE_RSetTextureAnisotropic (SCEfloat level)
+{
+    SCEfloat max;
+    /* TODO: missing epsilon */
+#define EPSILON 0.001
+    glGetFloatv (GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
+    if (level > 1.0 - EPSILON && level < max + EPSILON)
+        aniso_level = level;
+}
+float SCE_RGetTextureMaxAnisotropic (void)
+{
+    SCEfloat max;
+    glGetFloatv (GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
+    return max;
 }
 
 
@@ -1136,11 +1156,12 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
         n = 6;
 
     SCE_RBindTexture (tex);
+    glTexParameterf (tex->target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso_level);
     if (use_mipmap) {
         if (hw_mipmap && SCE_RHasCap (SCE_TEX_HW_GEN_MIPMAP)) {
             SCE_RSetTextureParam (tex, GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);
             for (i = 0; i < n; i++)
-                make (t, &tex->data[i], ((n > 1) ? SCE_TEX_POSX+i:0), SCE_FALSE);
+                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i:0), SCE_FALSE);
         } else {
             if (hw_mipmap)
                 SCEE_SendMsg ("SCERTexture: hardware mipmap "

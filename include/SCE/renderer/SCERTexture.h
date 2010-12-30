@@ -132,6 +132,9 @@ void SCE_RTextureQuit (void);
 
 int SCE_RGetTextureResourceType (void);
 
+void SCE_RSetTextureAnisotropic (SCEfloat);
+float SCE_RGetTextureMaxAnisotropic (void);
+
 void SCE_RInitTexData (SCE_RTexData*);
 SCE_RTexData* SCE_RCreateTexData (void);
 SCE_RTexData* SCE_RCreateTexDataFromImage (SCE_RImage*);
