@@ -146,7 +146,7 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
 /**
  * \brief Adds an existing texture as a new render target for \p fb
  * \param fb the frame buffer to which to add the new texture
- * \param id render target's identifier (SCE_ROLOR_BUFFERn, SCE_DEPTH_BUFFER
+ * \param id render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
  * or SCE_STENCIL_BUFFER)
  * \param target used only for cubemaps, determines the face
  * of the cubemap on which to make the render, can be 0
@@ -230,9 +230,9 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
                                target, tex->id, mipmap);
     /* si aucune color render texture n'existe, on desactive le tampon */
     if (id == SCE_DEPTH_BUFFER &&
-        !fb->buffers[SCE_ROLOR_BUFFER0].tex &&
-        !fb->buffers[SCE_ROLOR_BUFFER1].tex &&
-        !fb->buffers[SCE_ROLOR_BUFFER2].tex) { /* etc. */
+        !fb->buffers[SCE_COLOR_BUFFER0].tex &&
+        !fb->buffers[SCE_COLOR_BUFFER1].tex &&
+        !fb->buffers[SCE_COLOR_BUFFER2].tex) { /* etc. */
         glDrawBuffer (GL_NONE);
     }
     glReadBuffer (GL_NONE);
@@ -337,7 +337,7 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
  * \brief Creates a new render texture and add it as a new render target to the
  * given frame buffer
  * \param fb the frame buffer to which to add the new render texture
- * \param id render target's identifier (SCE_ROLOR_BUFFERn, SCE_DEPTH_BUFFER
+ * \param id render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
  * or SCE_STENCIL_BUFFER)
  * \param pxf internal pixel format of the new texture,
  * can be set to 0 or lesser
@@ -408,7 +408,7 @@ int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCEuint id, int pxf,
 /**
  * \brief Gets one of the render textures of a frame buffer
  * \param fb the frame buffer to which get the texture
- * \param id the render target's identifier (SCE_ROLOR_BUFFERn, SCE_DEPTH_BUFFER
+ * \param id the render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
  * or SCE_STENCIL_BUFFER)
  * \returns the render texture targeted by \p id
  */

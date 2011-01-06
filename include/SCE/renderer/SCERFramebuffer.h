@@ -34,14 +34,14 @@ extern "C" {
  */
 
 /* types de buffers */
-#define SCE_ROLOR_BUFFER0 0
-#define SCE_ROLOR_BUFFER1 1
-#define SCE_ROLOR_BUFFER2 2
-#define SCE_ROLOR_BUFFER3 3
-#define SCE_ROLOR_BUFFER4 4
-#define SCE_ROLOR_BUFFER5 5
-#define SCE_ROLOR_BUFFER6 6
-#define SCE_ROLOR_BUFFER7 7
+#define SCE_COLOR_BUFFER0 0
+#define SCE_COLOR_BUFFER1 1
+#define SCE_COLOR_BUFFER2 2
+#define SCE_COLOR_BUFFER3 3
+#define SCE_COLOR_BUFFER4 4
+#define SCE_COLOR_BUFFER5 5
+#define SCE_COLOR_BUFFER6 6
+#define SCE_COLOR_BUFFER7 7
 #define SCE_DEPTH_BUFFER 8
 #define SCE_STENCIL_BUFFER 9
 /* nombre de render buffer differents */
@@ -50,7 +50,7 @@ extern "C" {
 #define SCE_MAX_ATTACHMENT_BUFFERS 8 /* TODO: a mettre a jour regulierement */
 
 /* pour la compatibilite */
-#define SCE_ROLOR_BUFFER SCE_ROLOR_BUFFER0
+#define SCE_COLOR_BUFFER SCE_COLOR_BUFFER0
 
 
 /* buffer de rendu, soit vers un ID, soit vers une texture */
