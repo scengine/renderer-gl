@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 17/04/2010 */
+   updated: 13/01/2011 */
 
 #ifndef SCERENDERER_H
 #define SCERENDERER_H
@@ -44,8 +44,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define SCE_RINIT_CG_SHADERS (0x00000001)
 
 int SCE_RInit (FILE*, SCEbitfield);
 void SCE_RQuit (void);

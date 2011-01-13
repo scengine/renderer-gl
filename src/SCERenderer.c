@@ -72,7 +72,7 @@ int SCE_RInit (FILE *outlog, SCEbitfield flags)
             SCE_RImageInit () < 0 ||
             SCE_RTextureInit () < 0 ||
             SCE_RFramebufferInit () < 0 ||
-            SCE_RShaderInit (flags & SCE_RINIT_CG_SHADERS) < 0 ||
+            SCE_RShaderInit () < 0 ||
             SCE_ROcclusionQueryInit () < 0) {
             ret = SCE_ERROR;
         } else {

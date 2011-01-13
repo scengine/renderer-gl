@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERType.h"
 
-/* according to the definition in SCEType.h (TODO: ugly dependencie) */
 SCEenum sce_rgltypes[9] = {
     GL_BYTE,
     GL_UNSIGNED_BYTE,
@@ -37,7 +36,6 @@ SCEenum sce_rgltypes[9] = {
     GL_UNSIGNED_INT             /* SCE_SIZE_T */
 };
 
-/* according to the definition in SCEType.h (TODO: ugly dependencie) */
 SCEenum sce_rprimtypes[5] = {
     GL_POINTS,
     GL_LINES,

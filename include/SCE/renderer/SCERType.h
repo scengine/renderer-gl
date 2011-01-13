@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 17/04/2010 */
+   updated: 13/01/2011 */
 
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
@@ -26,11 +26,6 @@
 #include <GL/glew.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
-
-#ifdef SCE_USE_CG
- #include <Cg/cg.h>
- #include <Cg/cgGL.h>
-#endif
 
 #include <SCE/utils/SCEUtils.h>
 
