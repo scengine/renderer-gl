@@ -255,14 +255,36 @@ void SCE_RSetProgramParam4fv (SCEint idx, size_t size, const float *val)
 {
     glUniform4fv (idx, size, val);
 }
+
+/**
+ * \brief Specify the value of a uniform 2x2 matrix of a shader
+ * 
+ * \param idx the uniform matrix index
+ * \param size the number of matrices if the uniform is an array, 1 otherwise
+ * \param mat pointer to the matrix
+ */
 void SCE_RSetProgramMatrix2 (SCEint idx, size_t size, const float *mat)
 {
     glUniformMatrix2fv (idx, size, SCE_TRUE, mat);
 }
+/**
+ * \brief Specify the value of a uniform 3x3 matrix of a shader
+ * 
+ * \param idx the uniform matrix index
+ * \param size the number of matrices if the uniform is an array, 1 otherwise
+ * \param mat pointer to the matrix
+ */
 void SCE_RSetProgramMatrix3 (SCEint idx, size_t size, const float *mat)
 {
     glUniformMatrix3fv (idx, size, SCE_TRUE, mat);
 }
+/**
+ * \brief Specify the value of a uniform 4x4 matrix of a shader
+ * 
+ * \param idx the uniform matrix index
+ * \param size the number of matrices if the uniform is an array, 1 otherwise
+ * \param mat pointer to the matrix
+ */
 void SCE_RSetProgramMatrix4 (SCEint idx, size_t size, const float *mat)
 {
     glUniformMatrix4fv (idx, size, SCE_TRUE, mat);
