@@ -35,11 +35,6 @@ static const char *sce_typename[2] = {
     "pixel"
 };
 
-static int SCE_RIsPixelShader (SCEenum type)
-{
-    return (type == SCE_PIXEL_SHADER);
-}
-
 
 int SCE_RShaderInit (void)
 {
