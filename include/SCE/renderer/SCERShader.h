@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 17/06/2011 */
+   updated: 18/06/2011 */
 
 #ifndef SCERSHADER_H
 #define SCERSHADER_H
 
+#include <SCE/core/SCECore.h>  /* SCE_EPrimitiveType */
 #include "SCE/renderer/SCERType.h"
 
 #ifdef __cplusplus
@@ -34,6 +35,7 @@ extern "C" {
 typedef enum {
   SCE_VERTEX_SHADER,
   SCE_PIXEL_SHADER,
+  SCE_GEOMETRY_SHADER,
 } SCE_RShaderType;
 
 /**
@@ -83,8 +85,10 @@ void SCE_RUseProgram (SCE_RProgram*);
 void SCE_RDisableShaderGLSL (void);
 #endif
 
-SCEint SCE_RGetProgramIndex (SCE_RProgram*, const char*);
+int SCE_RSetProgramInputPrimitive (SCE_RProgram*, SCE_EPrimitiveType, int);
+int SCE_RSetProgramOutputPrimitive (SCE_RProgram*, SCE_EPrimitiveType);
 
+SCEint SCE_RGetProgramIndex (SCE_RProgram*, const char*);
 SCEint SCE_RGetProgramAttribIndex (SCE_RProgram*, const char*);
 
 void SCE_RSetProgramParam (SCEint, int);

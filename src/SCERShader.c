@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 17/06/2011 */
+   updated: 18/06/2011 */
 
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERSupport.h"
@@ -25,14 +25,16 @@
 
 #include "SCE/renderer/SCERShader.h"
 
-static SCEenum sce_gltype[2] = {
+static SCEenum sce_gltype[3] = {
     GL_VERTEX_SHADER,
-    GL_FRAGMENT_SHADER
+    GL_FRAGMENT_SHADER,
+    GL_GEOMETRY_SHADER
 };
 
-static const char *sce_typename[2] = {
+static const char *sce_typename[3] = {
     "vertex",
-    "pixel"
+    "pixel",
+    "geometry"
 };
 
 
@@ -222,6 +224,58 @@ void SCE_RDisableShaderGLSL (void)
 #endif
 
 
+static SCEenum SCE_RAdjacentPrim (SCEenum prim)
+{
+  switch (prim) {
+  case GL_LINES: return GL_LINES_ADJACENCY;
+  case GL_TRIANGLES: return GL_TRIANGLES_ADJACENCY;
+  default: return prim;    /* adjacency not supported for other primitives */
+  }
+}
+
+/**
+ * \brief Setup input primitive type for the geometry shader
+ *
+ * \param prog a GLSL program
+ * \param prim desired input primitive type
+ * \param adj set adjacent primitives available into the geometry shader
+ * \returns SCE_ERROR on error, SCE_OK otherwise
+ */
+int SCE_RSetProgramInputPrimitive (SCE_RProgram *prog,
+                                   SCE_EPrimitiveType prim, int adj)
+{
+    SCEenum p = sce_rprimtypes[prim];
+    if (adj)
+        p = SCE_RAdjacentPrim (p);
+    glProgramParameteri (prog->id, GL_GEOMETRY_INPUT_TYPE_EXT, p);
+    if (prog->compiled) {
+        /* automatic relink if the shader was already linked */
+        prog->compiled = SCE_FALSE;
+        return SCE_RBuildProgram (prog);
+    }
+    return SCE_OK;
+}
+/**
+ * \brief Setup output primitive type for the geometry shader
+ *
+ * \param prog a GLSL program
+ * \param prim desired output primitive type
+ * \returns SCE_ERROR on error, SCE_OK otherwise
+ */
+int SCE_RSetProgramOutputPrimitive (SCE_RProgram *prog,
+                                    SCE_EPrimitiveType prim)
+{
+    SCEenum p = sce_rprimtypes[prim];
+    glProgramParameteri (prog->id, GL_GEOMETRY_OUTPUT_TYPE_EXT, p);
+    if (prog->compiled) {
+        /* automatic relink if the shader was already linked */
+        prog->compiled = SCE_FALSE;
+        return SCE_RBuildProgram (prog);
+    }
+    return SCE_OK;
+}
+
+
 SCEint SCE_RGetProgramIndex (SCE_RProgram *prog, const char *name)
 {
     return glGetUniformLocation (prog->id, name);
@@ -230,7 +284,6 @@ SCEint SCE_RGetProgramAttribIndex (SCE_RProgram *prog, const char *name)
 {
     return glGetAttribLocation (prog->id, name);
 }
-
 
 void SCE_RSetProgramParam (SCEint idx, int val)
 {
