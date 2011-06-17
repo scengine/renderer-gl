@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 13/01/2011 */
+   updated: 17/06/2011 */
 
 #ifndef SCERSHADER_H
 #define SCERSHADER_H
@@ -28,25 +28,33 @@
 extern "C" {
 #endif
 
-/* constantes propres a CShader */
-#define SCE_VERTEX_SHADER 1
-#define SCE_PIXEL_SHADER 2
+/**
+ * \brief Available shader types.
+ */
+typedef enum {
+  SCE_VERTEX_SHADER,
+  SCE_PIXEL_SHADER,
+} SCE_RShaderType;
 
-/* structure d'un shader GLSL */
+/**
+ * \brief GL shader
+ */
 typedef struct sce_rshaderglsl SCE_RShaderGLSL;
 struct sce_rshaderglsl {
-    SCEuint id;     /* identifiant opengl */
-    SCEenum type;   /* type du shader (vertex ou fragment) */
-    SCEchar *data;  /* donnes */
-    int is_pixelshader;
-    int compiled;
+    SCEuint id;                 /**< OpenGL identifier */
+    SCE_RShaderType type;       /**< Type */
+    SCEenum gltype;             /**< OpenGL type constant */
+    SCEchar *data;              /**< Source code */
+    int compiled;               /**< Is the shader compiled? */
 };
 
-/* structure d'un programme regroupant des shaders GLSL */
+/**
+ * \brief GL program
+ */
 typedef struct sce_rprogram SCE_RProgram;
 struct sce_rprogram {
-    SCEuint id;                 /**< OpenGL ID */
-    int compiled;
+    SCEuint id;                 /**< OpenGL identifier */
+    int compiled;               /**< Is the program linked? */
 };
 
 

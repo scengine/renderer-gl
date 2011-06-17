@@ -17,13 +17,23 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 13/01/2011 */
+   updated: 17/06/2011 */
 
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERType.h"
 
 #include "SCE/renderer/SCERShader.h"
+
+static SCEenum sce_gltype[2] = {
+    GL_VERTEX_SHADER,
+    GL_FRAGMENT_SHADER
+};
+
+static const char *sce_typename[2] = {
+    "vertex",
+    "pixel"
+};
 
 static int SCE_RIsPixelShader (SCEenum type)
 {
@@ -43,6 +53,7 @@ void SCE_RShaderQuit (void)
 SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCEenum type)
 {
     SCE_RShaderGLSL *shader = NULL;
+
     shader = SCE_malloc (sizeof *shader);
     if (!shader) {
         SCEE_LogSrc ();
@@ -51,14 +62,13 @@ SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCEenum type)
 
     shader->data = NULL;
     shader->compiled = SCE_FALSE;
-    shader->is_pixelshader = SCE_RIsPixelShader (type);
-    shader->type = (shader->is_pixelshader) ?
-                    GL_FRAGMENT_SHADER : GL_VERTEX_SHADER;
+    shader->type = type;
+    shader->gltype = sce_gltype[type];
 
-    shader->id = glCreateShader (shader->type);
+    shader->id = glCreateShader (shader->gltype);
     if (shader->id == 0) {
         SCEE_Log (SCE_ERROR);
-        SCEE_LogMsg ("I can't create a shader, what's the fuck ?");
+        SCEE_LogMsg ("I can't create a shader, what's the fuck?");
         SCE_free (shader);
         return NULL;
     }
@@ -117,7 +127,7 @@ int SCE_RBuildShaderGLSL (SCE_RShaderGLSL *shader)
         glGetShaderInfoLog (shader->id, loginfo_size, &loginfo_size, loginfo);
 
         SCEE_LogMsg ("error while compiling GLSL %s shader :\n%s",
-                       shader->is_pixelshader ? "pixel":"vertex", loginfo);
+                     sce_typename[shader->type], loginfo);
         SCE_free (loginfo);
         return SCE_ERROR;
     }
@@ -136,7 +146,6 @@ SCE_RProgram* SCE_RCreateProgram (void)
     }
 
     prog->id = glCreateProgram ();
-    /* et on teste pas la valeur de retour ?? */
     prog->compiled = SCE_FALSE;
 
     return prog;
@@ -159,7 +168,7 @@ int SCE_RSetProgramShader (SCE_RProgram *prog, SCE_RShaderGLSL *shader,
     else
         glDetachShader (prog->id, shader->id);
 
-    /* il faut le recompiler pour appliquer les modifications! */
+    /* program need to be relinked in order to apply the changes */
     prog->compiled = SCE_FALSE;
     return SCE_OK;
 }
@@ -168,15 +177,12 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
 {
     int status = GL_TRUE;
     int loginfo_size = 0;
-    char *loginfo = NULL;  /* chaine du log d'erreur */
+    char *loginfo = NULL;
 
-    /* lie le program a ses shaders 'attaches' */
     glLinkProgram (prog->id);
 
-    /* recuperation du status du liage */
     glGetProgramiv (prog->id, GL_LINK_STATUS, &status);
     if (status != GL_TRUE) {
-        /* erreur de 'linkage', recuperation du message d'erreur */
         SCEE_Log (SCE_INVALID_OPERATION);
 
         glGetProgramiv (prog->id, GL_INFO_LOG_LENGTH, &loginfo_size);
@@ -188,7 +194,7 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
         memset (loginfo, '\0', loginfo_size + 1);
         glGetProgramInfoLog (prog->id, loginfo_size, &loginfo_size, loginfo);
 
-        SCEE_LogMsg ("can't link program, reason : %s", loginfo);
+        SCEE_LogMsg ("can't link program, reason: %s", loginfo);
 
         SCE_free (loginfo);
         return SCE_ERROR;
