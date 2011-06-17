@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 13/01/2011 */
+   updated: 18/06/2011 */
 
 #ifndef SCERENDERER_H
 #define SCERENDERER_H
@@ -47,6 +47,8 @@ extern "C" {
 
 int SCE_RInit (FILE*, SCEbitfield);
 void SCE_RQuit (void);
+
+const char* SCE_RGetError (void);
 
 void SCE_RClearColor (float, float, float, float);
 void SCE_RClearDepth (float);

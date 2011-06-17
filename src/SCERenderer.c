@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 17/04/2010 */
+   updated: 18/06/2011 */
 
 #include <pthread.h>
 #include "SCE/renderer/SCERenderer.h"
@@ -119,6 +119,22 @@ void SCE_RQuit (void)
     }
 }
 
+const char* SCE_RGetError (void)
+{
+    SCEenum err = glGetError ();
+
+    switch (err) {
+    case GL_NO_ERROR: return NULL;
+    case GL_INVALID_ENUM: return "invalid enum";
+    case GL_INVALID_VALUE: return "invalid value";
+    case GL_INVALID_OPERATION: return "invalid operation";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return "invalid framebuffer operation";
+    case GL_OUT_OF_MEMORY: return "out of memory";
+    }
+
+    return "mysterious error happened";
+}
 
 /**
  * \brief Defines the color used for cleared the color buffer
