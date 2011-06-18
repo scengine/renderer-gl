@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 07/03/2006
-   updated: 17/04/2010 */
+   updated: 18/06/2011 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -36,9 +36,10 @@ SCEenum sce_rgltypes[9] = {
     GL_UNSIGNED_INT             /* SCE_SIZE_T */
 };
 
-SCEenum sce_rprimtypes[5] = {
+SCEenum sce_rprimtypes[6] = {
     GL_POINTS,
     GL_LINES,
+    GL_LINE_STRIP,
     GL_TRIANGLES,
     GL_TRIANGLE_STRIP,
     GL_TRIANGLE_FAN

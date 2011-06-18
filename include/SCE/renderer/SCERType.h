@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 13/01/2011 */
+   updated: 18/06/2011 */
 
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 extern SCEenum sce_rgltypes[9];
-extern SCEenum sce_rprimtypes[5];
+extern SCEenum sce_rprimtypes[6];
 
 /* TODO: what the hell are these doing here?? */
 /* types de culling */
