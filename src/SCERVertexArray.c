@@ -233,7 +233,7 @@ void SCE_RSetVertexArrayData (SCE_RVertexArray *va, SCE_SGeometryArrayData *data
         va->set = SCE_RSetVANor;
         va->unset = SCE_RUnsetVANor;
         break;
-    case SCE_ROLOR:
+    case SCE_COLOR:
         va->set = SCE_RSetVACol;
         va->unset = SCE_RUnsetVACol;
         break;
