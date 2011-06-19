@@ -41,31 +41,6 @@
 /** @{ */
 
 /**
- * \brief Loads identidy of the active matrix
- * 
- * \see SCE_RSetActiveMatrix()
- */
-void SCE_RLoadIdentityMatrix (void)
-{
-    glLoadIdentity ();
-}
-
-/**
- * \brief Calls glPushMatrix()
- */
-void SCE_RPushMatrix (void)
-{
-    glPushMatrix ();
-}
-/**
- * \brief Calls glPopMatrix()
- */
-void SCE_RPopMatrix (void)
-{
-    glPopMatrix ();
-}
-
-/**
  * \brief Sets the active matrix
  * \param matrix the matrix to activate. Can be one of SCE_MAT_MODELVIEW,
  *               SCE_MAT_PROJECTION or SCE_MAT_TEXTURE.
@@ -86,16 +61,6 @@ SCE_RMatrix SCE_RGetActiveMatrix (void)
     return matrix;
 }
 
-/**
- * \brief Multiplies the active matrix
- * \param m a 4*4 matrix to multily with
- * 
- * This function multiplies the active matrix by the given one.
- */
-void SCE_RMultMatrix (const float *m)
-{
-    glMultTransposeMatrixf (m);
-}
 void SCE_RLoadMatrix (const float *m)
 {
     glLoadTransposeMatrixf (m);

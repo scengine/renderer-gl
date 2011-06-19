@@ -38,15 +38,11 @@ enum sce_rmatrix {
 };
 typedef enum sce_rmatrix SCE_RMatrix;
 
-void SCE_RLoadIdentityMatrix (void);
-
-void SCE_RPushMatrix (void);
-void SCE_RPopMatrix (void);
+#define SCE_NUM_MATRICES 3
 
 void SCE_RSetActiveMatrix (SCE_RMatrix);
 SCE_RMatrix SCE_RGetActiveMatrix (void);
 
-void SCE_RMultMatrix (const float*);
 void SCE_RLoadMatrix (const float*);
 
 void SCE_RGetMatrix (int, float*);
