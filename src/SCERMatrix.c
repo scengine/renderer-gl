@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 09/03/2008 */
+   updated: 19/06/2011 */
 
 #include "SCE/renderer/SCERMatrix.h"
 
@@ -40,9 +40,6 @@
 
 /** @{ */
 
-
-/* ajoute le 02/07/2007 */
-/* revise le 09/03/2008 */
 /**
  * \brief Loads identidy of the active matrix
  * 
@@ -53,7 +50,6 @@ void SCE_RLoadIdentityMatrix (void)
     glLoadIdentity ();
 }
 
-/* revise le 09/03/2008 */
 /**
  * \brief Calls glPushMatrix()
  */
@@ -61,7 +57,6 @@ void SCE_RPushMatrix (void)
 {
     glPushMatrix ();
 }
-/* revise le 09/03/2008 */
 /**
  * \brief Calls glPopMatrix()
  */
@@ -70,7 +65,6 @@ void SCE_RPopMatrix (void)
     glPopMatrix ();
 }
 
-/* revise le 09/03/2008 */
 /**
  * \brief Sets the active matrix
  * \param matrix the matrix to activate. Can be one of SCE_MAT_MODELVIEW,
@@ -80,7 +74,6 @@ void SCE_RSetActiveMatrix (SCEenum matrix)
 {
     glMatrixMode (matrix);
 }
-/* revise le 09/03/2008 */
 /**
  * \brief Gets the active matrix
  * \return the activate matrix. Can be one of SCE_MAT_MODELVIEW,
@@ -93,7 +86,6 @@ int SCE_RGetActiveMatrix (void)
     return matrix;
 }
 
-/* revise le 09/03/2008 */
 /**
  * \brief Multiplies the active matrix
  * \param m a 4*4 matrix to multily with
@@ -104,16 +96,11 @@ void SCE_RMultMatrix (const float *m)
 {
     glMultTransposeMatrixf (m);
 }
-/* revise le 09/03/2008 */
-/** 
- * 
- */
 void SCE_RLoadMatrix (const float *m)
 {
     glLoadTransposeMatrixf (m);
 }
 
-/* revise le 09/03/2008 */
 /**
  * \brief Gets a matrix
  * \param matrix whitch matrix to get. Can be one of SCE_MAT_MODELVIEW,
