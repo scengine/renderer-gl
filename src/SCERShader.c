@@ -48,7 +48,7 @@ void SCE_RShaderQuit (void)
 }
 
 
-SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCEenum type)
+SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCE_RShaderType type)
 {
     SCE_RShaderGLSL *shader = NULL;
 

@@ -82,8 +82,7 @@ struct sce_rprogram {
 int SCE_RShaderInit (void);
 void SCE_RShaderQuit (void);
 
-/* TODO: use SCE_RShaderType type */
-SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCEenum);
+SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCE_RShaderType);
 
 void SCE_RDeleteShaderGLSL (SCE_RShaderGLSL*);
 
