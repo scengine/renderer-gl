@@ -44,36 +44,6 @@ void SCE_RLoadMatrix (const float*);
 
 void SCE_RGetMatrix (int, float*);
 
-
-void SCE_RTranslateMatrix (float, float, float) SCE_GNUC_DEPRECATED;
-
-void SCE_RRotateMatrix (float, float, float, float) SCE_GNUC_DEPRECATED;
-
-void SCE_RScaleMatrix (float, float, float) SCE_GNUC_DEPRECATED;
-
-void SCE_RTranslateMatrixv (float*) SCE_GNUC_DEPRECATED;
-void SCE_RRotateMatrixv (float, float*) SCE_GNUC_DEPRECATED;
-void SCE_RScaleMatrixv (float*) SCE_GNUC_DEPRECATED;
-
-#if 0
-void SCE_RLook3D (
-  float, float, float,
-  float, float, float,
-  float, float, float);
-
-void SCE_RLook3Dv (const float*, const float*, const float*);
-#endif
-
-void SCE_RSetFrustumMatrix (
-  GLdouble, GLdouble,
-  GLdouble, GLdouble,
-  GLdouble, GLdouble);
-
-void SCE_RSetOrthoMatrix (
-  GLdouble, GLdouble,
-  GLdouble, GLdouble,
-  GLdouble, GLdouble);
-
 void SCE_RViewport (int, int, int, int);
 
 #ifdef __cplusplus
