@@ -22,6 +22,7 @@
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERType.h"
+#include "SCE/renderer/SCERVertexArray.h" /* SCE_RVertexAttributesMap */
 
 #include "SCE/renderer/SCERShader.h"
 
@@ -143,7 +144,10 @@ SCE_RProgram* SCE_RCreateProgram (void)
     }
 
     prog->id = glCreateProgram ();
-    prog->compiled = SCE_FALSE;
+    prog->linked = SCE_FALSE;
+    SCE_RInitVertexAttributesMap (prog->map);
+    prog->map_built = SCE_FALSE;
+    prog->use_map = SCE_FALSE;
 
     return prog;
 }
@@ -166,7 +170,7 @@ int SCE_RSetProgramShader (SCE_RProgram *prog, SCE_RShaderGLSL *shader,
         glDetachShader (prog->id, shader->id);
 
     /* program need to be relinked in order to apply the changes */
-    prog->compiled = SCE_FALSE;
+    prog->linked = SCE_FALSE;
     return SCE_OK;
 }
 
@@ -175,6 +179,9 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
     int status = GL_TRUE;
     int loginfo_size = 0;
     char *loginfo = NULL;
+
+    if (prog->linked)
+      return SCE_OK;
 
     glLinkProgram (prog->id);
 
@@ -203,16 +210,83 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
         /* TODO: add program name */
         SCEE_SendMsg ("can't validate program");
     }
-    prog->compiled = SCE_TRUE;
+
+    prog->linked = SCE_TRUE;
+
+    /* if the map was previously built, rebuild it */
+    if (prog->map_built)
+      SCE_RSetupProgramAttributesMapping (prog);
+
     return SCE_OK;
 }
 
+/**
+ * \brief Construct vertex attributes map of the given program
+ * \param prog a program
+ *
+ * Retrieve locations of the named vertex attributes into the vertex
+ * shader of \p prog according to the names defined by the
+ * SCE_*_ATTRIB_NAME constants and bind them to the associated
+ * SCE_EVertexAttribute using a SCE_RVertexAttributesMap. Note that
+ * the map is only constructed and not used. If you wish to use it you
+ * will have to call SCE_RActivateProgramAttributesMapping(). If \p
+ * prog is not yet built then the map construction will be proceeded
+ * automatically when SCE_RBuildProgram() is called.
+ */
+void SCE_RSetupProgramAttributesMapping (SCE_RProgram *prog)
+{
+    int loc;
+#define SCE_VATTRIB_MAP(a) do {                                 \
+        loc = glGetAttribLocation (prog->id, a##_ATTRIB_NAME);  \
+        if (loc != -1)                                          \
+            prog->map[a] = loc;                                 \
+    } while (0)
+
+    if (prog->linked) {
+        SCE_VATTRIB_MAP (SCE_POSITION);
+        SCE_VATTRIB_MAP (SCE_COLOR);
+        SCE_VATTRIB_MAP (SCE_NORMAL);
+        SCE_VATTRIB_MAP (SCE_TANGENT);
+        SCE_VATTRIB_MAP (SCE_BINORMAL);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD0);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD1);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD2);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD3);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD4);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD5);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD6);
+        SCE_VATTRIB_MAP (SCE_TEXCOORD7);
+    }
+
+#undef SCE_VATTRIB_MAP
+
+    prog->map_built = SCE_TRUE;
+}
+
+/**
+ * \brief Set attributes mapping state
+ *
+ * \param prog a program
+ * \param activate boolean for whether or not to activate the attributes mapping
+ */
+void SCE_RActivateProgramAttributesMapping (SCE_RProgram *prog, int activate)
+{
+    prog->use_map = activate;
+}
+
+
 void SCE_RUseProgram (SCE_RProgram *prog)
 {
-    if (prog)
+    if (prog) {
         glUseProgram (prog->id);
-    else
+        /* useless if statement in a full GL3 renderer */
+        if (prog->use_map)
+            SCE_RUseVertexAttributesMap (prog->map);
+    } else {
         glUseProgram (0);
+        /* useless call in a full GL3 renderer */
+        SCE_RDisableVertexAttributesMap ();
+    }
 }
 
 
@@ -248,9 +322,9 @@ int SCE_RSetProgramInputPrimitive (SCE_RProgram *prog,
     if (adj)
         p = SCE_RAdjacentPrim (p);
     glProgramParameteri (prog->id, GL_GEOMETRY_INPUT_TYPE_EXT, p);
-    if (prog->compiled) {
+    if (prog->linked) {
         /* automatic relink if the shader was already linked */
-        prog->compiled = SCE_FALSE;
+        prog->linked = SCE_FALSE;
         return SCE_RBuildProgram (prog);
     }
     return SCE_OK;
@@ -267,9 +341,9 @@ int SCE_RSetProgramOutputPrimitive (SCE_RProgram *prog,
 {
     SCEenum p = sce_rprimtypes[prim];
     glProgramParameteri (prog->id, GL_GEOMETRY_OUTPUT_TYPE_EXT, p);
-    if (prog->compiled) {
+    if (prog->linked) {
         /* automatic relink if the shader was already linked */
-        prog->compiled = SCE_FALSE;
+        prog->linked = SCE_FALSE;
         return SCE_RBuildProgram (prog);
     }
     return SCE_OK;

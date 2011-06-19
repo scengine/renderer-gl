@@ -24,6 +24,7 @@
 
 #include <SCE/core/SCECore.h>  /* SCE_EPrimitiveType */
 #include "SCE/renderer/SCERType.h"
+#include "SCE/renderer/SCERVertexArray.h" /* SCE_RVertexAttributesMap */
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,21 @@ typedef enum {
   SCE_PIXEL_SHADER,
   SCE_GEOMETRY_SHADER,
 } SCE_RShaderType;
+
+
+#define SCE_POSITION_ATTRIB_NAME "sce_position"
+#define SCE_COLOR_ATTRIB_NAME "sce_color"
+#define SCE_NORMAL_ATTRIB_NAME "sce_normal"
+#define SCE_TANGENT_ATTRIB_NAME "sce_tangent"
+#define SCE_BINORMAL_ATTRIB_NAME "sce_binormal"
+#define SCE_TEXCOORD0_ATTRIB_NAME "sce_texcoord0"
+#define SCE_TEXCOORD1_ATTRIB_NAME "sce_texcoord1"
+#define SCE_TEXCOORD2_ATTRIB_NAME "sce_texcoord2"
+#define SCE_TEXCOORD3_ATTRIB_NAME "sce_texcoord3"
+#define SCE_TEXCOORD4_ATTRIB_NAME "sce_texcoord4"
+#define SCE_TEXCOORD5_ATTRIB_NAME "sce_texcoord5"
+#define SCE_TEXCOORD6_ATTRIB_NAME "sce_texcoord6"
+#define SCE_TEXCOORD7_ATTRIB_NAME "sce_texcoord7"
 
 /**
  * \brief GL shader
@@ -55,14 +71,18 @@ struct sce_rshaderglsl {
  */
 typedef struct sce_rprogram SCE_RProgram;
 struct sce_rprogram {
-    SCEuint id;                 /**< OpenGL identifier */
-    int compiled;               /**< Is the program linked? */
+    SCEuint id;                   /**< OpenGL identifier */
+    int linked;                   /**< Is the program linked? */
+    SCE_RVertexAttributesMap map; /**< Vertex attributes mappings */
+    int map_built;                /**< Is the attributes map built? */
+    int use_map;                  /**< Use mapping? */
 };
 
 
 int SCE_RShaderInit (void);
 void SCE_RShaderQuit (void);
 
+/* TODO: use SCE_RShaderType type */
 SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCEenum);
 
 void SCE_RDeleteShaderGLSL (SCE_RShaderGLSL*);
@@ -78,6 +98,8 @@ void SCE_RDeleteProgram (SCE_RProgram*);
 int SCE_RSetProgramShader (SCE_RProgram*, SCE_RShaderGLSL*, int);
 
 int SCE_RBuildProgram (SCE_RProgram*);
+void SCE_RSetupProgramAttributesMapping (SCE_RProgram*);
+void SCE_RActivateProgramAttributesMapping (SCE_RProgram*, int);
 
 void SCE_RUseProgram (SCE_RProgram*);
 
