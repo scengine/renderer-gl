@@ -61,7 +61,7 @@ SCE_RMatrix SCE_RGetActiveMatrix (void)
     return matrix;
 }
 
-void SCE_RLoadMatrix (const float *m)
+void SCE_RLoadMatrix (const SCE_TMatrix4 m)
 {
     glLoadTransposeMatrixf (m);
 }

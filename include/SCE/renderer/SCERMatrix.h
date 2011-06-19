@@ -43,7 +43,7 @@ typedef enum sce_rmatrix SCE_RMatrix;
 void SCE_RSetActiveMatrix (SCE_RMatrix);
 SCE_RMatrix SCE_RGetActiveMatrix (void);
 
-void SCE_RLoadMatrix (const float*);
+void SCE_RLoadMatrix (const SCE_TMatrix4);
 
 void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 
