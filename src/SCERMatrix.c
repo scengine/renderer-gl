@@ -70,7 +70,7 @@ void SCE_RPopMatrix (void)
  * \param matrix the matrix to activate. Can be one of SCE_MAT_MODELVIEW,
  *               SCE_MAT_PROJECTION or SCE_MAT_TEXTURE.
  */
-void SCE_RSetActiveMatrix (SCEenum matrix)
+void SCE_RSetActiveMatrix (SCE_RMatrix matrix)
 {
     glMatrixMode (matrix);
 }
@@ -79,7 +79,7 @@ void SCE_RSetActiveMatrix (SCEenum matrix)
  * \return the activate matrix. Can be one of SCE_MAT_MODELVIEW,
  *         SCE_MAT_PROJECTION or SCE_MAT_TEXTURE.
  */
-int SCE_RGetActiveMatrix (void)
+SCE_RMatrix SCE_RGetActiveMatrix (void)
 {
     int matrix;
     glGetIntegerv (GL_MATRIX_MODE, &matrix);

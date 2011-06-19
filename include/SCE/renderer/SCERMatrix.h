@@ -31,13 +31,20 @@ extern "C" {
 
 #define SCE_RURRENT_MATRIX 0
 
+enum sce_rmatrix {
+    SCE_MAT_MODELVIEW = GL_MODELVIEW,
+    SCE_MAT_PROJECTION = GL_PROJECTION,
+    SCE_MAT_TEXTURE = GL_TEXTURE
+};
+typedef enum sce_rmatrix SCE_RMatrix;
+
 void SCE_RLoadIdentityMatrix (void);
 
 void SCE_RPushMatrix (void);
 void SCE_RPopMatrix (void);
 
-void SCE_RSetActiveMatrix (SCEenum);
-GLint SCE_RGetActiveMatrix (void);
+void SCE_RSetActiveMatrix (SCE_RMatrix);
+SCE_RMatrix SCE_RGetActiveMatrix (void);
 
 void SCE_RMultMatrix (const float*);
 void SCE_RLoadMatrix (const float*);

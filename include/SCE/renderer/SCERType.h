@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 18/06/2011 */
+   updated: 19/06/2011 */
 
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
@@ -46,11 +46,6 @@ extern SCEenum sce_rprimtypes[6];
 #define SCE_LEQUAL          GL_LEQUAL
 #define SCE_GREATER         GL_GREATER
 #define SCE_GEQUAL          GL_GEQUAL
-
-/* matrices */
-#define SCE_MAT_MODELVIEW   GL_MODELVIEW
-#define SCE_MAT_PROJECTION  GL_PROJECTION
-#define SCE_MAT_TEXTURE     GL_TEXTURE
 
 int SCE_RTypeInit (void);
 void SCE_RTypeQuit (void);
