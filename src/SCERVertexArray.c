@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 21/08/2009 */
+   updated: 19/06/2011 */
 
 #include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
@@ -41,6 +41,14 @@
 
 static SCE_SList vaused;
 static int vao_used = SCE_FALSE;
+
+static void SCE_RUseVertexArrayDefault (SCE_RVertexArray*);
+
+/**
+ * \brief GL calls to make the given vertex array active for the render
+ */
+void (*SCE_RUseVertexArray) (SCE_RVertexArray*) = SCE_RUseVertexArrayDefault;
+static SCEuint *sce_vattribmap = NULL;
 
 int SCE_RVertexArrayInit (void)
 {
@@ -122,7 +130,7 @@ static void SCE_RUnsetVATex (SCE_SGeometryArrayData *data)
 static void SCE_RSetVAAtt (SCE_SGeometryArrayData *data)
 {
     /* hope that data->attrib isn't too large */
-    int attrib = data->attrib - SCE_ATTRIB0;
+    SCEuint attrib = data->attrib - SCE_ATTRIB0;
     glEnableVertexAttribArray (attrib);
     glVertexAttribPointer (attrib, data->size, sce_rgltypes[data->type], 0,
                            data->stride, data->data);
@@ -130,6 +138,18 @@ static void SCE_RSetVAAtt (SCE_SGeometryArrayData *data)
 static void SCE_RUnsetVAAtt (SCE_SGeometryArrayData *data)
 {
     glDisableVertexAttribArray (data->attrib - SCE_ATTRIB0);
+}
+/* vertex attribute mapping version */
+static void SCE_RSetVAMap (SCE_SGeometryArrayData *data)
+{
+    SCEuint attrib = sce_vattribmap[data->attrib];
+    glEnableVertexAttribArray (attrib);
+    glVertexAttribPointer (attrib, data->size, sce_rgltypes[data->type], 0,
+                           data->stride, data->data);
+}
+static void SCE_RUnsetVAMap (SCE_SGeometryArrayData *data)
+{
+    glDisableVertexAttribArray (sce_vattribmap[data->attrib]);
 }
 
 /**
@@ -207,6 +227,13 @@ void SCE_RInitVertexArraySequence (SCE_RVertexArraySequence *seq)
     seq->id = 0;
 }
 
+void SCE_RInitVertexAttributesMap (SCE_RVertexAttributesMap map)
+{
+    int i;
+    for (i = 0; i < SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS; i++)
+        map[i] = i;
+}
+
 /**
  * \brief Gets \p &va->data
  * \sa SCE_RSetVertexArrayData(), SCE_RSetVertexArrayNewData()
@@ -271,14 +298,42 @@ void SCE_RSetVertexArrayNewData (SCE_RVertexArray *va,
     SCE_RSetVertexArrayData (va, &data);
 }
 
-/**
- * \brief GL calls to make the given vertex array active for the render
- */
-void SCE_RUseVertexArray (SCE_RVertexArray *va)
+
+static void SCE_RUseVertexArrayDefault (SCE_RVertexArray *va)
 {
     va->set (&va->data);
     SCE_List_Appendl (&vaused, &va->it);
 }
+static void SCE_RUseVertexArrayVattribMap (SCE_RVertexArray *va)
+{
+    SCE_RSetVAMap (&va->data);
+    SCE_List_Appendl (&vaused, &va->it);
+}
+/**
+ * \brief Binds a vertex attributes map that will be used when calling
+ * SCE_RUseVertexArray()
+ *
+ * Each named attribute as defined by SCE_EVertexAttribute will be mapped to
+ * a generic vertex attribute number.
+ *
+ * \param map a vertex attributes map
+ * \sa SCE_RDisableVertexAttributesMap()
+ */
+void SCE_RUseVertexAttributesMap (SCE_RVertexAttributesMap map)
+{
+    sce_vattribmap = map;
+    SCE_RUseVertexArray = SCE_RUseVertexArrayVattribMap;
+}
+/**
+ * \brief Disable active vertex attributes map if any
+ * \sa SCE_RUseVertexAttributesMap()
+ */
+void SCE_RDisableVertexAttributesMap (void)
+{
+    sce_vattribmap = NULL;
+    SCE_RUseVertexArray = SCE_RUseVertexArrayDefault;
+}
+
 void SCE_RRender (SCE_EPrimitiveType prim, SCEuint n_vertices)
 {
     glDrawArrays (sce_rprimtypes[prim], 0, n_vertices);
@@ -313,9 +368,16 @@ void SCE_RFinishVertexArrayRender (void)
         glBindVertexArray (0);
     }
     /*else*/
-    SCE_List_ForEach (it, &vaused) {
-        SCE_RVertexArray *va = SCE_List_GetData (it);
-        va->unset (&va->data);
+    if (sce_vattribmap) {
+        SCE_List_ForEach (it, &vaused) {
+            SCE_RVertexArray *va = SCE_List_GetData (it);
+            SCE_RUnsetVAMap (&va->data);
+        }
+    } else {
+        SCE_List_ForEach (it, &vaused) {
+            SCE_RVertexArray *va = SCE_List_GetData (it);
+            va->unset (&va->data);
+        }
     }
     SCE_List_Flush (&vaused);
 }

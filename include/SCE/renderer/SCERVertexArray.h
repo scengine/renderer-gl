@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 17/04/2010 */
+   updated: 19/06/2011 */
 
 #ifndef SCERVERTEXARRAY_H
 #define SCERVERTEXARRAY_H
@@ -66,6 +66,9 @@ struct sce_rvertexarraysequence {
     SCEint id;                  /**< Teh GL ID */
 };
 
+#define SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS 16
+typedef SCEuint SCE_RVertexAttributesMap[SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS];
+
 /** @} */
 
 int SCE_RVertexArrayInit (void);
@@ -82,12 +85,15 @@ void SCE_RDeleteIndexArray (SCE_RIndexArray*);
 
 void SCE_RInitVertexArraySequence (SCE_RVertexArraySequence*);
 
+void SCE_RInitVertexAttributesMap (SCE_RVertexAttributesMap);
+
 SCE_SGeometryArrayData* SCE_RGetVertexArrayData (SCE_RVertexArray*);
 void SCE_RSetVertexArrayData (SCE_RVertexArray*, SCE_SGeometryArrayData*);
 void SCE_RSetVertexArrayNewData (SCE_RVertexArray*, SCE_EVertexAttribute,
                                  SCEenum, SCEsizei, SCEint, void*);
 
-void SCE_RUseVertexArray (SCE_RVertexArray*);
+void SCE_RUseVertexAttributesMap (SCE_RVertexAttributesMap);
+extern void (*SCE_RUseVertexArray) (SCE_RVertexArray*);
 void SCE_RRender (SCE_EPrimitiveType, SCEuint);
 void SCE_RRenderInstanced (SCE_EPrimitiveType, SCEuint, SCEuint);
 void SCE_RRenderIndexed (SCE_EPrimitiveType, SCE_RIndexArray*, SCEuint);
