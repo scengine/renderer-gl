@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 19/06/2011 */
+   updated: 20/06/2011 */
 
 #ifndef SCERMATRIX_H
 #define SCERMATRIX_H
@@ -29,12 +29,10 @@
 extern "C" {
 #endif
 
-#define SCE_RURRENT_MATRIX 0
-
 enum sce_rmatrix {
-    SCE_MAT_MODELVIEW = GL_MODELVIEW,
-    SCE_MAT_PROJECTION = GL_PROJECTION,
-    SCE_MAT_TEXTURE = GL_TEXTURE
+    SCE_MAT_MODELVIEW = 0,
+    SCE_MAT_PROJECTION,
+    SCE_MAT_TEXTURE
 };
 typedef enum sce_rmatrix SCE_RMatrix;
 

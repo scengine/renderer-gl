@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 19/06/2011 */
+   updated: 20/06/2011 */
 
 #include "SCE/renderer/SCERMatrix.h"
 
@@ -40,6 +40,37 @@
 
 /** @{ */
 
+static SCE_TMatrix4 sce_matrices[SCE_NUM_MATRICES] = {
+    SCE_MATRIX4_IDENTITY,
+    SCE_MATRIX4_IDENTITY,
+    SCE_MATRIX4_IDENTITY
+};
+
+static void SCE_RSetModelview (void)
+{
+    glMatrixMode (GL_MODELVIEW);
+    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_MODELVIEW]);
+}
+static void SCE_RSetProjection (void)
+{
+    glMatrixMode (GL_PROJECTION);
+    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_PROJECTION]);
+}
+static void SCE_RSetTexture (void)
+{
+    glMatrixMode (GL_TEXTURE);
+    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_TEXTURE]);
+}
+
+typedef void (*setfunc)(void);
+
+static setfunc sce_setmatrix[SCE_NUM_MATRICES] = {
+    /* order matters */
+    SCE_RSetModelview,
+    SCE_RSetProjection,
+    SCE_RSetTexture
+};
+
 /**
  * \brief Load the specified matrix
  *
@@ -48,8 +79,8 @@
  */
 void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
 {
-    glMatrixMode (matrix);
-    glLoadTransposeMatrixf (m);
+    SCE_Matrix4_Copy (sce_matrices[matrix], m);
+    sce_setmatrix[matrix] ();
 }
 
 /**
@@ -61,15 +92,7 @@ void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
  */
 void SCE_RGetMatrix (SCE_RMatrix matrix, SCE_TMatrix4 m)
 {
-    int mat = matrix;
-    if (mat == SCE_RURRENT_MATRIX)
-        glGetIntegerv (GL_MATRIX_MODE, &mat);
-    switch (mat)
-    {
-    case GL_MODELVIEW:  glGetFloatv (GL_TRANSPOSE_MODELVIEW_MATRIX,  m); break;
-    case GL_PROJECTION: glGetFloatv (GL_TRANSPOSE_PROJECTION_MATRIX, m); break;
-    case GL_TEXTURE:    glGetFloatv (GL_TRANSPOSE_TEXTURE_MATRIX,    m);
-    }
+    SCE_Matrix4_Copy (m, sce_matrices[matrix]);
 }
 
 /**
