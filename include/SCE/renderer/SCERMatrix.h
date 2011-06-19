@@ -45,7 +45,7 @@ SCE_RMatrix SCE_RGetActiveMatrix (void);
 
 void SCE_RLoadMatrix (const float*);
 
-void SCE_RGetMatrix (int, float*);
+void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 
 void SCE_RViewport (int, int, int, int);
 

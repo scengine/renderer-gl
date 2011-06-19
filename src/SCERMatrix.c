@@ -68,17 +68,17 @@ void SCE_RLoadMatrix (const float *m)
 
 /**
  * \brief Gets a matrix
- * \param matrix whitch matrix to get. Can be one of SCE_MAT_MODELVIEW,
- *               SCE_MAT_PROJECTION, SCE_MAT_TEXTURE or SCE_RURRENT_MATRIX.
- * \param m pointer to a 16 or more float array where write the queried matrix.
+ * \param matrix matrix to get
+ * \param m retrieved matrix will be stored here
  * 
  * \see SCE_TMatrix4
  */
-void SCE_RGetMatrix (int matrix, float *m)
+void SCE_RGetMatrix (SCE_RMatrix matrix, SCE_TMatrix4 m)
 {
-    if (matrix == SCE_RURRENT_MATRIX)
-        glGetIntegerv (GL_MATRIX_MODE, &matrix);
-    switch (matrix)
+    int mat = matrix;
+    if (mat == SCE_RURRENT_MATRIX)
+        glGetIntegerv (GL_MATRIX_MODE, &mat);
+    switch (mat)
     {
     case GL_MODELVIEW:  glGetFloatv (GL_TRANSPOSE_MODELVIEW_MATRIX,  m); break;
     case GL_PROJECTION: glGetFloatv (GL_TRANSPOSE_PROJECTION_MATRIX, m); break;
