@@ -40,10 +40,7 @@ typedef enum sce_rmatrix SCE_RMatrix;
 
 #define SCE_NUM_MATRICES 3
 
-void SCE_RSetActiveMatrix (SCE_RMatrix);
-SCE_RMatrix SCE_RGetActiveMatrix (void);
-
-void SCE_RLoadMatrix (const SCE_TMatrix4);
+void SCE_RLoadMatrix (SCE_RMatrix, const SCE_TMatrix4);
 
 void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 

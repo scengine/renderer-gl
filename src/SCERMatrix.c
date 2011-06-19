@@ -41,28 +41,14 @@
 /** @{ */
 
 /**
- * \brief Sets the active matrix
- * \param matrix the matrix to activate. Can be one of SCE_MAT_MODELVIEW,
- *               SCE_MAT_PROJECTION or SCE_MAT_TEXTURE.
+ * \brief Load the specified matrix
+ *
+ * \param matrix use of the matrix to load
+ * \param m a matrix
  */
-void SCE_RSetActiveMatrix (SCE_RMatrix matrix)
+void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
 {
     glMatrixMode (matrix);
-}
-/**
- * \brief Gets the active matrix
- * \return the activate matrix. Can be one of SCE_MAT_MODELVIEW,
- *         SCE_MAT_PROJECTION or SCE_MAT_TEXTURE.
- */
-SCE_RMatrix SCE_RGetActiveMatrix (void)
-{
-    int matrix;
-    glGetIntegerv (GL_MATRIX_MODE, &matrix);
-    return matrix;
-}
-
-void SCE_RLoadMatrix (const SCE_TMatrix4 m)
-{
     glLoadTransposeMatrixf (m);
 }
 
