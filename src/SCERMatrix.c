@@ -40,7 +40,7 @@
 
 /** @{ */
 
-static SCE_TMatrix4 sce_matrices[SCE_NUM_MATRICES] = {
+SCE_TMatrix4 sce_rmatrices[SCE_NUM_MATRICES] = {
     SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY,
@@ -55,23 +55,42 @@ static SCE_TMatrix4 sce_matrices[SCE_NUM_MATRICES] = {
  */
 void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
 {
-    SCE_Matrix4_Copy (sce_matrices[matrix], m);
+    SCE_Matrix4_Copy (sce_rmatrices[matrix], m);
+}
+
+/**
+ * \brief Default 'setmatrices' function
+ */
+static void SCE_RDefaultSetMatrices (void)
+{
+    SCE_TMatrix4 m;
+    SCE_Matrix4_Mul (sce_rmatrices[SCE_MAT_CAMERA],
+                     sce_rmatrices[SCE_MAT_OBJECT], m);
+    glMatrixMode (GL_MODELVIEW);
+    glLoadTransposeMatrixf (m);
+    glMatrixMode (GL_PROJECTION);
+    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_PROJECTION]);
+    glMatrixMode (GL_TEXTURE);
+    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_TEXTURE]);
 }
 
 /**
  * \brief Send all matrices to the driver
  */
-void SCE_RSetMatrices (void)
+SCE_RSetMatricesFunc SCE_RSetMatrices = SCE_RDefaultSetMatrices;
+
+/**
+ * \brief Sets the 'setmatrices' function
+ *
+ * In practice this function is used by the shaders manager to map the
+ * matrices to shader uniform variables.
+ */
+void SCE_RMapMatrices (SCE_RSetMatricesFunc fun)
 {
-    SCE_TMatrix4 m;
-    SCE_Matrix4_Mul (sce_matrices[SCE_MAT_CAMERA],
-                     sce_matrices[SCE_MAT_OBJECT], m);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadTransposeMatrixf (m);
-    glMatrixMode (GL_PROJECTION);
-    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_PROJECTION]);
-    glMatrixMode (GL_TEXTURE);
-    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_TEXTURE]);
+    if (fun)
+        SCE_RSetMatrices = fun;
+    else
+        SCE_RSetMatrices = SCE_RDefaultSetMatrices;
 }
 
 /**
@@ -83,7 +102,7 @@ void SCE_RSetMatrices (void)
  */
 void SCE_RGetMatrix (SCE_RMatrix matrix, SCE_TMatrix4 m)
 {
-    SCE_Matrix4_Copy (m, sce_matrices[matrix]);
+    SCE_Matrix4_Copy (m, sce_rmatrices[matrix]);
 }
 
 /**

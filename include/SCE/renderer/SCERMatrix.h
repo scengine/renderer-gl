@@ -38,8 +38,14 @@ enum sce_rmatrix {
 };
 typedef enum sce_rmatrix SCE_RMatrix;
 
+typedef void (*SCE_RSetMatricesFunc) (void);
+
+extern SCE_TMatrix4 sce_rmatrices[SCE_NUM_MATRICES];
+
 void SCE_RLoadMatrix (SCE_RMatrix, const SCE_TMatrix4);
-void SCE_RSetMatrices (void);
+extern SCE_RSetMatricesFunc SCE_RSetMatrices;
+
+void SCE_RMapMatrices (SCE_RSetMatricesFunc);
 
 void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 
