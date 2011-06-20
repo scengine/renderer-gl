@@ -30,15 +30,16 @@ extern "C" {
 #endif
 
 enum sce_rmatrix {
-    SCE_MAT_MODELVIEW = 0,
+    SCE_MAT_OBJECT = 0,
+    SCE_MAT_CAMERA,
     SCE_MAT_PROJECTION,
-    SCE_MAT_TEXTURE
+    SCE_MAT_TEXTURE,
+    SCE_NUM_MATRICES
 };
 typedef enum sce_rmatrix SCE_RMatrix;
 
-#define SCE_NUM_MATRICES 3
-
 void SCE_RLoadMatrix (SCE_RMatrix, const SCE_TMatrix4);
+void SCE_RSetMatrices (void);
 
 void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 

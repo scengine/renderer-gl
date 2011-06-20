@@ -43,32 +43,8 @@
 static SCE_TMatrix4 sce_matrices[SCE_NUM_MATRICES] = {
     SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY,
+    SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY
-};
-
-static void SCE_RSetModelview (void)
-{
-    glMatrixMode (GL_MODELVIEW);
-    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_MODELVIEW]);
-}
-static void SCE_RSetProjection (void)
-{
-    glMatrixMode (GL_PROJECTION);
-    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_PROJECTION]);
-}
-static void SCE_RSetTexture (void)
-{
-    glMatrixMode (GL_TEXTURE);
-    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_TEXTURE]);
-}
-
-typedef void (*setfunc)(void);
-
-static setfunc sce_setmatrix[SCE_NUM_MATRICES] = {
-    /* order matters */
-    SCE_RSetModelview,
-    SCE_RSetProjection,
-    SCE_RSetTexture
 };
 
 /**
@@ -80,7 +56,22 @@ static setfunc sce_setmatrix[SCE_NUM_MATRICES] = {
 void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
 {
     SCE_Matrix4_Copy (sce_matrices[matrix], m);
-    sce_setmatrix[matrix] ();
+}
+
+/**
+ * \brief Send all matrices to the driver
+ */
+void SCE_RSetMatrices (void)
+{
+    SCE_TMatrix4 m;
+    SCE_Matrix4_Mul (sce_matrices[SCE_MAT_CAMERA],
+                     sce_matrices[SCE_MAT_OBJECT], m);
+    glMatrixMode (GL_MODELVIEW);
+    glLoadTransposeMatrixf (m);
+    glMatrixMode (GL_PROJECTION);
+    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_PROJECTION]);
+    glMatrixMode (GL_TEXTURE);
+    glLoadTransposeMatrixf (sce_matrices[SCE_MAT_TEXTURE]);
 }
 
 /**
