@@ -22,6 +22,7 @@
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERType.h"
+#include "SCE/renderer/SCERMatrix.h"      /* SCE_RMapMatrices() */
 #include "SCE/renderer/SCERVertexArray.h" /* SCE_RVertexAttributesMap */
 
 #include "SCE/renderer/SCERShader.h"
@@ -147,7 +148,9 @@ SCE_RProgram* SCE_RCreateProgram (void)
     prog->linked = SCE_FALSE;
     SCE_RInitVertexAttributesMap (prog->map);
     prog->map_built = SCE_FALSE;
-    prog->use_map = SCE_FALSE;
+    prog->use_vmap = SCE_FALSE;
+    prog->fun = NULL;
+    prog->use_mmap = SCE_FALSE;
 
     return prog;
 }
@@ -215,10 +218,11 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
 
     /* if the map was previously built, rebuild it */
     if (prog->map_built)
-      SCE_RSetupProgramAttributesMapping (prog);
+        SCE_RSetupProgramAttributesMapping (prog);
 
     return SCE_OK;
 }
+
 
 /**
  * \brief Construct vertex attributes map of the given program
@@ -262,7 +266,6 @@ void SCE_RSetupProgramAttributesMapping (SCE_RProgram *prog)
 
     prog->map_built = SCE_TRUE;
 }
-
 /**
  * \brief Set attributes mapping state
  *
@@ -271,21 +274,164 @@ void SCE_RSetupProgramAttributesMapping (SCE_RProgram *prog)
  */
 void SCE_RActivateProgramAttributesMapping (SCE_RProgram *prog, int activate)
 {
-    prog->use_map = activate;
+    prog->use_vmap = activate;
 }
+
+
+static int *sce_rmatindex = NULL;
+
+#define SCE_RMAPMAT(o, c, p, t, m)                              \
+  static void SCE_RSetProgramMatrices##o##c##p##t##m (void)     \
+  {                                                             \
+    if (o)                                                      \
+      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_OBJECT],        \
+                          1, SCE_TRUE,                          \
+                          sce_rmatrices[SCE_MAT_OBJECT]);       \
+    if (c)                                                      \
+      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_CAMERA],        \
+                          1, SCE_TRUE,                          \
+                          sce_rmatrices[SCE_MAT_CAMERA]);       \
+    if (p)                                                      \
+      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_PROJECTION],    \
+                          1, SCE_TRUE,                          \
+                          sce_rmatrices[SCE_MAT_PROJECTION]);   \
+    if (t)                                                      \
+      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_TEXTURE],       \
+                          1, SCE_TRUE,                          \
+                          sce_rmatrices[SCE_MAT_TEXTURE]);      \
+    if (m) {                                                    \
+      SCE_TMatrix4 mat;                                         \
+      SCE_Matrix4_Mul (sce_rmatrices[SCE_MAT_CAMERA],           \
+                       sce_rmatrices[SCE_MAT_OBJECT], mat);     \
+      glUniformMatrix4fv (sce_rmatindex[SCE_NUM_MATRICES],      \
+                          1, SCE_TRUE, mat);                    \
+    }                                                           \
+  }
+
+SCE_RMAPMAT(0, 0, 0, 0, 1)
+SCE_RMAPMAT(0, 0, 0, 1, 0)
+SCE_RMAPMAT(0, 0, 0, 1, 1)
+SCE_RMAPMAT(0, 0, 1, 0, 0)
+SCE_RMAPMAT(0, 0, 1, 0, 1)
+SCE_RMAPMAT(0, 0, 1, 1, 0)
+SCE_RMAPMAT(0, 0, 1, 1, 1)
+SCE_RMAPMAT(0, 1, 0, 0, 0)
+SCE_RMAPMAT(0, 1, 0, 0, 1)
+SCE_RMAPMAT(0, 1, 0, 1, 0)
+SCE_RMAPMAT(0, 1, 0, 1, 1)
+SCE_RMAPMAT(0, 1, 1, 0, 0)
+SCE_RMAPMAT(0, 1, 1, 0, 1)
+SCE_RMAPMAT(0, 1, 1, 1, 0)
+SCE_RMAPMAT(0, 1, 1, 1, 1)
+SCE_RMAPMAT(1, 0, 0, 0, 0)
+SCE_RMAPMAT(1, 0, 0, 0, 1)
+SCE_RMAPMAT(1, 0, 0, 1, 0)
+SCE_RMAPMAT(1, 0, 0, 1, 1)
+SCE_RMAPMAT(1, 0, 1, 0, 0)
+SCE_RMAPMAT(1, 0, 1, 0, 1)
+SCE_RMAPMAT(1, 0, 1, 1, 0)
+SCE_RMAPMAT(1, 0, 1, 1, 1)
+SCE_RMAPMAT(1, 1, 0, 0, 0)
+SCE_RMAPMAT(1, 1, 0, 0, 1)
+SCE_RMAPMAT(1, 1, 0, 1, 0)
+SCE_RMAPMAT(1, 1, 0, 1, 1)
+SCE_RMAPMAT(1, 1, 1, 0, 0)
+SCE_RMAPMAT(1, 1, 1, 0, 1)
+SCE_RMAPMAT(1, 1, 1, 1, 0)
+SCE_RMAPMAT(1, 1, 1, 1, 1)
+
+#undef SCE_RMAPMAT
+
+/**
+ * \brief Construct the matrix map
+ * \param prog a program
+ */
+void SCE_RSetupProgramMatricesMapping (SCE_RProgram *prog)
+{
+#define SCE_RGETMAP(mat)                                        \
+    prog->mat_map[mat] = glGetUniformLocation (prog->id, mat##_NAME)
+
+    SCE_RGETMAP (SCE_MAT_OBJECT);
+    SCE_RGETMAP (SCE_MAT_CAMERA);
+    SCE_RGETMAP (SCE_MAT_PROJECTION);
+    SCE_RGETMAP (SCE_MAT_TEXTURE);
+    prog->mat_map[SCE_NUM_MATRICES] =
+      glGetUniformLocation (prog->id, SCE_MAT_MODELVIEW_NAME);
+
+#define SCE_RSELECTMAP(o, c, p, t, m)                           \
+    if ((prog->mat_map[SCE_MAT_OBJECT]       != -1) == o &&     \
+        (prog->mat_map[SCE_MAT_CAMERA]       != -1) == c &&     \
+        (prog->mat_map[SCE_MAT_PROJECTION]   != -1) == p &&     \
+        (prog->mat_map[SCE_MAT_TEXTURE]      != -1) == t &&     \
+        (prog->mat_map[SCE_NUM_MATRICES]     != -1) == m)       \
+        prog->fun = SCE_RSetProgramMatrices##o##c##p##t##m;     \
+    else
+
+    SCE_RSELECTMAP (0, 0, 0, 0, 1)
+    SCE_RSELECTMAP (0, 0, 0, 1, 0)
+    SCE_RSELECTMAP (0, 0, 0, 1, 1)
+    SCE_RSELECTMAP (0, 0, 1, 0, 0)
+    SCE_RSELECTMAP (0, 0, 1, 0, 1)
+    SCE_RSELECTMAP (0, 0, 1, 1, 0)
+    SCE_RSELECTMAP (0, 0, 1, 1, 1)
+    SCE_RSELECTMAP (0, 1, 0, 0, 0)
+    SCE_RSELECTMAP (0, 1, 0, 0, 1)
+    SCE_RSELECTMAP (0, 1, 0, 1, 0)
+    SCE_RSELECTMAP (0, 1, 0, 1, 1)
+    SCE_RSELECTMAP (0, 1, 1, 0, 0)
+    SCE_RSELECTMAP (0, 1, 1, 0, 1)
+    SCE_RSELECTMAP (0, 1, 1, 1, 0)
+    SCE_RSELECTMAP (0, 1, 1, 1, 1)
+    SCE_RSELECTMAP (1, 0, 0, 0, 0)
+    SCE_RSELECTMAP (1, 0, 0, 0, 1)
+    SCE_RSELECTMAP (1, 0, 0, 1, 0)
+    SCE_RSELECTMAP (1, 0, 0, 1, 1)
+    SCE_RSELECTMAP (1, 0, 1, 0, 0)
+    SCE_RSELECTMAP (1, 0, 1, 0, 1)
+    SCE_RSELECTMAP (1, 0, 1, 1, 0)
+    SCE_RSELECTMAP (1, 0, 1, 1, 1)
+    SCE_RSELECTMAP (1, 1, 0, 0, 0)
+    SCE_RSELECTMAP (1, 1, 0, 0, 1)
+    SCE_RSELECTMAP (1, 1, 0, 1, 0)
+    SCE_RSELECTMAP (1, 1, 0, 1, 1)
+    SCE_RSELECTMAP (1, 1, 1, 0, 0)
+    SCE_RSELECTMAP (1, 1, 1, 0, 1)
+    SCE_RSELECTMAP (1, 1, 1, 1, 0)
+    SCE_RSELECTMAP (1, 1, 1, 1, 1)
+        prog->fun = NULL;
+
+#undef SCE_RSELECTMAP
+}
+/**
+ * \brief Set matrices mapping state
+ *
+ * \param prog a program
+ * \param activate boolean for whether or not to activate the matrices mapping
+ * \sa SCE_RSetupProgramMatricesMapping()
+ */
+void SCE_RActivateProgramMatricesMapping (SCE_RProgram *prog, int activate)
+{
+    prog->use_mmap = activate;
+}
+
 
 
 void SCE_RUseProgram (SCE_RProgram *prog)
 {
     if (prog) {
         glUseProgram (prog->id);
-        /* useless if statement in a full GL3 renderer */
-        if (prog->use_map)
+        /* useless if statements in a full GL3 renderer */
+        if (prog->use_vmap)
             SCE_RUseVertexAttributesMap (prog->map);
+        if (prog->use_mmap) {
+            sce_rmatindex = prog->mat_map;
+            SCE_RMapMatrices (prog->fun);
+        }
     } else {
         glUseProgram (0);
-        /* useless call in a full GL3 renderer */
+        /* useless calls in a full GL3 renderer */
         SCE_RDisableVertexAttributesMap ();
+        SCE_RMapMatrices (NULL);
     }
 }
 

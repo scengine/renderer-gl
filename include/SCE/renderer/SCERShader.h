@@ -54,6 +54,13 @@ typedef enum {
 #define SCE_TEXCOORD6_ATTRIB_NAME "sce_texcoord6"
 #define SCE_TEXCOORD7_ATTRIB_NAME "sce_texcoord7"
 
+#define SCE_MAT_OBJECT_NAME "sce_objectmatrix"
+#define SCE_MAT_CAMERA_NAME "sce_cameramatrix"
+#define SCE_MAT_PROJECTION_NAME "sce_projectionmatrix"
+#define SCE_MAT_TEXTURE_NAME "sce_texturematrix"
+#define SCE_MAT_MODELVIEW_NAME "sce_modelviewmatrix"
+
+
 /**
  * \brief GL shader
  */
@@ -75,7 +82,10 @@ struct sce_rprogram {
     int linked;                   /**< Is the program linked? */
     SCE_RVertexAttributesMap map; /**< Vertex attributes mappings */
     int map_built;                /**< Is the attributes map built? */
-    int use_map;                  /**< Use mapping? */
+    int use_vmap;                 /**< Use vertex attributes mapping? */
+    int mat_map[SCE_NUM_MATRICES + 1]; /**< Uniform locations map */
+    SCE_RSetMatricesFunc fun;     /**< Function that maps the matrices */
+    int use_mmap;                 /**< Use matrices mapping? */
 };
 
 
@@ -97,8 +107,12 @@ void SCE_RDeleteProgram (SCE_RProgram*);
 int SCE_RSetProgramShader (SCE_RProgram*, SCE_RShaderGLSL*, int);
 
 int SCE_RBuildProgram (SCE_RProgram*);
+
 void SCE_RSetupProgramAttributesMapping (SCE_RProgram*);
 void SCE_RActivateProgramAttributesMapping (SCE_RProgram*, int);
+
+void SCE_RSetupProgramMatricesMapping (SCE_RProgram*);
+void SCE_RActivateProgramMatricesMapping (SCE_RProgram*, int);
 
 void SCE_RUseProgram (SCE_RProgram*);
 
