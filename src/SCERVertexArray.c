@@ -60,7 +60,7 @@ void SCE_RVertexArrayQuit (void)
     SCE_List_Flush (&vaused);
 }
 
-void SCE_RInitVertexArrayData (SCE_SGeometryArrayData *data)
+static void SCE_RInitVertexArrayData (SCE_SGeometryArrayData *data)
 {
     data->attrib = SCE_POSITION;
     data->type = SCE_FLOAT;
@@ -68,7 +68,7 @@ void SCE_RInitVertexArrayData (SCE_SGeometryArrayData *data)
     data->size = 3;
     data->data = NULL;
 }
-SCE_SGeometryArrayData* SCE_RCreateVertexArrayData (void)
+static SCE_SGeometryArrayData* SCE_RCreateVertexArrayData (void)
 {
     SCE_SGeometryArrayData *data = NULL;
     if (!(data = SCE_malloc (sizeof *data)))
@@ -77,7 +77,7 @@ SCE_SGeometryArrayData* SCE_RCreateVertexArrayData (void)
         SCE_RInitVertexArrayData (data);
     return data;
 }
-void SCE_RDeleteVertexArrayData (SCE_SGeometryArrayData *data)
+static void SCE_RDeleteVertexArrayData (SCE_SGeometryArrayData *data)
 {
     if (data) {
         SCE_free (data);
