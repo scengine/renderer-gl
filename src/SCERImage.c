@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -425,9 +425,8 @@ SCE_RIMGGET (PixelSize, IL_IMAGE_BYTES_PER_PIXEL)
 /* SCE_RIMGGET (DataType,  IL_IMAGE_TYPE) */
 int SCE_RGetImageDataType (SCE_RImage *img)
 {
-    int t;
     SCE_RBindImage (img);
-    SCE_RGLTypeToSCE (ilGetInteger (IL_IMAGE_TYPE));
+    return SCE_RGLTypeToSCE (ilGetInteger (IL_IMAGE_TYPE));
 }
 
 #undef SCE_RIMGGET
