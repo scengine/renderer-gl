@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 26/07/2009
-   updated: 19/06/2011 */
+   updated: 22/06/2011 */
 
 #ifndef SCERVERTEXARRAY_H
 #define SCERVERTEXARRAY_H
@@ -93,6 +93,8 @@ void SCE_RSetVertexArrayNewData (SCE_RVertexArray*, SCE_EVertexAttribute,
                                  SCEenum, SCEsizei, SCEint, void*);
 
 void SCE_RUseVertexAttributesMap (SCE_RVertexAttributesMap);
+void SCE_RDisableVertexAttributesMap (void);
+
 extern void (*SCE_RUseVertexArray) (SCE_RVertexArray*);
 void SCE_RRender (SCE_EPrimitiveType, SCEuint);
 void SCE_RRenderInstanced (SCE_EPrimitiveType, SCEuint, SCEuint);
