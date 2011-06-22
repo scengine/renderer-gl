@@ -708,11 +708,8 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
                           SCE_RImage *img, int canfree)
 {
     SCE_RTexData *d = NULL;
-    unsigned int i, j, n_mipmaps;
+    unsigned int i, n_mipmaps;
     int old_level;
-
-    /* verification du target */
-    i = SCE_RGetTextureTargetID (tex, &target);
 
     old_level = SCE_RGetImageMipmapLevel (img);
 
@@ -732,8 +729,8 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
      */
     n_mipmaps = /*SCE_RGetImageNumMipmaps (img)*/ 1;
     /* assignation des donnees de l'image */
-    for (j = 0; j < n_mipmaps; j++) {
-        SCE_RSetImageMipmapLevel (img, j);
+    for (i = 0; i < n_mipmaps; i++) {
+        SCE_RSetImageMipmapLevel (img, i);
         /* creation des donnees a partir du niveau de mipmap j de l'image img */
         d = SCE_RCreateTexDataFromImage (img);
         if (!d) {
