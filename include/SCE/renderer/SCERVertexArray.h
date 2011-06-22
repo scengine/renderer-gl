@@ -63,7 +63,7 @@ typedef struct sce_rvertexarraysequence SCE_RVertexArraySequence;
  * \brief Vertex array setup sequence using GL vertex array objects
  */
 struct sce_rvertexarraysequence {
-    SCEint id;                  /**< Teh GL ID */
+    SCEuint id;                 /**< Teh GL ID */
 };
 
 #define SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS 16
