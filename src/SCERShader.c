@@ -17,9 +17,10 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 18/06/2011 */
+   updated: 03/08/2011 */
 
 #include <SCE/utils/SCEUtils.h>
+#include "SCE/renderer/SCERenderer.h"     /* SCE_RGetError() */
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERMatrix.h"      /* SCE_RMapMatrices() */
@@ -27,16 +28,20 @@
 
 #include "SCE/renderer/SCERShader.h"
 
-static SCEenum sce_gltype[3] = {
+static SCEenum sce_gltype[SCE_NUM_SHADER_TYPES] = {
     GL_VERTEX_SHADER,
     GL_FRAGMENT_SHADER,
-    GL_GEOMETRY_SHADER
+    GL_GEOMETRY_SHADER,
+    GL_TESS_CONTROL_SHADER,
+    GL_TESS_EVALUATION_SHADER
 };
 
-static const char *sce_typename[3] = {
+static const char *sce_typename[SCE_NUM_SHADER_TYPES] = {
     "vertex",
     "pixel",
-    "geometry"
+    "geometry",
+    "tessellation control",
+    "tessellation evaluation",
 };
 
 
@@ -67,7 +72,7 @@ SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCE_RShaderType type)
     shader->id = glCreateShader (shader->gltype);
     if (shader->id == 0) {
         SCEE_Log (SCE_ERROR);
-        SCEE_LogMsg ("I can't create a shader, what's the fuck?");
+        SCEE_LogMsg ("failed to create shader: %s", SCE_RGetError ());
         SCE_free (shader);
         return NULL;
     }
@@ -151,6 +156,8 @@ SCE_RProgram* SCE_RCreateProgram (void)
     prog->use_vmap = SCE_FALSE;
     prog->fun = NULL;
     prog->use_mmap = SCE_FALSE;
+    prog->use_tess = SCE_FALSE;
+    prog->patch_vertices = 0;
 
     return prog;
 }
@@ -171,6 +178,10 @@ int SCE_RSetProgramShader (SCE_RProgram *prog, SCE_RShaderGLSL *shader,
         glAttachShader (prog->id, shader->id);
     else
         glDetachShader (prog->id, shader->id);
+
+    if (shader->type == SCE_TESS_EVALUATION_SHADER ||
+        shader->type == SCE_TESS_CONTROL_SHADER)
+        prog->use_tess = attach;
 
     /* program need to be relinked in order to apply the changes */
     prog->linked = SCE_FALSE;
@@ -308,6 +319,8 @@ static int *sce_rmatindex = NULL;
     }                                                           \
   }
 
+/* we assume that our beloved compiler will remove the useless
+   'if' statements at compile time :> */
 SCE_RMAPMAT(0, 0, 0, 0, 1)
 SCE_RMAPMAT(0, 0, 0, 1, 0)
 SCE_RMAPMAT(0, 0, 0, 1, 1)
@@ -401,6 +414,7 @@ void SCE_RSetupProgramMatricesMapping (SCE_RProgram *prog)
         prog->fun = NULL;
 
 #undef SCE_RSELECTMAP
+#undef SCE_RGETMAP
 }
 /**
  * \brief Set matrices mapping state
@@ -416,18 +430,30 @@ void SCE_RActivateProgramMatricesMapping (SCE_RProgram *prog, int activate)
 
 
 
+void SCE_RSetProgramPatchVertices (SCE_RProgram *prog, int vertices)
+{
+    prog->patch_vertices = vertices;
+}
+
+
 void SCE_RUseProgram (SCE_RProgram *prog)
 {
     if (prog) {
         glUseProgram (prog->id);
-        /* useless if statements in a full GL3 renderer */
+        /* useless 'if' statements in a full GL3 renderer */
         if (prog->use_vmap)
             SCE_RUseVertexAttributesMap (prog->map);
         if (prog->use_mmap) {
             sce_rmatindex = prog->mat_map;
             SCE_RMapMatrices (prog->fun);
         }
+        if (prog->use_tess) {
+            glPatchParameteri (GL_PATCH_VERTICES, prog->patch_vertices);
+            /* tell the renderer to use GL_PATCHES as primitive type */
+            SCE_RUsePatches ();
+        }
     } else {
+        SCE_RUsePrimitives ();
         glUseProgram (0);
         /* useless calls in a full GL3 renderer */
         SCE_RDisableVertexAttributesMap ();
@@ -446,11 +472,11 @@ void SCE_RDisableShaderGLSL (void)
 
 static SCEenum SCE_RAdjacentPrim (SCEenum prim)
 {
-  switch (prim) {
-  case GL_LINES: return GL_LINES_ADJACENCY;
-  case GL_TRIANGLES: return GL_TRIANGLES_ADJACENCY;
-  default: return prim;    /* adjacency not supported for other primitives */
-  }
+    switch (prim) {
+    case GL_LINES: return GL_LINES_ADJACENCY;
+    case GL_TRIANGLES: return GL_TRIANGLES_ADJACENCY;
+    default: return prim; /* adjacency not supported for other primitives */
+    }
 }
 
 /**

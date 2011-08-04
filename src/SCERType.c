@@ -22,6 +22,7 @@
 #include <string.h>
 #include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
+#include <SCE/core/SCECore.h>   /* SCE_NUM_PRIMITIVE_TYPES */
 #include "SCE/renderer/SCERType.h"
 
 SCEenum sce_rgltypes[9] = {
@@ -36,7 +37,8 @@ SCEenum sce_rgltypes[9] = {
     GL_UNSIGNED_INT             /* SCE_SIZE_T */
 };
 
-SCEenum sce_rprimtypes[6] = {
+
+SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES] = {
     GL_POINTS,
     GL_LINES,
     GL_LINE_STRIP,
@@ -45,6 +47,16 @@ SCEenum sce_rprimtypes[6] = {
     GL_TRIANGLE_FAN
 };
 
+SCEenum sce_rprimtypes_patches[SCE_NUM_PRIMITIVE_TYPES] = {
+    GL_PATCHES,
+    GL_PATCHES,
+    GL_PATCHES,
+    GL_PATCHES,
+    GL_PATCHES,
+    GL_PATCHES
+};
+
+SCEenum *sce_rprimtypes = sce_rprimtypes_true;
 
 int SCE_RTypeInit (void)
 {
@@ -73,6 +85,16 @@ int SCE_RTypeInit (void)
 }
 void SCE_RTypeQuit (void)
 {
+}
+
+
+void SCE_RUsePatches (void)
+{
+    sce_rprimtypes = sce_rprimtypes_patches;
+}
+void SCE_RUsePrimitives (void)
+{
+    sce_rprimtypes = sce_rprimtypes_true;
 }
 
 /* TODO: those are deprecated */

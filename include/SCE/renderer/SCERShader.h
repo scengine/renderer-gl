@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 18/06/2011 */
+   updated: 01/08/2011 */
 
 #ifndef SCERSHADER_H
 #define SCERSHADER_H
@@ -34,9 +34,12 @@ extern "C" {
  * \brief Available shader types.
  */
 typedef enum {
-  SCE_VERTEX_SHADER,
-  SCE_PIXEL_SHADER,
-  SCE_GEOMETRY_SHADER,
+    SCE_VERTEX_SHADER,
+    SCE_PIXEL_SHADER,
+    SCE_GEOMETRY_SHADER,
+    SCE_TESS_CONTROL_SHADER,
+    SCE_TESS_EVALUATION_SHADER,
+    SCE_NUM_SHADER_TYPES
 } SCE_RShaderType;
 
 
@@ -86,6 +89,8 @@ struct sce_rprogram {
     int mat_map[SCE_NUM_MATRICES + 1]; /**< Uniform locations map */
     SCE_RSetMatricesFunc fun;     /**< Function that maps the matrices */
     int use_mmap;                 /**< Use matrices mapping? */
+    int use_tess;
+    int patch_vertices;           /**< Tessellation patch vertices */
 };
 
 
@@ -113,6 +118,8 @@ void SCE_RActivateProgramAttributesMapping (SCE_RProgram*, int);
 
 void SCE_RSetupProgramMatricesMapping (SCE_RProgram*);
 void SCE_RActivateProgramMatricesMapping (SCE_RProgram*, int);
+
+void SCE_RSetProgramPatchVertices (SCE_RProgram*, int);
 
 void SCE_RUseProgram (SCE_RProgram*);
 

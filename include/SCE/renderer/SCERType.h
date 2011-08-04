@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 extern SCEenum sce_rgltypes[9];
-extern SCEenum sce_rprimtypes[6];
+extern SCEenum *sce_rprimtypes;
 
 /* TODO: what the hell are these doing here?? */
 /* types de culling */
@@ -49,6 +49,9 @@ extern SCEenum sce_rprimtypes[6];
 
 int SCE_RTypeInit (void);
 void SCE_RTypeQuit (void);
+
+void SCE_RUsePatches (void);
+void SCE_RUsePrimitives (void);
 
 /* lol gl commands. */
 /* deprecated */
