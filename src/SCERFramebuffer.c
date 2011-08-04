@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 05/02/2009 */
+   updated: 04/08/2011 */
 
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERTexture.h"
@@ -66,7 +66,7 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer *fb)
         fb->buffers[i].id = 0;
         fb->buffers[i].tex = NULL;
         fb->buffers[i].user = SCE_TRUE;
-        fb->buffers[i].actived = SCE_FALSE;
+        fb->buffers[i].activated = SCE_FALSE;
     }
     fb->x = fb->y = 0;
     fb->w = fb->h = 1;
@@ -146,8 +146,7 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
 /**
  * \brief Adds an existing texture as a new render target for \p fb
  * \param fb the frame buffer to which to add the new texture
- * \param id render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
- * or SCE_STENCIL_BUFFER)
+ * \param id render target's identifier
  * \param target used only for cubemaps, determines the face
  * of the cubemap on which to make the render, can be 0
  * \param tex the texture that is the target of \p id. must be a 2D texture
@@ -164,8 +163,9 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
  * This function will adapts the \p fb's viewport to the dimensions of \p tex.
  * \sa SCE_RAddRenderBuffer()
  */
-int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
-                           SCE_RTexture *tex, int mipmap, int canfree)
+int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
+                           SCEenum target, SCE_RTexture *tex, int mipmap,
+                           int canfree)
 {
     int type, status;
 
@@ -248,7 +248,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
 
     fb->w = SCE_RGetTextureWidth (tex, target, 0);
     fb->h = SCE_RGetTextureHeight (tex, target, 0);
-    fb->buffers[id].actived = SCE_TRUE;
+    fb->buffers[id].activated = SCE_TRUE;
     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 
     return SCE_OK;
@@ -258,8 +258,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
 /**
  * \brief Adds a new render buffer
  * \param fb the frame buffer to which to add the render buffer
- * \param id render buffer's identifier, can be SCE_DEPTH_BUFFER
- * or SCE_STENCIL_BUFFER
+ * \param id render buffer's identifier
  * \param fmt the format of the new render buffer, can be 0 or lesser
  * \param w width of the new render buffer
  * \param h height of the new render buffer
@@ -271,7 +270,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCEuint id, SCEenum target,
  * automatically.
  * \sa SCE_RAddRenderTexture()
  */
-int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
+int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
                           int fmt, int w, int h)
 {
     int type, status;
@@ -327,7 +326,7 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
     }
 
     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
-    fb->buffers[id].actived = SCE_TRUE;
+    fb->buffers[id].activated = SCE_TRUE;
 
     return SCE_OK;
 }
@@ -337,8 +336,7 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
  * \brief Creates a new render texture and add it as a new render target to the
  * given frame buffer
  * \param fb the frame buffer to which to add the new render texture
- * \param id render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
- * or SCE_STENCIL_BUFFER)
+ * \param id render target's identifier
  * \param pxf internal pixel format of the new texture,
  * can be set to 0 or lesser
  * \param fmt format of the new texture, can be set to 0 or lesser
@@ -354,8 +352,8 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCEuint id,
  * \sa SCE_RAddRenderTexture()
  * \todo rename this function to 'AddNew'
  */
-int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCEuint id, int pxf,
-                              int fmt, int type, int w, int h)
+int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
+                              int pxf, int fmt, int type, int w, int h)
 {
     SCE_RTexture *tex = NULL;
     SCE_RTexData data;
@@ -408,11 +406,10 @@ int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCEuint id, int pxf,
 /**
  * \brief Gets one of the render textures of a frame buffer
  * \param fb the frame buffer to which get the texture
- * \param id the render target's identifier (SCE_COLOR_BUFFERn, SCE_DEPTH_BUFFER
- * or SCE_STENCIL_BUFFER)
+ * \param id the render target's identifier
  * \returns the render texture targeted by \p id
  */
-SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer *fb, SCEuint id)
+SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id)
 {
     return fb->buffers[id].tex;
 }
@@ -422,27 +419,28 @@ SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer *fb, SCEuint id)
  * \brief Activate a render buffer
  * \param fb a framebuffer
  * \param id the render target's identifier
- * \param actived boolean which indicates the status of \p id
+ * \param activated boolean which indicates the status of \p id
  */
-void SCE_RActivateRenderBuffer (SCE_RFramebuffer *fb, int id, int actived)
+void SCE_RActivateRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
+                                int activated)
 {
-    fb->buffers[id].actived = actived;
+    fb->buffers[id].activated = activated;
 }
 /**
  * \brief Equivalent to SCE_RActivateRenderBuffer (\p fb, \p id, SCE_TRUE)
  * \sa SCE_RActivateRenderBuffer() SCE_RDisableRenderBuffer()
  */
-void SCE_REnableRenderBuffer (SCE_RFramebuffer *fb, int id)
+void SCE_REnableRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id)
 {
-    fb->buffers[id].actived = SCE_TRUE;
+    fb->buffers[id].activated = SCE_TRUE;
 }
 /**
  * \brief Equivalent to SCE_RActivateRenderBuffer (\p fb, \p id, SCE_FALSE)
  * \sa SCE_RActivateRenderBuffer() SCE_REnableRenderBuffer()
  */
-void SCE_RDisableRenderBuffer (SCE_RFramebuffer *fb, int id)
+void SCE_RDisableRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id)
 {
-    fb->buffers[id].actived = SCE_FALSE;
+    fb->buffers[id].activated = SCE_FALSE;
 }
 
 /**
@@ -459,7 +457,7 @@ static void SCE_RSetDrawBuffers (SCE_RFramebuffer *fb)
     SCEenum drawids[SCE_MAX_ATTACHMENT_BUFFERS] = {0};
 
     for (i = 0; i < max_attachement_buffers; i++) {
-        if (fb->buffers[i].actived)
+        if (fb->buffers[i].activated)
             drawids[j++] = GL_COLOR_ATTACHMENT0_EXT + i;
     }
     glDrawBuffers (j, drawids);

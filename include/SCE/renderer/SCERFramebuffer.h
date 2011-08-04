@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 25/09/2008 */
+   updated: 04/08/2011 */
 
 #ifndef SCEFRAMEBUFFER_H
 #define SCEFRAMEBUFFER_H
@@ -33,27 +33,26 @@ extern "C" {
  * @{
  */
 
-/* types de buffers */
-#define SCE_COLOR_BUFFER0 0
-#define SCE_COLOR_BUFFER1 1
-#define SCE_COLOR_BUFFER2 2
-#define SCE_COLOR_BUFFER3 3
-#define SCE_COLOR_BUFFER4 4
-#define SCE_COLOR_BUFFER5 5
-#define SCE_COLOR_BUFFER6 6
-#define SCE_COLOR_BUFFER7 7
-#define SCE_DEPTH_BUFFER 8
-#define SCE_STENCIL_BUFFER 9
-/* nombre de render buffer differents */
-#define SCE_NUM_RENDER_BUFFERS 10
+typedef enum {
+    SCE_COLOR_BUFFER0 = 0,
+    SCE_COLOR_BUFFER1,
+    SCE_COLOR_BUFFER2,
+    SCE_COLOR_BUFFER3,
+    SCE_COLOR_BUFFER4,
+    SCE_COLOR_BUFFER5,
+    SCE_COLOR_BUFFER6,
+    SCE_COLOR_BUFFER7,
+    SCE_DEPTH_BUFFER,
+    SCE_STENCIL_BUFFER,
+    SCE_NUM_RENDER_BUFFERS
+} SCE_RBufferType;
+
 /* nombre maximum de buffers pouvant etre attaches */
 #define SCE_MAX_ATTACHMENT_BUFFERS 8 /* TODO: a mettre a jour regulierement */
 
-/* pour la compatibilite */
 #define SCE_COLOR_BUFFER SCE_COLOR_BUFFER0
 
 
-/* buffer de rendu, soit vers un ID, soit vers une texture */
 /**
  * \copydoc sce_rrenderbuffer
  */
@@ -67,7 +66,7 @@ struct sce_rrenderbuffer {
     SCEuint id;        /**< OpenGL render buffer's identifier */
     SCE_RTexture *tex; /**< The render texture */
     int user;          /**< Is user the owner of \c tex ? */
-    int actived;       /**< Is render buffer actived ? */
+    int activated;     /**< Is render buffer activated ? */
 };
 
 /**
@@ -95,19 +94,19 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer*);
 SCE_RFramebuffer* SCE_RCreateFramebuffer (void);
 void SCE_RDeleteFramebuffer (SCE_RFramebuffer*);
 
-int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCEuint, SCEenum,
+int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCE_RBufferType, SCEenum,
                            SCE_RTexture*, int, int);
 
-int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCEuint, int, int, int);
+int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType, int, int, int);
 
-int SCE_RCreateRenderTexture (SCE_RFramebuffer*, SCEuint,
+int SCE_RCreateRenderTexture (SCE_RFramebuffer*, SCE_RBufferType,
                               int, int, int, int, int);
 
-SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer*, SCEuint);
+SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer*, SCE_RBufferType);
 
-void SCE_RActivateRenderBuffer (SCE_RFramebuffer*, int, int);
-void SCE_REnableRenderBuffer (SCE_RFramebuffer*, int);
-void SCE_RDisableRenderBuffer (SCE_RFramebuffer*, int);
+void SCE_RActivateRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType, int);
+void SCE_REnableRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType);
+void SCE_RDisableRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType);
 
 void SCE_RClearRenderbuffer (SCE_RFramebuffer*, SCEuint, int);
 
