@@ -140,8 +140,13 @@ int SCE_RBuildShaderGLSL (SCE_RShaderGLSL *shader)
     return SCE_OK;
 }
 
+/* :) */
+static void SCE_RSetProgramNoneMatrix (void)
+{}
+
 SCE_RProgram* SCE_RCreateProgram (void)
 {
+    int i;
     SCE_RProgram *prog = NULL;
     prog = SCE_malloc (sizeof *prog);
     if (!prog) {
@@ -154,7 +159,10 @@ SCE_RProgram* SCE_RCreateProgram (void)
     SCE_RInitVertexAttributesMap (prog->map);
     prog->map_built = SCE_FALSE;
     prog->use_vmap = SCE_FALSE;
-    prog->fun = NULL;
+    for (i = 0; i < SCE_NUM_MATRICES; i++) {
+        prog->funs[i] = SCE_RSetProgramNoneMatrix;
+        prog->mat_map[i] = -1;
+    }
     prog->use_mmap = SCE_FALSE;
     prog->use_tess = SCE_FALSE;
     prog->patch_vertices = 0;
@@ -291,69 +299,45 @@ void SCE_RActivateProgramAttributesMapping (SCE_RProgram *prog, int activate)
 
 static int *sce_rmatindex = NULL;
 
-#define SCE_RMAPMAT(o, c, p, t, m)                              \
-  static void SCE_RSetProgramMatrices##o##c##p##t##m (void)     \
-  {                                                             \
-    if (o)                                                      \
-      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_OBJECT],        \
-                          1, SCE_TRUE,                          \
-                          sce_rmatrices[SCE_MAT_OBJECT]);       \
-    if (c)                                                      \
-      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_CAMERA],        \
-                          1, SCE_TRUE,                          \
-                          sce_rmatrices[SCE_MAT_CAMERA]);       \
-    if (p)                                                      \
-      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_PROJECTION],    \
-                          1, SCE_TRUE,                          \
-                          sce_rmatrices[SCE_MAT_PROJECTION]);   \
-    if (t)                                                      \
-      glUniformMatrix4fv (sce_rmatindex[SCE_MAT_TEXTURE],       \
-                          1, SCE_TRUE,                          \
-                          sce_rmatrices[SCE_MAT_TEXTURE]);      \
-    if (m) {                                                    \
-      SCE_TMatrix4 mat;                                         \
-      SCE_Matrix4_Mul (sce_rmatrices[SCE_MAT_CAMERA],           \
-                       sce_rmatrices[SCE_MAT_OBJECT], mat);     \
-      glUniformMatrix4fv (sce_rmatindex[SCE_NUM_MATRICES],      \
-                          1, SCE_TRUE, mat);                    \
-    }                                                           \
-  }
+static void SCE_RSetProgramObjectMatrix (void)
+{
+    glUniformMatrix4fv (sce_rmatindex[SCE_MAT_OBJECT],
+                        1, SCE_TRUE,
+                        sce_rmatrices[SCE_MAT_OBJECT]);
+}
+static void SCE_RSetProgramCameraMatrix (void)
+{
+    glUniformMatrix4fv (sce_rmatindex[SCE_MAT_CAMERA],
+                        1, SCE_TRUE,
+                        sce_rmatrices[SCE_MAT_CAMERA]);
+}
+static void SCE_RSetProgramProjectionMatrix (void)
+{
+    glUniformMatrix4fv (sce_rmatindex[SCE_MAT_PROJECTION],
+                        1, SCE_TRUE,
+                        sce_rmatrices[SCE_MAT_PROJECTION]);
+}
+static void SCE_RSetProgramTextureMatrix (void)
+{
+    glUniformMatrix4fv (sce_rmatindex[SCE_MAT_TEXTURE],
+                        1, SCE_TRUE,
+                        sce_rmatrices[SCE_MAT_TEXTURE]);
+}
+static void SCE_RSetProgramModelviewMatrix (void)
+{
+    glUniformMatrix4fv (sce_rmatindex[SCE_MAT_MODELVIEW],
+                        1, SCE_TRUE,
+                        sce_rmatrices[SCE_MAT_MODELVIEW]);
+}
 
-/* we assume that our beloved compiler will remove the useless
-   'if' statements at compile time :> */
-SCE_RMAPMAT(0, 0, 0, 0, 1)
-SCE_RMAPMAT(0, 0, 0, 1, 0)
-SCE_RMAPMAT(0, 0, 0, 1, 1)
-SCE_RMAPMAT(0, 0, 1, 0, 0)
-SCE_RMAPMAT(0, 0, 1, 0, 1)
-SCE_RMAPMAT(0, 0, 1, 1, 0)
-SCE_RMAPMAT(0, 0, 1, 1, 1)
-SCE_RMAPMAT(0, 1, 0, 0, 0)
-SCE_RMAPMAT(0, 1, 0, 0, 1)
-SCE_RMAPMAT(0, 1, 0, 1, 0)
-SCE_RMAPMAT(0, 1, 0, 1, 1)
-SCE_RMAPMAT(0, 1, 1, 0, 0)
-SCE_RMAPMAT(0, 1, 1, 0, 1)
-SCE_RMAPMAT(0, 1, 1, 1, 0)
-SCE_RMAPMAT(0, 1, 1, 1, 1)
-SCE_RMAPMAT(1, 0, 0, 0, 0)
-SCE_RMAPMAT(1, 0, 0, 0, 1)
-SCE_RMAPMAT(1, 0, 0, 1, 0)
-SCE_RMAPMAT(1, 0, 0, 1, 1)
-SCE_RMAPMAT(1, 0, 1, 0, 0)
-SCE_RMAPMAT(1, 0, 1, 0, 1)
-SCE_RMAPMAT(1, 0, 1, 1, 0)
-SCE_RMAPMAT(1, 0, 1, 1, 1)
-SCE_RMAPMAT(1, 1, 0, 0, 0)
-SCE_RMAPMAT(1, 1, 0, 0, 1)
-SCE_RMAPMAT(1, 1, 0, 1, 0)
-SCE_RMAPMAT(1, 1, 0, 1, 1)
-SCE_RMAPMAT(1, 1, 1, 0, 0)
-SCE_RMAPMAT(1, 1, 1, 0, 1)
-SCE_RMAPMAT(1, 1, 1, 1, 0)
-SCE_RMAPMAT(1, 1, 1, 1, 1)
+static SCE_RSetMatrixFunc sce_setprogrammatrix[SCE_NUM_MATRICES] = {
+    SCE_RSetProgramObjectMatrix,
+    SCE_RSetProgramCameraMatrix,
+    SCE_RSetProgramProjectionMatrix,
+    SCE_RSetProgramTextureMatrix,
+    SCE_RSetProgramModelviewMatrix
+};
 
-#undef SCE_RMAPMAT
 
 /**
  * \brief Construct the matrix map
@@ -361,6 +345,8 @@ SCE_RMAPMAT(1, 1, 1, 1, 1)
  */
 void SCE_RSetupProgramMatricesMapping (SCE_RProgram *prog)
 {
+    int i;
+
 #define SCE_RGETMAP(mat)                                        \
     prog->mat_map[mat] = glGetUniformLocation (prog->id, mat##_NAME)
 
@@ -368,53 +354,15 @@ void SCE_RSetupProgramMatricesMapping (SCE_RProgram *prog)
     SCE_RGETMAP (SCE_MAT_CAMERA);
     SCE_RGETMAP (SCE_MAT_PROJECTION);
     SCE_RGETMAP (SCE_MAT_TEXTURE);
-    prog->mat_map[SCE_NUM_MATRICES] =
-      glGetUniformLocation (prog->id, SCE_MAT_MODELVIEW_NAME);
-
-#define SCE_RSELECTMAP(o, c, p, t, m)                           \
-    if ((prog->mat_map[SCE_MAT_OBJECT]       != -1) == o &&     \
-        (prog->mat_map[SCE_MAT_CAMERA]       != -1) == c &&     \
-        (prog->mat_map[SCE_MAT_PROJECTION]   != -1) == p &&     \
-        (prog->mat_map[SCE_MAT_TEXTURE]      != -1) == t &&     \
-        (prog->mat_map[SCE_NUM_MATRICES]     != -1) == m)       \
-        prog->fun = SCE_RSetProgramMatrices##o##c##p##t##m;     \
-    else
-
-    SCE_RSELECTMAP (0, 0, 0, 0, 1)
-    SCE_RSELECTMAP (0, 0, 0, 1, 0)
-    SCE_RSELECTMAP (0, 0, 0, 1, 1)
-    SCE_RSELECTMAP (0, 0, 1, 0, 0)
-    SCE_RSELECTMAP (0, 0, 1, 0, 1)
-    SCE_RSELECTMAP (0, 0, 1, 1, 0)
-    SCE_RSELECTMAP (0, 0, 1, 1, 1)
-    SCE_RSELECTMAP (0, 1, 0, 0, 0)
-    SCE_RSELECTMAP (0, 1, 0, 0, 1)
-    SCE_RSELECTMAP (0, 1, 0, 1, 0)
-    SCE_RSELECTMAP (0, 1, 0, 1, 1)
-    SCE_RSELECTMAP (0, 1, 1, 0, 0)
-    SCE_RSELECTMAP (0, 1, 1, 0, 1)
-    SCE_RSELECTMAP (0, 1, 1, 1, 0)
-    SCE_RSELECTMAP (0, 1, 1, 1, 1)
-    SCE_RSELECTMAP (1, 0, 0, 0, 0)
-    SCE_RSELECTMAP (1, 0, 0, 0, 1)
-    SCE_RSELECTMAP (1, 0, 0, 1, 0)
-    SCE_RSELECTMAP (1, 0, 0, 1, 1)
-    SCE_RSELECTMAP (1, 0, 1, 0, 0)
-    SCE_RSELECTMAP (1, 0, 1, 0, 1)
-    SCE_RSELECTMAP (1, 0, 1, 1, 0)
-    SCE_RSELECTMAP (1, 0, 1, 1, 1)
-    SCE_RSELECTMAP (1, 1, 0, 0, 0)
-    SCE_RSELECTMAP (1, 1, 0, 0, 1)
-    SCE_RSELECTMAP (1, 1, 0, 1, 0)
-    SCE_RSELECTMAP (1, 1, 0, 1, 1)
-    SCE_RSELECTMAP (1, 1, 1, 0, 0)
-    SCE_RSELECTMAP (1, 1, 1, 0, 1)
-    SCE_RSELECTMAP (1, 1, 1, 1, 0)
-    SCE_RSELECTMAP (1, 1, 1, 1, 1)
-        prog->fun = NULL;
-
-#undef SCE_RSELECTMAP
+    SCE_RGETMAP (SCE_MAT_MODELVIEW);
 #undef SCE_RGETMAP
+
+    for (i = 0; i < SCE_NUM_MATRICES; i++) {
+        if (prog->mat_map[i] != -1)
+            prog->funs[i] = sce_setprogrammatrix[i];
+        else
+            prog->funs[i] = SCE_RSetProgramNoneMatrix;
+    }
 }
 /**
  * \brief Set matrices mapping state
@@ -440,18 +388,28 @@ void SCE_RUseProgram (SCE_RProgram *prog)
 {
     if (prog) {
         glUseProgram (prog->id);
+
         /* useless 'if' statements in a full GL3 renderer */
         if (prog->use_vmap)
             SCE_RUseVertexAttributesMap (prog->map);
+        else
+            SCE_RDisableVertexAttributesMap ();
+
         if (prog->use_mmap) {
             sce_rmatindex = prog->mat_map;
-            SCE_RMapMatrices (prog->fun);
+            SCE_RMapMatrices (prog->funs);
+        } else {
+            /* useless in a full GL3 renderer */
+            SCE_RMapMatrices (NULL);
         }
+
         if (prog->use_tess) {
             glPatchParameteri (GL_PATCH_VERTICES, prog->patch_vertices);
             /* tell the renderer to use GL_PATCHES as primitive type */
             SCE_RUsePatches ();
-        }
+        } else
+            SCE_RUsePrimitives ();
+
     } else {
         SCE_RUsePrimitives ();
         glUseProgram (0);

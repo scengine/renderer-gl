@@ -44,8 +44,36 @@ SCE_TMatrix4 sce_rmatrices[SCE_NUM_MATRICES] = {
     SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY,
+    SCE_MATRIX4_IDENTITY,
     SCE_MATRIX4_IDENTITY
 };
+
+static void SCE_RSetModelviewMatrix (void)
+{
+    glMatrixMode (GL_MODELVIEW);
+    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_MODELVIEW]);
+}
+static void SCE_RSetProjectionMatrix (void)
+{
+    glMatrixMode (GL_PROJECTION);
+    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_PROJECTION]);
+}
+static void SCE_RSetTextureMatrix (void)
+{
+    glMatrixMode (GL_TEXTURE);
+    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_TEXTURE]);
+}
+
+/* default are common GL functions */
+static SCE_RSetMatrixFunc sce_setmatrix_funs[SCE_NUM_MATRICES] = {
+    SCE_RSetModelviewMatrix,
+    SCE_RSetModelviewMatrix,
+    SCE_RSetProjectionMatrix,
+    SCE_RSetTextureMatrix,
+    SCE_RSetModelviewMatrix
+};
+
+static SCE_RSetMatrixFunc *setmatrix = sce_setmatrix_funs;
 
 /**
  * \brief Load the specified matrix
@@ -56,41 +84,35 @@ SCE_TMatrix4 sce_rmatrices[SCE_NUM_MATRICES] = {
 void SCE_RLoadMatrix (SCE_RMatrix matrix, const SCE_TMatrix4 m)
 {
     SCE_Matrix4_Copy (sce_rmatrices[matrix], m);
+    if (matrix == SCE_MAT_OBJECT || matrix == SCE_MAT_CAMERA) {
+        SCE_Matrix4_Mul (sce_rmatrices[SCE_MAT_CAMERA],
+                         sce_rmatrices[SCE_MAT_OBJECT],
+                         sce_rmatrices[SCE_MAT_MODELVIEW]);
+        setmatrix[SCE_MAT_MODELVIEW] ();
+    }
+    /* when no shader is active are we are in a full GL3 context, this call
+       should be removed */
+    setmatrix[matrix] ();
 }
 
 /**
- * \brief Default 'setmatrices' function
- */
-static void SCE_RDefaultSetMatrices (void)
-{
-    SCE_TMatrix4 m;
-    SCE_Matrix4_Mul (sce_rmatrices[SCE_MAT_CAMERA],
-                     sce_rmatrices[SCE_MAT_OBJECT], m);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadTransposeMatrixf (m);
-    glMatrixMode (GL_PROJECTION);
-    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_PROJECTION]);
-    glMatrixMode (GL_TEXTURE);
-    glLoadTransposeMatrixf (sce_rmatrices[SCE_MAT_TEXTURE]);
-}
-
-/**
- * \brief Send all matrices to the driver
- */
-SCE_RSetMatricesFunc SCE_RSetMatrices = SCE_RDefaultSetMatrices;
-
-/**
- * \brief Sets the 'setmatrices' function
+ * \brief Sets the 'SCE_RLoadMatrix()' function
+ * \param funs must be a pointer to an array of size SCE_NUM_MATRICES,
+ * or NULL to restore the default state
  *
  * In practice this function is used by the shaders manager to map the
  * matrices to shader uniform variables.
  */
-void SCE_RMapMatrices (SCE_RSetMatricesFunc fun)
+void SCE_RMapMatrices (SCE_RSetMatrixFunc *funs)
 {
-    if (fun)
-        SCE_RSetMatrices = fun;
+    int i;
+    if (funs)
+        setmatrix = funs;
     else
-        SCE_RSetMatrices = SCE_RDefaultSetMatrices;
+        setmatrix = sce_setmatrix_funs;
+    /* refresh matrix state */
+    for (i = 0; i < SCE_NUM_MATRICES; i++)
+        setmatrix[i] ();
 }
 
 /**

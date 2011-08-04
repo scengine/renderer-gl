@@ -34,18 +34,18 @@ enum sce_rmatrix {
     SCE_MAT_CAMERA,
     SCE_MAT_PROJECTION,
     SCE_MAT_TEXTURE,
+    SCE_MAT_MODELVIEW,
     SCE_NUM_MATRICES
 };
 typedef enum sce_rmatrix SCE_RMatrix;
 
-typedef void (*SCE_RSetMatricesFunc) (void);
+typedef void (*SCE_RSetMatrixFunc) (void);
 
 extern SCE_TMatrix4 sce_rmatrices[SCE_NUM_MATRICES];
 
 void SCE_RLoadMatrix (SCE_RMatrix, const SCE_TMatrix4);
-extern SCE_RSetMatricesFunc SCE_RSetMatrices;
 
-void SCE_RMapMatrices (SCE_RSetMatricesFunc);
+void SCE_RMapMatrices (SCE_RSetMatrixFunc*);
 
 void SCE_RGetMatrix (SCE_RMatrix, SCE_TMatrix4);
 

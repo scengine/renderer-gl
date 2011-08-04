@@ -86,8 +86,9 @@ struct sce_rprogram {
     SCE_RVertexAttributesMap map; /**< Vertex attributes mappings */
     int map_built;                /**< Is the attributes map built? */
     int use_vmap;                 /**< Use vertex attributes mapping? */
-    int mat_map[SCE_NUM_MATRICES + 1]; /**< Uniform locations map */
-    SCE_RSetMatricesFunc fun;     /**< Function that maps the matrices */
+    int mat_map[SCE_NUM_MATRICES]; /**< Uniform locations map */
+    /** Function that maps the matrices */
+    SCE_RSetMatrixFunc funs[SCE_NUM_MATRICES];
     int use_mmap;                 /**< Use matrices mapping? */
     int use_tess;
     int patch_vertices;           /**< Tessellation patch vertices */
