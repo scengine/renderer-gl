@@ -95,7 +95,7 @@ void SCE_RSetShaderGLSLSource (SCE_RShaderGLSL *shader, char *src)
     SCE_free (shader->data);
     shader->data = src;
 }
-int SCE_RSetShaderGLSLSourceDup (SCE_RShaderGLSL *shader, char *src)
+int SCE_RSetShaderGLSLSourceDup (SCE_RShaderGLSL *shader, const char *src)
 {
     char *new = NULL;
 
