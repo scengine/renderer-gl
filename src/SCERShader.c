@@ -203,7 +203,7 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
     char *loginfo = NULL;
 
     if (prog->linked)
-      return SCE_OK;
+        return SCE_OK;
 
     glLinkProgram (prog->id);
 
@@ -220,17 +220,11 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
         memset (loginfo, '\0', loginfo_size + 1);
         glGetProgramInfoLog (prog->id, loginfo_size, &loginfo_size, loginfo);
 
+        /* TODO: add program name */
         SCEE_LogMsg ("can't link program, reason: %s", loginfo);
 
         SCE_free (loginfo);
         return SCE_ERROR;
-    }
-    glValidateProgram (prog->id);
-    glGetProgramiv (prog->id, GL_VALIDATE_STATUS, &status);
-    if (status != GL_TRUE) {
-        /* what to do? */
-        /* TODO: add program name */
-        SCEE_SendMsg ("can't validate program");
     }
 
     prog->linked = SCE_TRUE;
@@ -238,6 +232,32 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
     /* if the map was previously built, rebuild it */
     if (prog->map_built)
         SCE_RSetupProgramAttributesMapping (prog);
+
+    return SCE_OK;
+}
+
+int SCE_RValidateProgram (SCE_RProgram *prog)
+{
+    int status = GL_TRUE;
+    int loginfo_size = 0;
+    char *loginfo = NULL;
+
+    glValidateProgram (prog->id);
+    glGetProgramiv (prog->id, GL_VALIDATE_STATUS, &status);
+    if (status != GL_TRUE) {
+        /* TODO: add program name */
+        glGetProgramiv (prog->id, GL_INFO_LOG_LENGTH, &loginfo_size);
+        loginfo = SCE_malloc (loginfo_size + 1);
+        if (!loginfo) {
+            SCEE_LogSrc ();
+            return SCE_ERROR;
+        }
+        memset (loginfo, '\0', loginfo_size + 1);
+        glGetProgramInfoLog (prog->id, loginfo_size, &loginfo_size, loginfo);
+
+        SCEE_LogMsg ("can't validate program, reason: %s", loginfo);
+        return SCE_ERROR;
+    }
 
     return SCE_OK;
 }

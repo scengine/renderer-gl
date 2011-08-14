@@ -113,6 +113,7 @@ void SCE_RDeleteProgram (SCE_RProgram*);
 int SCE_RSetProgramShader (SCE_RProgram*, SCE_RShaderGLSL*, int);
 
 int SCE_RBuildProgram (SCE_RProgram*);
+int SCE_RValidateProgram (SCE_RProgram*);
 
 void SCE_RSetupProgramAttributesMapping (SCE_RProgram*);
 void SCE_RActivateProgramAttributesMapping (SCE_RProgram*, int);
