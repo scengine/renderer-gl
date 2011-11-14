@@ -103,7 +103,6 @@ SCE_RShaderGLSL* SCE_RCreateShaderGLSL (SCE_RShaderType);
 void SCE_RDeleteShaderGLSL (SCE_RShaderGLSL*);
 
 void SCE_RSetShaderGLSLSource (SCE_RShaderGLSL*, char*);
-int SCE_RSetShaderGLSLSourceDup (SCE_RShaderGLSL*, const char*);
 
 int SCE_RBuildShaderGLSL (SCE_RShaderGLSL*);
 

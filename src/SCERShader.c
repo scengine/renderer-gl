@@ -84,7 +84,6 @@ void SCE_RDeleteShaderGLSL (SCE_RShaderGLSL *shader)
     if (shader) {
         if (glIsShader (shader->id))
             glDeleteShader (shader->id);
-        SCE_free (shader->data);
         SCE_free (shader);
     }
 }
@@ -92,20 +91,7 @@ void SCE_RDeleteShaderGLSL (SCE_RShaderGLSL *shader)
 
 void SCE_RSetShaderGLSLSource (SCE_RShaderGLSL *shader, char *src)
 {
-    SCE_free (shader->data);
     shader->data = src;
-}
-int SCE_RSetShaderGLSLSourceDup (SCE_RShaderGLSL *shader, const char *src)
-{
-    char *new = NULL;
-
-    new = SCE_String_Dup (src);
-    if (!new) {
-        SCEE_LogSrc ();
-        return SCE_ERROR;
-    }
-    SCE_RSetShaderGLSLSource (shader, new);
-    return SCE_OK;
 }
 
 int SCE_RBuildShaderGLSL (SCE_RShaderGLSL *shader)
