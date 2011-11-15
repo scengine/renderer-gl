@@ -399,7 +399,7 @@ int SCE_RGetMaxTexture3DSize (void)
  *
  * \sa SCE_RPixelizeTexture()
  */
-void SCE_RSetTextureFilter (SCE_RTexture *tex, SCEint filter)
+void SCE_RSetTextureFilter (SCE_RTexture *tex, SCE_RTexFilter filter)
 {
     SCE_RSetTextureParam (tex, GL_TEXTURE_MIN_FILTER, filter);
 }

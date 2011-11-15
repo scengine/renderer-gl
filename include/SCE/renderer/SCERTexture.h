@@ -150,8 +150,7 @@ int SCE_RGetMaxTextureSize (void);
 int SCE_RGetMaxTextureCubeSize (void);
 int SCE_RGetMaxTexture3DSize (void);
 
-void SCE_RSetTextureFilter (SCE_RTexture*, SCEint);
-
+void SCE_RSetTextureFilter (SCE_RTexture*, SCE_RTexFilter);
 void SCE_RPixelizeTexture (SCE_RTexture*, int);
 
 void SCE_RSetTextureParam (SCE_RTexture*, SCEenum, int) SCE_GNUC_DEPRECATED;
