@@ -1166,7 +1166,7 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
             for (i = 0; i < n; i++)
                 make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i : 0), SCE_TRUE);
         }
-        SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, max_mipmap_level);
+        /* SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, max_mipmap_level);*/
         SCE_RSetTextureFilter (tex, SCE_TEX_TRILINEAR);
     } else {
         for (i = 0; i < n; i++)
