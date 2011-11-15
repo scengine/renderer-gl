@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 13/05/2010 */
+   updated: 15/11/2011 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -81,9 +81,6 @@ static int force_fmt = SCE_FALSE, forced_fmt;
 /* nombre de textures utilisees de chaque type */
 static int n_textype[4];
 
-/* anisotropic level for created textures */
-static SCEfloat aniso_level = 1.0;
-
 
 static void* SCE_RLoadTextureResource (const char*, int, void*);
 
@@ -138,14 +135,9 @@ int SCE_RGetTextureResourceType (void)
     return resource_type;
 }
 
-void SCE_RSetTextureAnisotropic (SCEfloat level)
+void SCE_RSetTextureAnisotropic (SCE_RTexture *tex, SCEfloat level)
 {
-    SCEfloat max;
-    /* TODO: missing epsilon */
-#define EPSILON 0.001
-    glGetFloatv (GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
-    if (level > 1.0 - EPSILON && level < max + EPSILON)
-        aniso_level = level;
+    tex->aniso_level = level;
 }
 float SCE_RGetTextureMaxAnisotropic (void)
 {
@@ -311,6 +303,7 @@ static void SCE_RInitTexture (SCE_RTexture *tex)
     tex->target = 0;
     tex->have_data = SCE_FALSE;
     tex->use_mipmap = tex->hw_mipmap = SCE_FALSE;
+    tex->aniso_level = 0.0;
     for (i = 0; i < 6; i++) {
         SCE_List_Init (&tex->data[i]);
         SCE_List_SetFreeFunc (&tex->data[i], SCE_RDeleteTexData_);
@@ -1153,7 +1146,14 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
         n = 6;
 
     SCE_RBindTexture (tex);
-    glTexParameterf (tex->target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso_level);
+    {
+        SCEfloat max;
+        glGetFloatv (GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
+        if (tex->aniso_level > 1.0 - SCE_EPSILONF &&
+            tex->aniso_level < max + SCE_EPSILONF)
+            glTexParameterf (tex->target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                             tex->aniso_level);
+    }
     if (use_mipmap) {
         if (hw_mipmap && SCE_RHasCap (SCE_TEX_HW_GEN_MIPMAP)) {
             SCE_RSetTextureParam (tex, GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);

@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 07/08/2009 */
+   updated: 15/11/2011 */
 
 #ifndef SCERTEXTURE_H
 #define SCERTEXTURE_H
@@ -119,6 +119,7 @@ struct sce_rtexture {
 
     int use_mipmap;     /**< Do we use mipmapping ? */
     int hw_mipmap;      /**< Do we use hardware for mipmaps generation ? */
+    SCEfloat aniso_level;       /**< Anisotropic filtering level */
 
     enum SCE_ETexType {
         SCE_TEXTYPE_1D, SCE_TEXTYPE_2D, SCE_TEXTYPE_3D, SCE_TEXTYPE_CUBE
@@ -132,7 +133,7 @@ void SCE_RTextureQuit (void);
 
 int SCE_RGetTextureResourceType (void);
 
-void SCE_RSetTextureAnisotropic (SCEfloat);
+void SCE_RSetTextureAnisotropic (SCE_RTexture*, SCEfloat);
 float SCE_RGetTextureMaxAnisotropic (void);
 
 void SCE_RInitTexData (SCE_RTexData*);
