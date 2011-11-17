@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 04/08/2011 */
+   updated: 17/11/2011 */
 
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERTexture.h"
@@ -161,7 +161,7 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
  * After adding a texture as a color buffer, it is recommanded to
  * call SCE_RAddRenderBuffer() to add a depth buffer.
  * This function will adapts the \p fb's viewport to the dimensions of \p tex.
- * \sa SCE_RAddRenderBuffer()
+ * \sa SCE_RAddRenderBuffer(), SCE_RAddNewRenderTexture()
  */
 int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
                            SCEenum target, SCE_RTexture *tex, int mipmap,
@@ -343,25 +343,24 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
  * \param type data type of the new texture (SCE_UNSIGNED_BYTE, ...)
  * \param w width of the new texture
  * \param h height of the new texture
- * \returns SCE_ERROR on error, SCE_OK otherwise
+ * \returns the new texture, or NULL on error. Note that the returned texture
+ * does not belong to the framebuffer \p fb so you'll have to handle it yourself
  * If \p pxf and/or \p fmt is set to 0 or lesser then an adapted value
  * is automatically set.
  * This function makes only a call of SCE_RAddRenderTexture() like this:
- * SCE_RAddRenderTexture (\p fb, \p id, SCE_TEX_2D, newtex, 0, SCE_TRUE)
+ * SCE_RAddRenderTexture (\p fb, \p id, SCE_TEX_2D, newtex, 0, SCE_FALSE)
  * where 'newtex' is the new texture created from the given informations.
  * \sa SCE_RAddRenderTexture()
- * \todo rename this function to 'AddNew'
  */
-int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
-                              int pxf, int fmt, int type, int w, int h)
+SCE_RTexture* SCE_RAddNewRenderTexture(SCE_RFramebuffer *fb, SCE_RBufferType id,
+                                       int pxf, int fmt, int type, int w, int h)
 {
     SCE_RTexture *tex = NULL;
     SCE_RTexData data;
 
-    tex = SCE_RCreateTexture (SCE_TEX_2D);
-    if (!tex) {
+    if (!(tex = SCE_RCreateTexture (SCE_TEX_2D))) {
         SCEE_LogSrc ();
-        return SCE_ERROR;
+        return NULL;
     }
 
     SCE_RInitTexData (&data);
@@ -390,17 +389,17 @@ int SCE_RCreateRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
     if (SCE_RAddTextureTexDataDup (tex, 0, &data) < 0) {
         SCEE_LogSrc ();
         SCE_RDeleteTexture (tex);
-        return SCE_ERROR;
+        return NULL;
     }
     if (SCE_RBuildTexture (tex, 0, 0) < 0) {
         SCEE_LogSrc ();
         SCE_RDeleteTexture (tex);
-        return SCE_ERROR;
+        return NULL;
     }
 
-    SCE_RAddRenderTexture (fb, id, SCE_TEX_2D, tex, 0, SCE_TRUE);
+    SCE_RAddRenderTexture (fb, id, SCE_TEX_2D, tex, 0, SCE_FALSE);
 
-    return SCE_OK;
+    return tex;
 }
 
 /**

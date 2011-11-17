@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 04/08/2011 */
+   updated: 17/11/2011 */
 
 #ifndef SCEFRAMEBUFFER_H
 #define SCEFRAMEBUFFER_H
@@ -99,8 +99,8 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCE_RBufferType, SCEenum,
 
 int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType, int, int, int);
 
-int SCE_RCreateRenderTexture (SCE_RFramebuffer*, SCE_RBufferType,
-                              int, int, int, int, int);
+SCE_RTexture* SCE_RAddNewRenderTexture (SCE_RFramebuffer*, SCE_RBufferType,
+                                        int, int, int, int, int);
 
 SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer*, SCE_RBufferType);
 
