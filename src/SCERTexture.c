@@ -352,6 +352,8 @@ void SCE_RDeleteTexture (SCE_RTexture *tex)
 {
     if (tex) {
         unsigned int i;
+        if (!SCE_Resource_Free (tex))
+            return;
         for (i = 0; i < 6; i++)
             SCE_List_Clear (&tex->data[i]);
         glDeleteTextures (1, &tex->id);
