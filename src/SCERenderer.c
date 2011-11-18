@@ -275,6 +275,19 @@ void SCE_RActivateDepthBuffer (int a)
 {
     glDepthMask (a);
 }
+/**
+ * \brief Scale depth values in the depth buffer
+ * \param a minimum
+ * \param b maximum
+ * Given an input depth d in [0, 1], the final depth will be
+ * \p a + d * (\p b - \p a)
+ * This function calls glDepthFunc(\p a, \p b).
+ * \sa SCE_RSetValidPixels(), SCE_RActivateDepthBuffer()
+ */
+void SCE_RDepthRange (SCEdouble a, SCEdouble b)
+{
+    glDepthRange (a, b);
+}
 
 /**
  * \brief Defines which faces will be culled by the backface culling
@@ -292,6 +305,7 @@ void SCE_RSetCulledFaces (SCEenum mode)
  * \param mode can be SCE_LESS, SCE_LEQUAL, SCE_GREATER or SCE_GEQUAL
  *
  * This function calls glDepthFunc(\p mode).
+ * \sa SCE_RDepthRange()
  */
 void SCE_RSetValidPixels (SCEenum mode)
 {

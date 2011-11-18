@@ -66,6 +66,7 @@ void SCE_RSetBlending (SCEenum, SCEenum);
 
 void SCE_RActivateColorBuffer (int);
 void SCE_RActivateDepthBuffer (int);
+void SCE_RDepthRange (SCEdouble, SCEdouble);
 
 void SCE_RSetCulledFaces (SCEenum);
 void SCE_RSetValidPixels (SCEenum);
