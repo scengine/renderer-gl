@@ -258,6 +258,10 @@ void SCE_RSetBlending (SCEenum src, SCEenum dst)
 {
     glBlendFunc (src, dst);
 }
+void SCE_RSetAlphaFunc (SCEenum func, float ref)
+{
+    glAlphaFunc (func, ref);
+}
 
 /**
  * Enables/Disables color buffer writing
