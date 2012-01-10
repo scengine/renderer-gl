@@ -1,5 +1,6 @@
 # aututools specific generated files/dirs
-build/
+/build/m4/
+/build/aux/
 .deps/
 .libs/
 autom4te.cache/
