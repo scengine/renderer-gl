@@ -73,8 +73,7 @@ AC_STRUCT_TM
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-# FIXME: these ones are not conditional, we need them
-AC_CHECK_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
+SCE_REQUIRE_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
 
 SCE_CHECK_DEBUG
 
