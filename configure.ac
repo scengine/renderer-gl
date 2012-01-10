@@ -73,7 +73,7 @@ AC_STRUCT_TM
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-SCE_REQUIRE_FUNCS([memset pow sqrt strerror strstr strtol strtoul])
+SCE_REQUIRE_FUNCS([memset strstr])
 
 SCE_CHECK_DEBUG
 
