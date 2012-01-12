@@ -8,7 +8,8 @@ libscerenderer_la_CFLAGS    = @GLEW_CFLAGS@ \
                               @GL_CFLAGS@ \
                               @IL_CFLAGS@ \
                               @ILU_CFLAGS@ \
-                              @SCE_DEBUG_CFLAGS@
+                              @SCE_DEBUG_CFLAGS@ \
+                              @SCE_DEBUG_CFLAGS_EXPORT@
 libscerenderer_la_LIBADD    = @GLEW_LIBS@ \
                               @SCE_UTILS_LIBS@ \
                               @SCE_CORE_LIBS@ \
