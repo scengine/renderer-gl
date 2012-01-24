@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,9 @@
 /* created: 02/07/2007
    updated: 17/11/2011 */
 
+#include <GL/glew.h>
+#include <SCE/core/SCECore.h>   /* SCE_STexData */
+#include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERTexture.h"
 #include "SCE/renderer/SCERFramebuffer.h"
@@ -259,30 +262,30 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
  * \brief Adds a new render buffer
  * \param fb the frame buffer to which to add the render buffer
  * \param id render buffer's identifier
- * \param fmt the format of the new render buffer, can be 0 or lesser
+ * \param fmt the format of the new render buffer, can be SCE_IMAGE_NONE
  * \param w width of the new render buffer
  * \param h height of the new render buffer
  * \note If you called SCE_RAddRenderTexture() previously, \p w
  * and \p h can be set to 0 then the dimensions of the render
  * buffer are automatically set to those of the texture passed to
  * SCE_RAddRenderTexture().
- * \note If you set \p fmt at 0 or lesser, an adapted format is used
+ * \note If you set \p fmt at less than 0, an adapted format is used
  * automatically.
  * \sa SCE_RAddRenderTexture()
  */
 int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
-                          int fmt, int w, int h)
+                          SCE_EImageFormat fmt, int w, int h)
 {
     int type, status;
 
     type = SCE_RIDToGLBuffer (id);
 
     /* assignation des valeurs par defaut */
-    if (fmt <= 0) {
+    if (fmt == SCE_IMAGE_NONE) {
         if (id == SCE_DEPTH_BUFFER)
-            fmt = GL_DEPTH_COMPONENT24;
+            fmt = SCE_IMAGE_DEPTH;
         else if (id == SCE_STENCIL_BUFFER)
-            fmt = GL_STENCIL_INDEX8_EXT;
+            fmt = /* GL_STENCIL_INDEX8_EXT */SCE_IMAGE_RGB; /* TODO: lol */
     }
 
     if (w <= 0)
@@ -310,7 +313,8 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
 
     /* creation du render buffer */
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, fb->buffers[id].id);
-    glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, fmt, w, h);
+    glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT,
+                              SCE_RSCEImgFormatToGL (fmt), w, h);
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, 0);
 
     /* on l'ajoute au FBO */
@@ -337,56 +341,57 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
  * given frame buffer
  * \param fb the frame buffer to which to add the new render texture
  * \param id render target's identifier
- * \param pxf internal pixel format of the new texture,
- * can be set to 0 or lesser
- * \param fmt format of the new texture, can be set to 0 or lesser
+ * \param pxf internal pixel format of the new texture, can be SCE_PXF_NONE
+ * \param fmt format of the new texture, can be SCE_IMAGE_NONE
  * \param type data type of the new texture (SCE_UNSIGNED_BYTE, ...)
+ * can be SCE_NONE_TYPE
  * \param w width of the new texture
  * \param h height of the new texture
  * \returns the new texture, or NULL on error. Note that the returned texture
  * does not belong to the framebuffer \p fb so you'll have to handle it yourself
- * If \p pxf and/or \p fmt is set to 0 or lesser then an adapted value
- * is automatically set.
+ * If \p pxf and/or \p fmt is set to SCE_PXF_NONE/SCE_IMAGE_NONE then an
+ * adapted value is automatically set.
  * This function makes only a call of SCE_RAddRenderTexture() like this:
  * SCE_RAddRenderTexture (\p fb, \p id, SCE_TEX_2D, newtex, 0, SCE_FALSE)
  * where 'newtex' is the new texture created from the given informations.
  * \sa SCE_RAddRenderTexture()
  */
-SCE_RTexture* SCE_RAddNewRenderTexture(SCE_RFramebuffer *fb, SCE_RBufferType id,
-                                       int pxf, int fmt, int type, int w, int h)
+SCE_RTexture*
+SCE_RAddNewRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
+                          SCE_EPixelFormat pxf, SCE_EImageFormat fmt,
+                          SCE_EType type, int w, int h)
 {
     SCE_RTexture *tex = NULL;
-    SCE_RTexData data;
+    SCE_STexData data;
 
     if (!(tex = SCE_RCreateTexture (SCE_TEX_2D))) {
         SCEE_LogSrc ();
         return NULL;
     }
 
-    SCE_RInitTexData (&data);
+    SCE_TexData_Init (&data);
 
-    if (pxf <= 0) {
+    if (pxf == SCE_PXF_NONE) {
         if (id == SCE_DEPTH_BUFFER)
-            pxf = GL_DEPTH_COMPONENT24;
+            pxf = SCE_PXF_DEPTH24;
         else
-            pxf = GL_RGBA;
+            pxf = SCE_PXF_RGBA;
     }
-    if (fmt <= 0) {
+    if (fmt == SCE_PXF_NONE) {
         if (id == SCE_DEPTH_BUFFER)
-            fmt = GL_DEPTH_COMPONENT;
+            fmt = SCE_IMAGE_DEPTH;
         else
-            fmt = GL_RGBA;
+            fmt = SCE_IMAGE_RGBA;
     }
-    if (type <= 0)
+    if (type == SCE_NONE_TYPE)
         type = SCE_UNSIGNED_BYTE;
 
-    data.w = w;
-    data.h = h;
-    data.type = type;
-    data.pxf = pxf;
-    data.fmt = fmt;
+    SCE_TexData_SetDimensions (&data, w, h, 0);
+    SCE_TexData_SetDataType (&data, type);
+    SCE_TexData_SetPixelFormat (&data, pxf);
+    SCE_TexData_SetDataFormat (&data, fmt);
 
-    if (SCE_RAddTextureTexDataDup (tex, 0, &data) < 0) {
+    if (!SCE_RAddTextureTexDataDup (tex, 0, &data)) {
         SCEE_LogSrc ();
         SCE_RDeleteTexture (tex);
         return NULL;

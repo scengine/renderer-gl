@@ -25,7 +25,8 @@
 #include <SCE/core/SCECore.h>   /* SCE_NUM_PRIMITIVE_TYPES */
 #include "SCE/renderer/SCERType.h"
 
-SCEenum sce_rgltypes[9] = {
+SCEenum sce_rgltypes[SCE_NUM_TYPES] = {
+    GL_BYTE,                    /* SCE_NONE_TYPE */
     GL_BYTE,
     GL_UNSIGNED_BYTE,
     GL_SHORT,
@@ -37,6 +38,38 @@ SCEenum sce_rgltypes[9] = {
     GL_UNSIGNED_INT             /* SCE_SIZE_T */
 };
 
+SCEenum sce_rtextype[3] = {
+    GL_TEXTURE_1D,
+    GL_TEXTURE_2D,
+    GL_TEXTURE_3D
+};
+
+SCEenum sce_rtexformat[SCE_NUM_IMAGE_FORMATS] = {
+    GL_RED,                     /* SCE_IMAGE_NONE */
+    GL_RED,
+    GL_RG,
+    GL_RGB,
+    GL_BGR,
+    GL_RGBA,
+    GL_BGRA,
+    GL_DEPTH_COMPONENT
+};
+
+SCEenum sce_rpxf[SCE_NUM_PIXEL_FORMATS] = {
+    GL_LUMINANCE,               /* SCE_PXF_NONE */
+    GL_LUMINANCE,
+    GL_LUMINANCE_ALPHA,
+    GL_RGB,
+    GL_RGBA,
+    GL_BGR,
+    GL_BGRA,
+    GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+    GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+    GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+    /*GL_COMPRESSED_RGB_3DC_ATI*/ 0,
+    GL_DEPTH_COMPONENT24,
+    GL_DEPTH_COMPONENT32
+};
 
 SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES] = {
     GL_POINTS,
@@ -143,3 +176,19 @@ SCEenum SCE_RSCETypeToGL (SCE_EType t)
     return rgltypes[t];
 }
 #endif
+
+
+SCEenum SCE_RSCEImgTypeToGL (SCE_EImageType t)
+{
+    return sce_rtextype[t];
+}
+
+SCEenum SCE_RSCEImgFormatToGL (SCE_EImageFormat f)
+{
+    return sce_rtexformat[f];
+}
+
+SCEenum SCE_RSCEPxfToGL (SCE_EPixelFormat p)
+{
+    return sce_rpxf[p];
+}

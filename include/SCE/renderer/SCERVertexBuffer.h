@@ -41,7 +41,7 @@ extern "C" {
 enum sce_rbufferrendermode {
     SCE_VA_RENDER_MODE,  /**< Use simple vertex arrays */
     SCE_VBO_RENDER_MODE, /**< Use vertex buffer objects */
-    SCE_VAO_RENDER_MODE, /**< Use one single vertex array object for the entire
+    SCE_VAO_RENDER_MODE  /**< Use one single vertex array object for the entire
                           * vertex buffer. It disables the ability of
                           * enable/disable vertex arrays of the vertex buffer
                           * (see SCE_REnableVertexBufferData()) but improves

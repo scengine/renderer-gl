@@ -30,6 +30,5 @@ libscerenderer_la_SOURCES   = SCERType.c \
                               SCERenderer.c \
                               SCERFramebuffer.c \
                               SCERMaterial.c \
-                              SCERImage.c \
                               SCEROcclusionQuery.c \
                               SCERTexture.c

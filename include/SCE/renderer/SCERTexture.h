@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 15/11/2011 */
+   updated: 23/01/2012 */
 
 #ifndef SCERTEXTURE_H
 #define SCERTEXTURE_H
 
 #include <stdarg.h>
 #include <SCE/utils/SCEUtils.h>
-#include "SCE/renderer/SCERImage.h"
+#include <SCE/core/SCECore.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +54,13 @@ enum sce_rtexunit {
 };
 typedef enum sce_rtexunit SCE_RTexUnit;
 
+typedef enum {
+    SCE_TEX_1D = GL_TEXTURE_1D,
+    SCE_TEX_2D = GL_TEXTURE_2D,
+    SCE_TEX_3D = GL_TEXTURE_3D,
+    SCE_TEX_CUBE = GL_TEXTURE_CUBE_MAP
+} SCE_RTexType;
+
 /**
  * \brief Faces for a cube map texture
  */
@@ -78,29 +85,6 @@ enum sce_rtexfilter {
 };
 typedef enum sce_rtexfilter SCE_RTexFilter;
 
-/** \copydoc sce_rtexdata */
-typedef struct sce_rtexdata SCE_RTexData;
-/**
- * \brief Texture data
- * 
- * Contains all the data of a texture
- */
-struct sce_rtexdata {
-    SCE_RImage *img;  /**< The image of this texture data */
-    int canfree;      /**< Do we have rights to delete \c img ? */
-    int user;         /**< Is user the owner of this structure ? */
-    SCEenum target;   /**< Target of this texture data */
-    int level;        /**< Mipmap level of this texture data */
-    int w, h, d;      /**< Image's dimensions */
-    SCEenum pxf;      /**< Desired internal (in VRAM) pixel format */
-    SCEenum fmt;      /**< Format of \c data */
-    SCEenum type;     /**< Type of \c data (SCE_UNSIGNED_BYTE, ...) */
-    size_t data_size; /**< Size of \c data in bytes */
-    int data_user;    /**< Is user the owner of \c data ? */
-    void *data;       /**< Images's raw data */
-    int comp;         /**< Is \c pxf a compressed pixel format ? */
-    SCE_SListIterator it;
-};
 
 /** \copydoc sce_rtexture */
 typedef struct sce_rtexture SCE_RTexture;
@@ -134,12 +118,6 @@ int SCE_RGetTextureResourceType (void);
 void SCE_RSetTextureAnisotropic (SCE_RTexture*, SCEfloat);
 float SCE_RGetTextureMaxAnisotropic (void);
 
-void SCE_RInitTexData (SCE_RTexData*);
-SCE_RTexData* SCE_RCreateTexData (void);
-SCE_RTexData* SCE_RCreateTexDataFromImage (SCE_RImage*);
-void SCE_RDeleteTexData (void*);
-SCE_RTexData* SCE_RDupTexData (SCE_RTexData*);
-
 SCE_RTexture* SCE_RCreateTexture (SCEenum);
 void SCE_RDeleteTexture (SCE_RTexture*);
 
@@ -158,13 +136,13 @@ void SCE_RSetTextureGen (SCE_RTexture*, SCEenum, SCEenum, int) SCE_GNUC_DEPRECAT
 void SCE_RSetTextureGenf (SCE_RTexture*, SCEenum, SCEenum, float) SCE_GNUC_DEPRECATED;
 void SCE_RSetTextureGenfv (SCE_RTexture*, SCEenum, SCEenum, float*) SCE_GNUC_DEPRECATED;
 
-void SCE_RForceTexturePixelFormat (int, int);
-void SCE_RForceTextureType (int, int);
-void SCE_RForceTextureFormat (int, int);
+void SCE_RForceTexturePixelFormat (int, SCE_EPixelFormat);
+void SCE_RForceTextureType (int, SCE_EType);
+void SCE_RForceTextureFormat (int, SCE_EImageFormat);
 
 SCEenum SCE_RGetTextureTarget (SCE_RTexture*);
 
-SCE_RTexData* SCE_RGetTextureTexData (SCE_RTexture*, int, int);
+SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture*, int, int);
 
 int SCE_RHasTextureData (SCE_RTexture*);
 
@@ -175,17 +153,17 @@ int SCE_RGetTextureHeight (SCE_RTexture*, int, int);
 
 int SCE_RGetTextureValidSize (int, int);
 
-void SCE_RResizeTextureImage (SCE_RImage*, int, int, int);
+void SCE_RResizeTextureImage (SCE_SImage*, int, int, int);
 
-int SCE_RAddTextureImage (SCE_RTexture*, int, SCE_RImage*, int);
+int SCE_RAddTextureImage (SCE_RTexture*, int, SCE_SImage*, int);
 
-void SCE_RAddTextureTexData (SCE_RTexture*, int, SCE_RTexData*, int);
-int SCE_RAddTextureTexDataDup (SCE_RTexture*, int, SCE_RTexData*);
+void SCE_RAddTextureTexData (SCE_RTexture*, int, SCE_STexData*);
+SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture*, int, SCE_STexData*);
 
-SCE_RImage* SCE_RRemoveTextureImage (SCE_RTexture*, int, int);
+SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture*, int, int);
 void SCE_REraseTextureImage (SCE_RTexture*, int, int);
 
-SCE_RTexData* SCE_RRemoveTextureTexData (SCE_RTexture*, int, int);
+SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture*, int, int);
 void SCE_REraseTextureTexData (SCE_RTexture*, int, int);
 
 SCE_RTexture* SCE_RLoadTexturev (int, int, int, int, int, const char**);

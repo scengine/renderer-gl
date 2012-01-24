@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -97,10 +97,12 @@ void SCE_RDeleteFramebuffer (SCE_RFramebuffer*);
 int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCE_RBufferType, SCEenum,
                            SCE_RTexture*, int, int);
 
-int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType, int, int, int);
+int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType,
+                          SCE_EImageFormat, int, int);
 
 SCE_RTexture* SCE_RAddNewRenderTexture (SCE_RFramebuffer*, SCE_RBufferType,
-                                        int, int, int, int, int);
+                                        SCE_EPixelFormat, SCE_EImageFormat,
+                                        SCE_EType, int, int);
 
 SCE_RTexture* SCE_RGetRenderTexture (SCE_RFramebuffer*, SCE_RBufferType);
 

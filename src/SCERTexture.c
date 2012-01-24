@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 15/11/2011 */
+   updated: 23/01/2012 */
 
 #include <string.h>
 #include <GL/glew.h>
 #include <SCE/utils/SCEUtils.h>
+#include <SCE/core/SCECore.h>
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERSupport.h"
 #include "SCE/renderer/SCERTexture.h"
@@ -73,9 +74,12 @@ static int max_3d_dimensions = 16;
 static int max_mipmap_level = 1; /* niveau de mipmap maximum par defaut */
 
 /* force certaines valeurs lors d'un appel a AddTexData() */
-static int force_pxf = SCE_FALSE, forced_pxf;
-static int force_type = SCE_FALSE, forced_type;
-static int force_fmt = SCE_FALSE, forced_fmt;
+static int force_pxf = SCE_FALSE;
+static SCE_EPixelFormat forced_pxf;
+static int force_type = SCE_FALSE;
+static SCE_EType forced_type;
+static int force_fmt = SCE_FALSE;
+static SCE_EImageType forced_fmt;
 
 
 /* nombre de textures utilisees de chaque type */
@@ -160,141 +164,10 @@ static void SCE_RBindTexture (SCE_RTexture *tex)
 }
 
 
-/**
- * \brief Initializes a texture data structure
- */
-void SCE_RInitTexData (SCE_RTexData *d)
+static void SCE_RDeleteTexData (void *d)
 {
-    d->img = NULL;
-    d->canfree = SCE_FALSE;
-    d->user = SCE_TRUE;
-    d->target = SCE_TEX_1D;
-    d->level = 0;
-    d->w = d->h = d->d = 1;
-    d->pxf = d->fmt = GL_RGBA;
-    d->type = SCE_UNSIGNED_BYTE;
-    d->data_size = 0;
-    d->data_user = SCE_TRUE;
-    d->data = NULL;
-    d->comp = SCE_FALSE;
-    SCE_List_InitIt (&d->it);
-    SCE_List_SetData (&d->it, d);
+    SCE_TexData_Delete (d);
 }
-
-/**
- * \brief Creates a texture data structure
- * \returns the new texture data
- */
-SCE_RTexData* SCE_RCreateTexData (void)
-{
-    SCE_RTexData *d = NULL;
-    d = SCE_malloc (sizeof *d);
-    if (!d)
-        SCEE_LogSrc ();
-    else
-        SCE_RInitTexData (d);
-    return d;
-}
-
-/**
- * \brief Creates a texture data from the bound SCE image
- * \returns the new texture data
- * \sa SCE_RImage
- */
-SCE_RTexData* SCE_RCreateTexDataFromImage (SCE_RImage *img)
-{
-    SCE_RTexData *d = NULL;
-
-    d = SCE_RCreateTexData ();
-    if (!d) {
-        SCEE_LogSrc ();
-        return NULL;
-    }
-
-    d->data_size = SCE_RGetImageDataSize (img);
-    d->data_user = SCE_FALSE;
-    d->data = SCE_malloc (d->data_size);
-    if (!d->data) {
-        SCE_free (d);
-        SCEE_LogSrc ();
-        return NULL;
-    }
-    memcpy (d->data, SCE_RGetImageData (img), d->data_size);
-    d->img = img;
-    d->target = SCE_RGetImageType (img);
-    d->level = SCE_RGetImageMipmapLevel (img);
-    d->w = SCE_RGetImageWidth (img);
-    d->h = SCE_RGetImageHeight (img);
-    d->d = SCE_RGetImageDepth (img);
-    d->pxf = SCE_RGetImagePixelFormat (img);
-    d->fmt = SCE_RGetImageFormat (img);
-    d->type = SCE_RGetImageDataType (img);
-    d->comp = SCE_RGetImageIsCompressed (img);
-
-    return d;
-}
-
-/**
- * \brief Deletes a texture data
- */
-void SCE_RDeleteTexData (void *data)
-{
-    if (data) {
-        SCE_RTexData *d = data;
-        if (!d->data_user)
-            SCE_free (d->data);
-        if (d->canfree && SCE_Resource_Free (d->img))
-            SCE_RDeleteImage (d->img);
-        SCE_free (d);
-    }
-}
-static void SCE_RDeleteTexData_ (void *data)
-{
-    if (data) {
-        SCE_RTexData *d = data;
-        if (!d->user) {
-            SCE_free (d->data);
-            if (d->canfree && SCE_Resource_Free (d->img))
-                SCE_RDeleteImage (d->img);
-            SCE_free (d);
-        }
-    }
-}
-
-/**
- * \brief Duplicates a texture data
- * \param d the texture data to copy
- * \returns the copy of \p d
- */
-SCE_RTexData* SCE_RDupTexData (SCE_RTexData *d)
-{
-    SCE_RTexData *data = NULL;
-
-    data = SCE_RCreateTexData ();
-    if (!data) {
-        SCEE_LogSrc ();
-        return NULL;
-    }
-
-    *data = *d;
-    /* NOTE: bouh bouh ugly */
-    SCE_List_InitIt (&data->it);
-    SCE_List_SetData (&data->it, data);
-    /* and what about data->user, data->data_user ? */
-
-    if (data->data_size > 0) {
-        data->data = SCE_malloc (data->data_size);
-        if (!data->data) {
-            SCE_free (data);
-            SCEE_LogSrc ();
-            return NULL;
-        }
-        memcpy (data->data, d->data, data->data_size);
-    }
-    return data;
-}
-
-
 
 static void SCE_RInitTexture (SCE_RTexture *tex)
 {
@@ -306,7 +179,7 @@ static void SCE_RInitTexture (SCE_RTexture *tex)
     tex->aniso_level = 0.0;
     for (i = 0; i < 6; i++) {
         SCE_List_Init (&tex->data[i]);
-        SCE_List_SetFreeFunc (&tex->data[i], SCE_RDeleteTexData_);
+        SCE_List_SetFreeFunc (&tex->data[i], SCE_RDeleteTexData);
     }
 }
 
@@ -322,8 +195,7 @@ SCE_RTexture* SCE_RCreateTexture (SCEenum target)
     unsigned int i;
     SCE_RTexture *tex = NULL;
 
-    tex = SCE_malloc (sizeof *tex);
-    if (!tex) {
+    if (!(tex = SCE_malloc (sizeof *tex))) {
         SCEE_LogSrc ();
         return NULL;
     }
@@ -509,7 +381,7 @@ void SCE_RSetTextureGenfv (SCE_RTexture *tex, SCEenum a, SCEenum b, float *c)
  * \param pxf forced pixel format
  * \warning this function has side-effets; it changes local static variables
  */
-void SCE_RForceTexturePixelFormat (int force, int pxf)
+void SCE_RForceTexturePixelFormat (int force, SCE_EPixelFormat pxf)
 {
     force_pxf = force;
     forced_pxf = pxf;
@@ -520,7 +392,7 @@ void SCE_RForceTexturePixelFormat (int force, int pxf)
  * \param type forced type
  * \warning this function has side-effets; it changes local static variables
  */
-void SCE_RForceTextureType (int force, int type)
+void SCE_RForceTextureType (int force, SCE_EType type)
 {
     force_type = force;
     forced_type = type;
@@ -531,7 +403,7 @@ void SCE_RForceTextureType (int force, int type)
  * \param fmt forced format
  * \warning this function has side-effets; it changes local static variables
  */
-void SCE_RForceTextureFormat (int force, int fmt)
+void SCE_RForceTextureFormat (int force, SCE_EImageFormat fmt)
 {
     force_fmt = force;
     forced_fmt = fmt;
@@ -569,12 +441,12 @@ static unsigned int SCE_RGetTextureTargetID (SCE_RTexture *tex, int *target)
  * the cube face, can be 0
  * \param level mipmap level of the asked data
  * \returns the texture's data corresponding to the given parameters
- * \sa SCE_RTexData
+ * \sa SCE_STexData
  */
-SCE_RTexData* SCE_RGetTextureTexData (SCE_RTexture *tex, int target, int level)
+SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture *tex, int target, int level)
 {
     unsigned int i;
-    SCE_RTexData *data = NULL;
+    SCE_STexData *data = NULL;
 
     i = SCE_RGetTextureTargetID (tex, &target);
     if (level > SCE_List_GetSize (&tex->data[i]))
@@ -658,31 +530,27 @@ int SCE_RGetTextureValidSize (int min, int s)
 /**
  * \brief Resizes an image with hardware compatibles dimensions
  * \param img the image to resize
- * \param w the new width (0 or lesser keep the current value)
- * \param h the new height (0 or lesser keep the current value)
- * \param d the new depth (0 or lesser keep the current value)
+ * \param w the new width (0 or less keep the current value)
+ * \param h the new height (0 or less keep the current value)
+ * \param d the new depth (0 or less keep the current value)
  *
  * Calls SCE_RResizeImage() over \p img after the check of \p w, \p h and \p d
  * with SCE_RGetTextureValidSize().
  */
-void SCE_RResizeTextureImage (SCE_RImage *img, int w, int h, int d)
+void SCE_RResizeTextureImage (SCE_SImage *img, int w, int h, int d)
 {
-    /* on verifie, pour chaque composante, si elle a ete specifiee */
     if (w <= 0)
-        w = SCE_RGetImageWidth (img);
+        w = SCE_Image_GetWidth (img);
     if (h <= 0)
-        h = SCE_RGetImageHeight (img);
+        h = SCE_Image_GetHeight (img);
     if (d <= 0)
-        d = SCE_RGetImageDepth (img);
-    /* recuperation de tailles valides */
-    /* -> ici SCE_TRUE indique qu'on recupere la dimension inferieur */
+        d = SCE_Image_GetDepth (img);
     w = SCE_RGetTextureValidSize (sce_tex_reduce, w);
     h = SCE_RGetTextureValidSize (sce_tex_reduce, h);
     d = SCE_RGetTextureValidSize (sce_tex_reduce, d);
-    /* mise a l'echelle (uniquement si besoin est) */
-    if (w != SCE_RGetImageWidth (img) || h != SCE_RGetImageHeight (img) ||
-        d != SCE_RGetImageDepth (img))
-        SCE_RResizeImage (img, w, h, d);
+    if (w != SCE_Image_GetWidth (img) || h != SCE_Image_GetHeight (img) ||
+        d != SCE_Image_GetDepth (img))
+        SCE_Image_Resize (img, w, h, d);
 }
 
 
@@ -700,13 +568,13 @@ void SCE_RResizeTextureImage (SCE_RImage *img, int w, int h, int d)
  * dimentions.
  */
 int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
-                          SCE_RImage *img, int canfree)
+                          SCE_SImage *img, int canfree)
 {
-    SCE_RTexData *d = NULL;
+    SCE_STexData *d = NULL;
     unsigned int i, n_mipmaps;
     int old_level;
 
-    old_level = SCE_RGetImageMipmapLevel (img);
+    old_level = SCE_Image_GetMipmapLevel (img);
 
     /* verification des dimensions de l'image */
     SCE_RResizeTextureImage (img, 0, 0, 0);
@@ -725,20 +593,19 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
     n_mipmaps = /*SCE_RGetImageNumMipmaps (img)*/ 1;
     /* assignation des donnees de l'image */
     for (i = 0; i < n_mipmaps; i++) {
-        SCE_RSetImageMipmapLevel (img, i);
+        SCE_Image_SetMipmapLevel (img, i);
         /* creation des donnees a partir du niveau de mipmap j de l'image img */
-        d = SCE_RCreateTexDataFromImage (img);
+        d = SCE_TexData_CreateFromImage (img, canfree);
         if (!d) {
             SCEE_LogSrc ();
             return SCE_ERROR;
         }
-        d->canfree = canfree;
 
-        SCE_RAddTextureTexData (tex, target, d, SCE_TRUE);
+        SCE_RAddTextureTexData (tex, target, d);
         d = NULL;
     }
 
-    SCE_RSetImageMipmapLevel (img, old_level);
+    SCE_Image_SetMipmapLevel (img, old_level);
     tex->have_data = SCE_TRUE;
     return SCE_OK;
 }
@@ -752,22 +619,19 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
  *
  * If this function fails, then the forced values will not set.
  * 
- * \sa SCE_RAddTextureTexDataDup() SCE_RTexData
+ * \sa SCE_RAddTextureTexDataDup() SCE_STexData
  */
-void SCE_RAddTextureTexData (SCE_RTexture *tex, int target,
-                             SCE_RTexData *d, int canfree)
+void SCE_RAddTextureTexData (SCE_RTexture *tex, int target, SCE_STexData *d)
 {
     unsigned int i;
 
     i = SCE_RGetTextureTargetID (tex, &target);
-    d->target = target;
-    d->user = !canfree;
-    SCE_List_Appendl (&tex->data[i], &d->it);
+    SCE_TexData_SetTarget (d, target);
+    SCE_List_Appendl (&tex->data[i], SCE_TexData_GetIterator (d));
     tex->have_data = SCE_TRUE;
-    /* on place les valeurs forcees (si elles le sont) */
-    if (force_pxf) d->pxf = forced_pxf;
-    if (force_type) d->type = forced_type;
-    if (force_fmt) d->fmt = forced_fmt;
+    if (force_pxf) SCE_TexData_SetPixelFormat (d, forced_pxf);
+    if (force_type) SCE_TexData_SetDataType (d, forced_type);
+    if (force_fmt) SCE_TexData_SetDataFormat (d, forced_fmt);
 }
 
 /**
@@ -776,30 +640,28 @@ void SCE_RAddTextureTexData (SCE_RTexture *tex, int target,
  * This function works like SCE_RAddTextureTexData() except that duplicates
  * \p d before adding.
  *
- * \sa SCE_RAddTextureTexData() SCE_RTexData
+ * \sa SCE_RAddTextureTexData() SCE_STexData
  */
-int SCE_RAddTextureTexDataDup (SCE_RTexture *tex, int target, SCE_RTexData *d)
+SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture *tex, int target,
+                                         SCE_STexData *d)
 {
-    SCE_RTexData *data = NULL;
-
-    data = SCE_RDupTexData (d);
-    if (!data) {
+    SCE_STexData *data = NULL;
+    if (!(data = SCE_TexData_Dup (d))) {
         SCEE_LogSrc ();
-        return SCE_ERROR;
+        return NULL;
     }
-    data->user = SCE_FALSE;     /* tak */
-    SCE_RAddTextureTexData (tex, target, data, SCE_TRUE);
-    return SCE_OK;
+    SCE_RAddTextureTexData (tex, target, data);
+    return data;
 }
 
 /**
  * \brief 
  * \param 
  */
-SCE_RImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
+SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
 {
-    SCE_RImage *img = NULL;
-    SCE_RTexData *d = NULL;
+    SCE_SImage *img = NULL;
+    SCE_STexData *d = NULL;
     SCE_SListIterator *it = NULL;
     unsigned int i;
 
@@ -813,13 +675,15 @@ SCE_RImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
         it = SCE_List_GetIterator (&tex->data[i], level);
 
     d = SCE_List_GetData (it);
-    img = d->img;
+    img = SCE_TexData_GetImage (img);
+    /* TODO: hack into TexData structure */
     d->canfree = SCE_FALSE;
 
     /* what is that for? */
     if (img) {
         SCE_List_ForEach (it, &tex->data[i]) {
             d = SCE_List_GetData (it);
+            /* TODO: hack into TexData structure */
             if (d->img == img)
                 d->img = NULL;
         }
@@ -834,20 +698,20 @@ SCE_RImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
  */
 void SCE_REraseTextureImage (SCE_RTexture *tex, int target, int level)
 {
-    SCE_RImage *img = NULL;
+    SCE_SImage *img = NULL;
     img = SCE_RRemoveTextureImage (tex, target, level);
     if (SCE_Resource_Free (img))
-        SCE_RDeleteImage (img);
+        SCE_Image_Delete (img);
 }
 
 /**
  * \brief 
  * \param 
  */
-SCE_RTexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
+SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
                                          int target, int level)
 {
-    SCE_RTexData *d = NULL, *data = NULL;
+    SCE_STexData *d = NULL, *data = NULL;
     SCE_SListIterator *pro = NULL, *it = NULL;
     unsigned int i;
 
@@ -859,6 +723,7 @@ SCE_RTexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
     else
         d = SCE_List_GetData (SCE_List_GetIterator (&tex->data[i], level));
 
+    /* TODO: hack into TexData structure */
     d->user = SCE_TRUE;
     data = d;
 
@@ -878,7 +743,7 @@ SCE_RTexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
  */
 void SCE_REraseTextureTexData (SCE_RTexture *tex, int target, int level)
 {
-    SCE_RTexData *d = NULL;
+    SCE_STexData *d = NULL;
     d = SCE_RRemoveTextureTexData (tex, target, level);
     /* TexData are no resources, so.. */
     SCE_RDeleteTexData (d);
@@ -894,7 +759,7 @@ typedef struct
 static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
 {
     unsigned int i = 0, j;
-    SCE_RImage *img = NULL;
+    SCE_SImage *img = NULL;
     SCE_RTexture *tex = NULL;
     int resize;
     int type, w, h, d;
@@ -915,7 +780,7 @@ static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
         force--;
     for (j = 0; rinfo->names[j]; j++) {
         const char *fname = rinfo->names[j];
-        if (!(img = SCE_Resource_Load (SCE_RGetImageResourceType (),
+        if (!(img = SCE_Resource_Load (SCE_Image_GetResourceType (),
                                        fname, force, NULL)))
             goto fail;
 
@@ -924,7 +789,7 @@ static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
 
         if (!tex) {
             if (type <= 0)
-                type = SCE_RGetImageType (img);
+                type = SCE_Image_GetType (img);
             tex = SCE_RCreateTexture (type);
             if (!tex)
                 goto fail;
@@ -939,9 +804,9 @@ static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
             i++;
         else if (resize) {
             /* mipmapping */
-            w = SCE_RGetImageWidth (img) / 2;
-            h = SCE_RGetImageHeight (img) / 2;
-            d = SCE_RGetImageDepth (img) / 2;
+            w = SCE_Image_GetWidth (img) / 2;
+            h = SCE_Image_GetHeight (img) / 2;
+            d = SCE_Image_GetDepth (img) / 2;
         }
 
         if (i == 6)             /* cube map completed */
@@ -1014,68 +879,121 @@ SCE_RTexture* SCE_RLoadTexture (int type, int w, int h, int d, int force, ...)
 }
 
 
-typedef void (*SCE_RMakeTextureFunc)(SCE_RTexData*);
+typedef void (*SCE_RMakeTextureFunc)(SCE_STexData*);
 
-static void SCE_RMakeTexture1DComp (SCE_RTexData *d)
+static void SCE_RMakeTexture1DComp (SCE_STexData *d)
 {
-    glCompressedTexImage1D (d->target, d->level, d->pxf, d->w, 0,
-                            d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexImage1D (SCE_TexData_GetTarget (d),
+                            SCE_TexData_GetMipmapLevel (d), pxf,
+                            SCE_TexData_GetWidth (d), 0,
+                            SCE_TexData_GetDataSize (d),
+                            SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture2DComp (SCE_RTexData *d)
+static void SCE_RMakeTexture2DComp (SCE_STexData *d)
 {
-    glCompressedTexImage2D (d->target, d->level, d->pxf, d->w, d->h,
-                            0, d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexImage2D (SCE_TexData_GetTarget (d),
+                            SCE_TexData_GetMipmapLevel (d), pxf,
+                            SCE_TexData_GetWidth (d),
+                            SCE_TexData_GetHeight (d), 0,
+                            SCE_TexData_GetDataSize (d),
+                            SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture3DComp (SCE_RTexData *d)
+static void SCE_RMakeTexture3DComp (SCE_STexData *d)
 {
-    glCompressedTexImage3D (d->target, d->level, d->pxf, d->w, d->h, d->d,
-                            0, d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexImage3D (SCE_TexData_GetTarget (d),
+                            SCE_TexData_GetMipmapLevel (d), pxf,
+                            SCE_TexData_GetWidth (d),
+                            SCE_TexData_GetHeight (d),
+                            SCE_TexData_GetDepth (d), 0,
+                            SCE_TexData_GetDataSize (d),
+                            SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture1D (SCE_RTexData *d)
+static void SCE_RMakeTexture1D (SCE_STexData *d)
 {
-    glTexImage1D (d->target, d->level, d->pxf, d->w, 0, d->fmt,
-                  sce_rgltypes[d->type], d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexImage1D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                  pxf, SCE_TexData_GetWidth (d), 0, fmt,
+                  sce_rgltypes[SCE_TexData_GetDataType (d)],
+                  SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture2D (SCE_RTexData *d)
+static void SCE_RMakeTexture2D (SCE_STexData *d)
 {
-    glTexImage2D (d->target, d->level, d->pxf, d->w, d->h,
-                  0, d->fmt, sce_rgltypes[d->type], d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexImage2D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                  pxf, SCE_TexData_GetWidth (d), SCE_TexData_GetHeight (d), 0,
+                  fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
+                  SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture3D (SCE_RTexData *d)
+static void SCE_RMakeTexture3D (SCE_STexData *d)
 {
-    glTexImage3D (d->target, d->level, d->pxf, d->w, d->h, d->d,
-                  0, d->fmt, sce_rgltypes[d->type], d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexImage3D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                  pxf, SCE_TexData_GetWidth (d), SCE_TexData_GetHeight (d),
+                  SCE_TexData_GetDepth (d), 0, fmt,
+                  sce_rgltypes[SCE_TexData_GetDataType (d)],
+                  SCE_TexData_GetData (d));
 }
 /* fonctions de mise a jour */
-static void SCE_RMakeTexture1DCompUp (SCE_RTexData *d)
+static void SCE_RMakeTexture1DCompUp (SCE_STexData *d)
 {
-    glCompressedTexSubImage1D (d->target, d->level, 0, d->w,
-                               d->pxf, d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexSubImage1D (SCE_TexData_GetTarget (d),
+                               SCE_TexData_GetMipmapLevel (d),
+                               0, SCE_TexData_GetWidth (d),
+                               pxf, SCE_TexData_GetDataSize (d),
+                               SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture2DCompUp (SCE_RTexData *d)
+static void SCE_RMakeTexture2DCompUp (SCE_STexData *d)
 {
-    glCompressedTexSubImage2D (d->target, d->level, 0, 0, d->w, d->h, d->pxf,
-                               d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexSubImage2D (SCE_TexData_GetTarget (d),
+                               SCE_TexData_GetMipmapLevel (d),
+                               0, 0, SCE_TexData_GetWidth (d),
+                               SCE_TexData_GetHeight (d),
+                               pxf, SCE_TexData_GetDataSize (d),
+                               SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture3DCompUp (SCE_RTexData *d)
+static void SCE_RMakeTexture3DCompUp (SCE_STexData *d)
 {
-    glCompressedTexSubImage3D (d->target, d->level, 0, 0, 0, d->w, d->h,
-                               d->d, d->pxf, d->data_size, d->data);
+    int pxf = SCE_RSCEPxfToGL (SCE_TexData_GetPixelFormat (d));
+    glCompressedTexSubImage3D (SCE_TexData_GetTarget (d),
+                               SCE_TexData_GetMipmapLevel (d),
+                               0, 0, 0, SCE_TexData_GetWidth (d),
+                               SCE_TexData_GetHeight (d),
+                               SCE_TexData_GetDepth (d),
+                               pxf, SCE_TexData_GetDataSize (d),
+                               SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture1DUp (SCE_RTexData *d)
+static void SCE_RMakeTexture1DUp (SCE_STexData *d)
 {
-    glTexSubImage1D (d->target, d->level, 0, d->w, d->fmt,
-                     sce_rgltypes[d->type], d->data);
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexSubImage1D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                     0, SCE_TexData_GetWidth (d), fmt,
+                     sce_rgltypes[SCE_TexData_GetDataType (d)],
+                     SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture2DUp (SCE_RTexData *d)
+static void SCE_RMakeTexture2DUp (SCE_STexData *d)
 {
-    glTexSubImage2D (d->target, d->level, 0, 0, d->w, d->h, d->fmt,
-                     sce_rgltypes[d->type], d->data);
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexSubImage2D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                     0, 0, SCE_TexData_GetWidth (d), SCE_TexData_GetHeight (d),
+                     fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
+                     SCE_TexData_GetData (d));
 }
-static void SCE_RMakeTexture3DUp (SCE_RTexData *d)
+static void SCE_RMakeTexture3DUp (SCE_STexData *d)
 {
-    glTexSubImage3D (d->target, d->level, 0, 0, 0, d->w, d->h, d->d, d->fmt,
-                     sce_rgltypes[d->type], d->data);
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
+    glTexSubImage3D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
+                     0, 0, 0, SCE_TexData_GetWidth (d),
+                     SCE_TexData_GetHeight (d), SCE_TexData_GetDepth (d),
+                     fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
+                     SCE_TexData_GetData (d));
 }
 /* determine quelle fonction utiliser pour le stockage des donnees */
 static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
@@ -1103,16 +1021,17 @@ static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
 static void SCE_RMakeTexture (SCEenum textype, SCE_SList *data,
                               SCEenum target, int use_mipmap)
 {
-    SCE_SListIterator *i = NULL;
-    SCE_RTexData *d = NULL;
+    SCE_SListIterator *it = NULL;
+    SCE_STexData *d = NULL;
     SCE_RMakeTextureFunc make = NULL;
+    int n = 0;
 
-    SCE_List_ForEach (i, data) {
-        d = SCE_List_GetData (i);
-        make = SCE_RGetMakeTextureFunc (textype, d->comp);
+    SCE_List_ForEach (it, data) {
+        d = SCE_List_GetData (it);
+        make = SCE_RGetMakeTextureFunc (textype, SCE_TexData_IsCompressed (d));
         /* si un target specifique a ete specifie */
         if (target != 0)
-            d->target = target;
+            SCE_TexData_SetTarget (d, target);
         make (d);
         if (!use_mipmap)
             break;

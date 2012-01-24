@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 19/06/2011 */
+   updated: 23/01/2012 */
 
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
@@ -28,12 +28,13 @@
 #include <IL/ilu.h>
 
 #include <SCE/utils/SCEUtils.h>
+#include <SCE/core/SCECore.h>   /* SCE_EPixelFormat & co */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern SCEenum sce_rgltypes[9];
+extern SCEenum sce_rgltypes[SCE_NUM_TYPES];
 extern SCEenum *sce_rprimtypes;
 
 /* TODO: what the hell are these doing here?? */
@@ -61,6 +62,10 @@ void SCE_RGetIntegerv (SCEenum, int*);
 void SCE_RGetFloatv (SCEenum, float*);
 
 SCE_EType SCE_RGLTypeToSCE (SCEenum);
+
+SCEenum SCE_RSCEImgTypeToGL (SCE_EImageType);
+SCEenum SCE_RSCEImgFormatToGL (SCE_EImageFormat);
+SCEenum SCE_RSCEPxfToGL (SCE_EPixelFormat);
 
 #ifdef __cplusplus
 } /* extern "C" */
