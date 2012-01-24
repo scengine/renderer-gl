@@ -61,8 +61,6 @@ unsigned int SCE_RGetTextureNumBatchs (void)
 /* booleen: true = reduction des images lors d'une redimension automatique */
 static int sce_tex_reduce = SCE_TRUE;
 
-static int texsub = 0;  /* indique glTexImage (0) ou glTexSubImage (1) */
-
 /* stocke les textures utilisees (via Use) */
 static SCE_RTexture **texused = NULL;
 
@@ -1021,7 +1019,8 @@ static void SCE_RMakeTexture3DUp (SCE_STexData *t)
     }
 }
 /* determine quelle fonction utiliser pour le stockage des donnees */
-static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
+static SCE_RMakeTextureFunc
+SCE_RGetMakeTextureFunc (int type, int comp, int texsub)
 {
     SCE_RMakeTextureFunc make = NULL;
     if (comp) {
@@ -1044,7 +1043,7 @@ static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
 }
 /* construit une texture avec les infos minimales */
 static void SCE_RMakeTexture (SCEenum textype, SCE_SList *data,
-                              SCEenum target, int use_mipmap)
+                              SCEenum target, int use_mipmap, int texsub)
 {
     SCE_SListIterator *it = NULL;
     SCE_STexData *d = NULL;
@@ -1053,7 +1052,8 @@ static void SCE_RMakeTexture (SCEenum textype, SCE_SList *data,
 
     SCE_List_ForEach (it, data) {
         d = SCE_List_GetData (it);
-        make = SCE_RGetMakeTextureFunc (textype, SCE_TexData_IsCompressed (d));
+        make = SCE_RGetMakeTextureFunc (textype, SCE_TexData_IsCompressed (d),
+                                        texsub);
         /* si un target specifique a ete specifie */
         if (target != 0)
             SCE_TexData_SetTarget (d, target);
@@ -1067,7 +1067,7 @@ void SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
 {
     unsigned int i, n = 1;
     SCEenum t;
-    void (*make)(SCEenum, SCE_SList*, SCEenum, int) = SCE_RMakeTexture;
+    void (*make)(SCEenum, SCE_SList*, SCEenum, int, int) = SCE_RMakeTexture;
 
     t = tex->target;
 
@@ -1096,25 +1096,26 @@ void SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
         if (hw_mipmap && SCE_RHasCap (SCE_TEX_HW_GEN_MIPMAP)) {
             SCE_RSetTextureParam (tex, GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);
             for (i = 0; i < n; i++)
-                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i:0), SCE_FALSE);
+                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i:0),
+                      SCE_FALSE, SCE_FALSE);
         } else {
             if (hw_mipmap)
                 SCEE_SendMsg ("SCERTexture: hardware mipmap "
                               "generation isn't supported");
             for (i = 0; i < n; i++)
-                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i : 0), SCE_TRUE);
+                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i : 0),
+                      SCE_TRUE, SCE_FALSE);
         }
         /* SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, max_mipmap_level);*/
         SCE_RSetTextureFilter (tex, SCE_TEX_TRILINEAR);
     } else {
         for (i = 0; i < n; i++)
-            make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX + i : 0), SCE_FALSE);
+            make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX + i : 0),
+                  SCE_FALSE, SCE_FALSE);
         SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
     }
 
-    /* TODO: wadafoc. if an update is performed, it will change user settings */
     SCE_RPixelizeTexture (tex, SCE_FALSE);
-    texsub = SCE_FALSE;
 }
 
 
@@ -1124,8 +1125,48 @@ void SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
  */
 void SCE_RUpdateTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
 {
-    texsub = SCE_TRUE;
-    SCE_RBuildTexture (tex, use_mipmap, hw_mipmap);
+    unsigned int i, n = 1;
+    SCEenum t;
+    void (*make)(SCEenum, SCE_SList*, SCEenum, int, int) = SCE_RMakeTexture;
+
+    t = tex->target;
+
+    if (use_mipmap < 0)
+        use_mipmap = tex->use_mipmap;
+    else
+        tex->use_mipmap = use_mipmap;
+    if (hw_mipmap < 0)
+        hw_mipmap = tex->hw_mipmap;
+    else
+        tex->hw_mipmap = hw_mipmap;
+
+    if (tex->target == SCE_TEX_CUBE)
+        n = 6;
+
+    SCE_RBindTexture (tex);
+    /* this code is just the same as the one in SCE_RBuildTexture() */
+    if (use_mipmap) {
+        if (hw_mipmap && SCE_RHasCap (SCE_TEX_HW_GEN_MIPMAP)) {
+            SCE_RSetTextureParam (tex, GL_GENERATE_MIPMAP_SGIS, SCE_TRUE);
+            for (i = 0; i < n; i++)
+                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i:0),
+                      SCE_FALSE, SCE_TRUE);
+        } else {
+            if (hw_mipmap)
+                SCEE_SendMsg ("SCERTexture: hardware mipmap "
+                              "generation isn't supported");
+            for (i = 0; i < n; i++)
+                make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX+i : 0),
+                      SCE_TRUE, SCE_TRUE);
+        }
+        /* SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, max_mipmap_level);*/
+        SCE_RSetTextureFilter (tex, SCE_TEX_TRILINEAR);
+    } else {
+        for (i = 0; i < n; i++)
+            make (t, &tex->data[i], (n > 1 ? SCE_TEX_POSX + i : 0),
+                  SCE_FALSE, SCE_TRUE);
+        SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
+    }
 }
 
 /**
