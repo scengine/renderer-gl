@@ -966,27 +966,59 @@ static void SCE_RMakeTexture3DCompUp (SCE_STexData *d)
 static void SCE_RMakeTexture1DUp (SCE_STexData *d)
 {
     int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
-    glTexSubImage1D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
-                     0, SCE_TexData_GetWidth (d), fmt,
-                     sce_rgltypes[SCE_TexData_GetDataType (d)],
-                     SCE_TexData_GetData (d));
+    if (SCE_TexData_IsModified (d)) {
+        int x, w;
+        SCE_TexData_GetModified1 (d, &x, &w);
+        glTexSubImage1D (SCE_TexData_GetTarget(d),SCE_TexData_GetMipmapLevel(d),
+                         x, w, fmt,
+                         sce_rgltypes[SCE_TexData_GetDataType (d)],
+                         SCE_TexData_GetData (d));
+        SCE_TexData_Unmofidied (d);
+    } else {
+        glTexSubImage1D (SCE_TexData_GetTarget(d),SCE_TexData_GetMipmapLevel(d),
+                         0, SCE_TexData_GetWidth (d), fmt,
+                         sce_rgltypes[SCE_TexData_GetDataType (d)],
+                         SCE_TexData_GetData (d));
+    }
 }
 static void SCE_RMakeTexture2DUp (SCE_STexData *d)
 {
     int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
-    glTexSubImage2D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
-                     0, 0, SCE_TexData_GetWidth (d), SCE_TexData_GetHeight (d),
-                     fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
-                     SCE_TexData_GetData (d));
+    if (SCE_TexData_IsModified (d)) {
+        int x, y, w, h;
+        SCE_TexData_GetModified2 (d, &x, &y, &w, &h);
+        glTexSubImage2D (SCE_TexData_GetTarget(d),SCE_TexData_GetMipmapLevel(d),
+                         x, y, w, h, fmt,
+                         sce_rgltypes[SCE_TexData_GetDataType (d)],
+                         SCE_TexData_GetData (d));
+        SCE_TexData_Unmofidied (d);
+    } else {
+        glTexSubImage2D (SCE_TexData_GetTarget(d),SCE_TexData_GetMipmapLevel(d),
+                         0,0, SCE_TexData_GetWidth(d), SCE_TexData_GetHeight(d),
+                         fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
+                         SCE_TexData_GetData (d));
+    }
 }
-static void SCE_RMakeTexture3DUp (SCE_STexData *d)
+static void SCE_RMakeTexture3DUp (SCE_STexData *t)
 {
-    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (d));
-    glTexSubImage3D (SCE_TexData_GetTarget (d), SCE_TexData_GetMipmapLevel (d),
-                     0, 0, 0, SCE_TexData_GetWidth (d),
-                     SCE_TexData_GetHeight (d), SCE_TexData_GetDepth (d),
-                     fmt, sce_rgltypes[SCE_TexData_GetDataType (d)],
-                     SCE_TexData_GetData (d));
+    int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (t));
+    if (SCE_TexData_IsModified (t)) {
+        int x, y, z, w, h, d;
+        SCE_TexData_GetModified3 (t, &x, &y, &z, &w, &h, &d);
+        glTexSubImage3D (SCE_TexData_GetTarget(t),SCE_TexData_GetMipmapLevel(t),
+                         x, y, z, w, h, d, fmt,
+                         sce_rgltypes[SCE_TexData_GetDataType (t)],
+                         SCE_TexData_GetData (t));
+        SCE_TexData_Unmofidied (t);
+    } else {
+        /* scumbag yno doesnt always update, but when he does he makes
+           sure there's nothing to update */
+        glTexSubImage3D (SCE_TexData_GetTarget(t),SCE_TexData_GetMipmapLevel(t),
+                         0, 0, 0, SCE_TexData_GetWidth (t),
+                         SCE_TexData_GetHeight (t), SCE_TexData_GetDepth (t),
+                         fmt, sce_rgltypes[SCE_TexData_GetDataType (t)],
+                         SCE_TexData_GetData (t));
+    }
 }
 /* determine quelle fonction utiliser pour le stockage des donnees */
 static SCE_RMakeTextureFunc SCE_RGetMakeTextureFunc (int type, int comp)
@@ -1088,6 +1120,7 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
         SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
     }
 
+    /* TODO: wadafoc. if an update is performed, it will change user settings */
     SCE_RPixelizeTexture (tex, SCE_FALSE);
     texsub = SCE_FALSE;
 
