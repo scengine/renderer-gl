@@ -118,7 +118,7 @@ int SCE_RGetTextureResourceType (void);
 void SCE_RSetTextureAnisotropic (SCE_RTexture*, SCEfloat);
 float SCE_RGetTextureMaxAnisotropic (void);
 
-SCE_RTexture* SCE_RCreateTexture (SCEenum);
+SCE_RTexture* SCE_RCreateTexture (SCE_RTexType);
 void SCE_RDeleteTexture (SCE_RTexture*);
 
 int SCE_RGetMaxTextureUnits (void);

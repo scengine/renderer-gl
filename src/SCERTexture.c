@@ -190,7 +190,7 @@ static void SCE_RInitTexture (SCE_RTexture *tex)
  * \note If \p target is a non valid target, then... what ?
  * \todo que fait cette fonction quand \p target est non valide ?
  */
-SCE_RTexture* SCE_RCreateTexture (SCEenum target)
+SCE_RTexture* SCE_RCreateTexture (SCE_RTexType target)
 {
     unsigned int i;
     SCE_RTexture *tex = NULL;
