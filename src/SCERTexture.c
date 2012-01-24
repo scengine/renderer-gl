@@ -1063,22 +1063,14 @@ static void SCE_RMakeTexture (SCEenum textype, SCE_SList *data,
         /* TODO: penser a generer les niveaux non-existants dans 'data' */
     }
 }
-int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
+void SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
 {
     unsigned int i, n = 1;
     SCEenum t;
     void (*make)(SCEenum, SCE_SList*, SCEenum, int) = SCE_RMakeTexture;
 
     t = tex->target;
-    /* TODO: crap behavior */
-    if (!tex->have_data) {
-        SCEE_Log (SCE_INVALID_OPERATION);
-        SCEE_LogMsg ("you must specify data before texture build");
-        return SCE_ERROR;
-    }
 
-    /* si un parametre est non-specifie, on lui attribue la valeur
-       deja presente dans la texture, sinon c'est l'inverse */
     if (use_mipmap < 0)
         use_mipmap = tex->use_mipmap;
     else
@@ -1123,8 +1115,6 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
     /* TODO: wadafoc. if an update is performed, it will change user settings */
     SCE_RPixelizeTexture (tex, SCE_FALSE);
     texsub = SCE_FALSE;
-
-    return SCE_OK;
 }
 
 
@@ -1132,10 +1122,10 @@ int SCE_RBuildTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
  * \brief 
  * \param 
  */
-int SCE_RUpdateTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
+void SCE_RUpdateTexture (SCE_RTexture *tex, int use_mipmap, int hw_mipmap)
 {
     texsub = SCE_TRUE;
-    return SCE_RBuildTexture (tex, use_mipmap, hw_mipmap);
+    SCE_RBuildTexture (tex, use_mipmap, hw_mipmap);
 }
 
 /**

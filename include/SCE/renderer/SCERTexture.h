@@ -169,9 +169,8 @@ void SCE_REraseTextureTexData (SCE_RTexture*, int, int);
 SCE_RTexture* SCE_RLoadTexturev (int, int, int, int, int, const char**);
 SCE_RTexture* SCE_RLoadTexture (int, int, int, int, int, ...);
 
-int SCE_RBuildTexture (SCE_RTexture*, int, int);
-
-int SCE_RUpdateTexture (SCE_RTexture*, int, int);
+void SCE_RBuildTexture (SCE_RTexture*, int, int);
+void SCE_RUpdateTexture (SCE_RTexture*, int, int);
 
 void SCE_RSetActiveTextureUnit (unsigned int);
 

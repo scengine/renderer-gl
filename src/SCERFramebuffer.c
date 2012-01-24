@@ -396,12 +396,8 @@ SCE_RAddNewRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
         SCE_RDeleteTexture (tex);
         return NULL;
     }
-    if (SCE_RBuildTexture (tex, 0, 0) < 0) {
-        SCEE_LogSrc ();
-        SCE_RDeleteTexture (tex);
-        return NULL;
-    }
 
+    SCE_RBuildTexture (tex, SCE_FALSE, SCE_FALSE);
     SCE_RAddRenderTexture (fb, id, SCE_TEX_2D, tex, 0, SCE_FALSE);
 
     return tex;
