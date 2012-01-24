@@ -151,16 +151,9 @@ float SCE_RGetTextureMaxAnisotropic (void)
 }
 
 
-/**
- * \brief Non-reentrant function
- */
 static void SCE_RBindTexture (SCE_RTexture *tex)
 {
-    static SCE_RTexture *bound = NULL;
-    if (tex != bound) {
-        bound = tex;
-        glBindTexture (bound->target, bound->id);
-    }
+    glBindTexture (tex->target, tex->id);
 }
 
 
