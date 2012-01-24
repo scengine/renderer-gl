@@ -411,10 +411,10 @@ void SCE_RForceTextureFormat (int force, SCE_EImageFormat fmt)
 
 
 /**
- * \brief Gets the type of a core texture
+ * \brief Gets the type of a texture
  * \returns the type of \p tex
  */
-SCEenum SCE_RGetTextureTarget (SCE_RTexture *tex)
+SCE_RTexType SCE_RGetTextureType (SCE_RTexture *tex)
 {
     return tex->target;
 }

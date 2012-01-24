@@ -193,8 +193,8 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
 
     /* verification du target */
     if (target < SCE_TEX_POSX || target > SCE_TEX_NEGZ)
-        target = SCE_RGetTextureTarget (tex);
-    else if (SCE_RGetTextureTarget (tex) != SCE_TEX_CUBE) {
+        target = SCE_RGetTextureType (tex);
+    else if (SCE_RGetTextureType (tex) != SCE_TEX_CUBE) {
         /* target designant une face de cubemap, mais la texture
            n'est pas de type cubemap : erreur */
         SCEE_Log (SCE_INVALID_ARG);

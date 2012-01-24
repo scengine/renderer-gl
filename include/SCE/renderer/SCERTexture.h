@@ -140,7 +140,7 @@ void SCE_RForceTexturePixelFormat (int, SCE_EPixelFormat);
 void SCE_RForceTextureType (int, SCE_EType);
 void SCE_RForceTextureFormat (int, SCE_EImageFormat);
 
-SCEenum SCE_RGetTextureTarget (SCE_RTexture*);
+SCE_RTexType SCE_RGetTextureType (SCE_RTexture*);
 
 SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture*, int, int);
 
