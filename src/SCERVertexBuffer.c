@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 18/04/2010 */
+   updated: 29/01/2012 */
 
 #include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
@@ -158,7 +158,12 @@ int SCE_RAddVertexBufferDataArray (SCE_RVertexBufferData *vbd,
         vbd->data.data = (data->data < vbd->data.data ?
                           data->data : vbd->data.data);
     }
-    stride = SCE_Type_Sizeof (data->type) * data->size;
+    if (!data->data)
+        data->data = (void*)vbd->stride;
+    if (data->stride)
+        stride = data->stride;
+    else
+        stride = SCE_Type_Sizeof (data->type) * data->size;
     vbd->stride += stride;
     vbd->data.size += stride * n_vertices;
     return SCE_OK;
