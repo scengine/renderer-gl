@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 03/08/2011 */
+   updated: 29/01/2012 */
 
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERenderer.h"     /* SCE_RGetError() */
@@ -152,6 +152,10 @@ SCE_RProgram* SCE_RCreateProgram (void)
     prog->use_mmap = SCE_FALSE;
     prog->use_tess = SCE_FALSE;
     prog->patch_vertices = 0;
+    prog->fb_enabled = SCE_FALSE;
+    prog->fb_mode = SCE_FEEDBACK_INTERLEAVED;
+    prog->fb_varyings = NULL;
+    prog->n_varyings;
 
     return prog;
 }
@@ -159,8 +163,12 @@ SCE_RProgram* SCE_RCreateProgram (void)
 void SCE_RDeleteProgram (SCE_RProgram *prog)
 {
     if (prog) {
+        size_t i;
         if (glIsProgram (prog->id))
             glDeleteProgram (prog->id);
+        for (i = 0; i < prog->n_varyings; i++)
+            SCE_free (prog->fb_varyings[i]);
+        SCE_free (prog->fb_varyings);
         SCE_free (prog);
     }
 }
@@ -182,14 +190,62 @@ int SCE_RSetProgramShader (SCE_RProgram *prog, SCE_RShaderGLSL *shader,
     return SCE_OK;
 }
 
+/**
+ * \brief Specify which varying should be written to the feedback stream(s)
+ * \param prog a shader
+ * \param n number of varyings
+ * \param varyings names of the varyings that will be written onto the buffers
+ * \param mode storage mode
+ */
+int SCE_RSetProgramFeedbackVaryings (SCE_RProgram *prog, SCEuint n,
+                                     const char **varyings,
+                                     SCE_RFeedbackStorageMode mode)
+{
+    size_t i;
+
+    if (n == 0) {
+        prog->fb_enabled = SCE_FALSE;
+        for (i = 0; i < prog->n_varyings; i++)
+            SCE_free (prog->fb_varyings[i]);
+        SCE_free (prog->fb_varyings);
+    } else {
+        prog->n_varyings = n;
+        if (!(prog->fb_varyings = SCE_malloc (n * sizeof *prog->fb_varyings)))
+            goto fail;
+        for (i = 0; i < n; i++)
+            prog->fb_varyings[i] = NULL;
+        for (i = 0; i < prog->n_varyings; i++) {
+            if (!(prog->fb_varyings[i] = SCE_String_Dup (varyings[i])))
+                goto fail;
+        }
+        prog->fb_enabled = SCE_TRUE;
+        prog->fb_mode = mode;
+        prog->linked = SCE_FALSE; /* link will be needed */
+    }
+
+    return SCE_OK;
+fail:
+    SCEE_LogSrc ();
+    return SCE_ERROR;
+}
+
+
 int SCE_RBuildProgram (SCE_RProgram *prog)
 {
+    const int modes[2] = {GL_INTERLEAVED_ATTRIBS, GL_SEPARATE_ATTRIBS};
     int status = GL_TRUE;
     int loginfo_size = 0;
     char *loginfo = NULL;
 
     if (prog->linked)
         return SCE_OK;
+
+    /* setting transform feedback up */
+    if (prog->fb_enabled) {
+        glTransformFeedbackVaryings (prog->id, prog->n_varyings,
+                                     (const GLchar**)prog->fb_varyings,
+                                     modes[prog->fb_mode]);
+    }
 
     glLinkProgram (prog->id);
 

@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 11/02/2007
-   updated: 01/08/2011 */
+   updated: 29/01/2012 */
 
 #ifndef SCERSHADER_H
 #define SCERSHADER_H
@@ -41,6 +41,12 @@ typedef enum {
     SCE_TESS_EVALUATION_SHADER,
     SCE_NUM_SHADER_TYPES
 } SCE_RShaderType;
+
+
+typedef enum {
+    SCE_FEEDBACK_INTERLEAVED = 0,
+    SCE_FEEDBACK_SEPARATE
+} SCE_RFeedbackStorageMode;
 
 
 #define SCE_POSITION_ATTRIB_NAME "sce_position"
@@ -92,6 +98,10 @@ struct sce_rprogram {
     int use_mmap;                 /**< Use matrices mapping? */
     int use_tess;
     int patch_vertices;           /**< Tessellation patch vertices */
+    int fb_enabled;      /**< Whether transform feedback is enabled */
+    SCE_RFeedbackStorageMode fb_mode; /**< Transform feedback attribs storage */
+    char **fb_varyings;     /**< Transform feedback output varyings */
+    size_t n_varyings;
 };
 
 
@@ -110,6 +120,8 @@ SCE_RProgram* SCE_RCreateProgram (void);
 void SCE_RDeleteProgram (SCE_RProgram*);
 
 int SCE_RSetProgramShader (SCE_RProgram*, SCE_RShaderGLSL*, int);
+int SCE_RSetProgramFeedbackVaryings (SCE_RProgram*, SCEuint, const char**,
+                                     SCE_RFeedbackStorageMode);
 
 int SCE_RBuildProgram (SCE_RProgram*);
 int SCE_RValidateProgram (SCE_RProgram*);
