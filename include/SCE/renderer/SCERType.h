@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 extern SCEenum sce_rgltypes[SCE_NUM_TYPES];
+extern SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES];
 extern SCEenum *sce_rprimtypes;
 
 /* TODO: what the hell are these doing here?? */
