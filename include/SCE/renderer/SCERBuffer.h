@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 02/08/2009 */
+   updated: 29/01/2012 */
 
 #ifndef SCERBUFFER_H
 #define SCERBUFFER_H
@@ -88,6 +88,9 @@ struct sce_rbuffer {
     void *mapptr;               /**< Buffer address saved here on locking */
     SCE_SListIterator it;       /**< Own iterator for modified buffers list */
 };
+
+/* internal use only */
+#define SCE_RGetBufferID(b) ((b)->id)
 
 /** @} */
 
