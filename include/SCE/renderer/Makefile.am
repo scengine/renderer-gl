@@ -1,6 +1,7 @@
 sce_include_renderer_HEADERS = SCERBuffer.h \
                                SCERVertexArray.h \
                                SCERVertexBuffer.h \
+                               SCERFeedback.h \
                                SCERFramebuffer.h \
                                SCERLight.h \
                                SCERMaterial.h \

@@ -22,6 +22,7 @@ libscerenderer_la_SOURCES   = SCERType.c \
                               SCERBuffer.c \
                               SCERVertexArray.c \
                               SCERVertexBuffer.c \
+                              SCERFeedback.c \
                               SCERShader.c \
                               SCERenderer.c \
                               SCERFramebuffer.c \
