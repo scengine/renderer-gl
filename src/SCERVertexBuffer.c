@@ -161,11 +161,12 @@ int SCE_RAddVertexBufferDataArray (SCE_RVertexBufferData *vbd,
     if (!data->data)
         data->data = (void*)vbd->stride;
     if (data->stride)
-        stride = data->stride;
-    else
+        vbd->stride += data->stride;
+    else {
         stride = SCE_Type_Sizeof (data->type) * data->size;
-    vbd->stride += stride;
-    vbd->data.size += stride * n_vertices;
+        vbd->stride += stride;
+    }
+    vbd->data.size = vbd->stride * n_vertices;
     return SCE_OK;
 }
 static void SCE_RFreeDataArray (void *a)
