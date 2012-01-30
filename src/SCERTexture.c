@@ -666,7 +666,7 @@ SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
         it = SCE_List_GetIterator (&tex->data[i], level);
 
     d = SCE_List_GetData (it);
-    img = SCE_TexData_GetImage (img);
+    img = SCE_TexData_GetImage (d);
     /* TODO: hack into TexData structure */
     d->canfree = SCE_FALSE;
 
