@@ -129,7 +129,6 @@ static void SCE_RUnsetVATex (SCE_SGeometryArrayData *data)
 /****/
 static void SCE_RSetVAAtt (SCE_SGeometryArrayData *data)
 {
-    /* hope that data->attrib isn't too large */
     SCEuint attrib = data->attrib - SCE_ATTRIB0;
     glEnableVertexAttribArray (attrib);
     glVertexAttribPointer (attrib, data->size, sce_rgltypes[data->type], 0,
@@ -138,6 +137,19 @@ static void SCE_RSetVAAtt (SCE_SGeometryArrayData *data)
 static void SCE_RUnsetVAAtt (SCE_SGeometryArrayData *data)
 {
     glDisableVertexAttribArray (data->attrib - SCE_ATTRIB0);
+}
+/****/
+static void SCE_RSetVAIAtt (SCE_SGeometryArrayData *data)
+{
+    /* hope that data->attrib isn't too large */
+    SCEuint attrib = data->attrib - SCE_IATTRIB0;
+    glEnableVertexAttribArray (attrib);
+    glVertexAttribIPointer (attrib, data->size, sce_rgltypes[data->type],
+                            data->stride, data->data);
+}
+static void SCE_RUnsetVAIAtt (SCE_SGeometryArrayData *data)
+{
+    glDisableVertexAttribArray (data->attrib - SCE_IATTRIB0);
 }
 /* vertex attribute mapping version */
 static void SCE_RSetVAMap (SCE_SGeometryArrayData *data)
@@ -148,6 +160,18 @@ static void SCE_RSetVAMap (SCE_SGeometryArrayData *data)
                            data->stride, data->data);
 }
 static void SCE_RUnsetVAMap (SCE_SGeometryArrayData *data)
+{
+    glDisableVertexAttribArray (sce_vattribmap[data->attrib]);
+}
+/* integer mapping */
+static void SCE_RSetVAIMap (SCE_SGeometryArrayData *data)
+{
+    SCEuint attrib = sce_vattribmap[data->attrib];
+    glEnableVertexAttribArray (attrib);
+    glVertexAttribIPointer (attrib, data->size, sce_rgltypes[data->type],
+                            data->stride, data->data);
+}
+static void SCE_RUnsetVAIMap (SCE_SGeometryArrayData *data)
 {
     glDisableVertexAttribArray (sce_vattribmap[data->attrib]);
 }
@@ -251,6 +275,9 @@ SCE_SGeometryArrayData* SCE_RGetVertexArrayData (SCE_RVertexArray *va)
 void SCE_RSetVertexArrayData (SCE_RVertexArray *va, SCE_SGeometryArrayData *data)
 {
     va->data = *data;
+    /* default values */
+    va->setmap = SCE_RSetVAMap;
+    va->unsetmap = SCE_RUnsetVAMap;
     switch (data->attrib) {
     case SCE_POSITION:
         va->set = SCE_RSetVAPos;
@@ -264,14 +291,29 @@ void SCE_RSetVertexArrayData (SCE_RVertexArray *va, SCE_SGeometryArrayData *data
         va->set = SCE_RSetVACol;
         va->unset = SCE_RUnsetVACol;
         break;
+    case SCE_IPOSITION:
+    case SCE_INORMAL:
+    case SCE_ICOLOR:
+        /* only supported when attributes mapping is enabled */
+        va->setmap = SCE_RSetVAIMap;
+        va->unsetmap = SCE_RUnsetVAIMap;
+        break;
     default:
         if (data->attrib >= SCE_TEXCOORD0 &&
             data->attrib <= SCE_RGetMaxTextureUnits () + SCE_TEXCOORD0) {
             va->set = SCE_RSetVATex;
             va->unset = SCE_RUnsetVATex;
-        } else if (data->attrib >= SCE_ATTRIB0) {
+        } else if (data->attrib >= SCE_ATTRIB0 && data->attrib < SCE_IATTRIB0) {
             va->set = SCE_RSetVAAtt;
             va->unset = SCE_RUnsetVAAtt;
+            /* we'd rather get a segfault than a weird behavior */
+            va->setmap = NULL;
+            va->unsetmap = NULL;
+        } else if (data->attrib >= SCE_IATTRIB0) {
+            va->set = SCE_RSetVAIAtt;
+            va->unset = SCE_RUnsetVAIAtt;
+            va->setmap = NULL;
+            va->unsetmap = NULL;
         }
 #ifdef SCE_DEBUG
         else {
@@ -306,7 +348,7 @@ static void SCE_RUseVertexArrayDefault (SCE_RVertexArray *va)
 }
 static void SCE_RUseVertexArrayVattribMap (SCE_RVertexArray *va)
 {
-    SCE_RSetVAMap (&va->data);
+    va->setmap (&va->data);
     SCE_List_Appendl (&vaused, &va->it);
 }
 /**
@@ -371,7 +413,7 @@ void SCE_RFinishVertexArrayRender (void)
     if (sce_vattribmap) {
         SCE_List_ForEach (it, &vaused) {
             SCE_RVertexArray *va = SCE_List_GetData (it);
-            SCE_RUnsetVAMap (&va->data);
+            va->unsetmap (&va->data);
         }
     } else {
         SCE_List_ForEach (it, &vaused) {

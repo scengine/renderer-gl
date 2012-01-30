@@ -44,6 +44,7 @@ typedef struct sce_rvertexarray SCE_RVertexArray;
  */
 struct sce_rvertexarray {
     SCE_FSetVA set, unset;      /**< Functions to set/unset the vertex array */
+    SCE_FSetVA setmap, unsetmap; /**< Same with attributes mapping */
     SCE_SGeometryArrayData data;
     SCE_SListIterator it;       /**< Own iterator */
 };
@@ -66,7 +67,7 @@ struct sce_rvertexarraysequence {
     SCEuint id;                 /**< Teh GL ID */
 };
 
-#define SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS 16
+#define SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS (SCE_TEXCOORD7)
 typedef SCEuint SCE_RVertexAttributesMap[SCE_NUM_VERTEX_ATTRIBUTES_MAPPINGS];
 
 /** @} */
