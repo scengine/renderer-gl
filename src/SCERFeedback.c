@@ -31,6 +31,7 @@ static void SCE_RInitFeedbackStream (SCE_RFeedbackStream *fs)
 {
     fs->buf = NULL;
     fs->range[0] = fs->range[1] = -1; /* -1 means "all" the buffer */
+    fs->query = 0;
 }
 static void SCE_RClearFeedbackStream (SCE_RFeedbackStream *fs)
 {
@@ -183,9 +184,7 @@ void SCE_RBeginFeedback (SCE_RFeedback *fb, SCE_EPrimitiveType prim)
         glGenTransformFeedbacks (1, &fb->id);
     glBindTransformFeedback (GL_TRANSFORM_FEEDBACK, fb->id);
 #endif
-    SCEE_SendMsg ("-1 gl error: %s\n", SCE_RGetError ());
     glBeginTransformFeedback (sce_rprimtypes_true[prim]);
-    SCEE_SendMsg ("1 gl error: %s\n", SCE_RGetError ());
 }
 void SCE_REndFeedback (SCE_RFeedback *fb)
 {
