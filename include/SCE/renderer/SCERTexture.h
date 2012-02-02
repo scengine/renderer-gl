@@ -158,7 +158,8 @@ void SCE_RResizeTextureImage (SCE_SImage*, int, int, int);
 int SCE_RAddTextureImage (SCE_RTexture*, int, SCE_SImage*, int);
 
 void SCE_RAddTextureTexData (SCE_RTexture*, int, SCE_STexData*);
-SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture*, int, SCE_STexData*);
+SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture*, int,
+                                         const SCE_STexData*);
 
 SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture*, int, int);
 void SCE_REraseTextureImage (SCE_RTexture*, int, int);

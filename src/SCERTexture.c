@@ -634,7 +634,7 @@ void SCE_RAddTextureTexData (SCE_RTexture *tex, int target, SCE_STexData *d)
  * \sa SCE_RAddTextureTexData() SCE_STexData
  */
 SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture *tex, int target,
-                                         SCE_STexData *d)
+                                         const SCE_STexData *d)
 {
     SCE_STexData *data = NULL;
     if (!(data = SCE_TexData_Dup (d))) {
