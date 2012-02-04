@@ -155,7 +155,7 @@ SCE_RProgram* SCE_RCreateProgram (void)
     prog->fb_enabled = SCE_FALSE;
     prog->fb_mode = SCE_FEEDBACK_INTERLEAVED;
     prog->fb_varyings = NULL;
-    prog->n_varyings;
+    prog->n_varyings = 0;
 
     return prog;
 }
