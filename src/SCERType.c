@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2011  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 07/03/2006
-   updated: 18/06/2011 */
+   updated: 05/02/2012 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -52,7 +52,13 @@ SCEenum sce_rtexformat[SCE_NUM_IMAGE_FORMATS] = {
     GL_BGR,
     GL_RGBA,
     GL_BGRA,
-    GL_DEPTH_COMPONENT
+    GL_DEPTH_COMPONENT,
+    GL_RED_INTEGER,
+    GL_RG_INTEGER,
+    GL_RGB_INTEGER,
+    GL_BGR_INTEGER,
+    GL_RGBA_INTEGER,
+    GL_BGRA_INTEGER
 };
 
 SCEenum sce_rpxf[SCE_NUM_PIXEL_FORMATS] = {
