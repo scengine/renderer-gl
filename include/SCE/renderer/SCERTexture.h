@@ -86,6 +86,11 @@ enum sce_rtexfilter {
 };
 typedef enum sce_rtexfilter SCE_RTexFilter;
 
+typedef enum {
+    SCE_TEX_CLAMP = 0,
+    SCE_TEX_REPEAT,
+    SCE_NUM_TEX_WRAP_MODES
+} SCE_RTexWrapMode;
 
 /** \copydoc sce_rtexture */
 typedef struct sce_rtexture SCE_RTexture;
@@ -129,6 +134,7 @@ int SCE_RGetMaxTexture3DSize (void);
 
 void SCE_RSetTextureFilter (SCE_RTexture*, SCE_RTexFilter);
 void SCE_RPixelizeTexture (SCE_RTexture*, int);
+void SCE_RSetTextureWrapMode (SCE_RTexture*, SCE_RTexWrapMode);
 
 void SCE_RSetTextureParam (SCE_RTexture*, SCEenum, int) SCE_GNUC_DEPRECATED;
 void SCE_RSetTextureParamf (SCE_RTexture*, SCEenum, float) SCE_GNUC_DEPRECATED;

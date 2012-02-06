@@ -283,6 +283,24 @@ void SCE_RPixelizeTexture (SCE_RTexture *tex, int p)
 }
 
 /**
+ * \brief Defines behavior when texture coordinates go outside [0, 1]
+ * \param tex a texture
+ * \param mode wrap mode
+ */
+void SCE_RSetTextureWrapMode (SCE_RTexture *tex, SCE_RTexWrapMode mode)
+{
+    const SCEenum modes[SCE_NUM_TEX_WRAP_MODES] = {
+        GL_CLAMP_TO_EDGE,
+        GL_REPEAT
+    };
+    SCEenum m = modes[mode];
+    glBindTexture (tex->target, tex->id);
+    glTexParameteri (tex->target, GL_TEXTURE_WRAP_S, m);
+    glTexParameteri (tex->target, GL_TEXTURE_WRAP_T, m);
+    glTexParameteri (tex->target, GL_TEXTURE_WRAP_R, m);
+}
+
+/**
  * \deprecated
  * \brief Sets a parameter to a texture
  * \param tex the texture to assign the parameter
