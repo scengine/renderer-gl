@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 18/06/2011 */
+   updated: 06/02/2012 */
 
 #ifndef SCERENDERER_H
 #define SCERENDERER_H
@@ -52,6 +52,8 @@ void SCE_RQuit (void);
 const char* SCE_RGetError (void);
 
 void SCE_RClearColor (float, float, float, float);
+void SCE_RClearColori (int, int, int, int);
+void SCE_RClearColorui (SCEuint, SCEuint, SCEuint, SCEuint);
 void SCE_RClearDepth (float);
 void SCE_RClear (const SCEbitfield);
 void SCE_RFlush (void);

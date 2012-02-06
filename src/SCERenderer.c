@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 23/01/2012 */
+   updated: 06/02/2012 */
 
 #include <pthread.h>
 #include "SCE/renderer/SCERenderer.h"
@@ -141,6 +141,20 @@ const char* SCE_RGetError (void)
 void SCE_RClearColor (float r, float g, float b, float a)
 {
     glClearColor (r, g, b, a);
+}
+/**
+ * \brief Defines the signed integer color used for cleared the color buffer
+ */
+void SCE_RClearColori (int r, int g, int b, int a)
+{
+    glClearColorIiEXT (r, g, b, a);
+}
+/**
+ * \brief Defines the unsigned integer color used for cleared the color buffer
+ */
+void SCE_RClearColorui (SCEuint r, SCEuint g, SCEuint b, SCEuint a)
+{
+    glClearColorIuiEXT (r, g, b, a);
 }
 /**
  * \brief Defines the value used for cleared the depth buffer
