@@ -1028,14 +1028,14 @@ SCE_RGetMakeTextureFunc (int type, int comp, int texsub)
             make = (texsub ? SCE_RMakeTexture1DCompUp : SCE_RMakeTexture1DComp);
         else if (type == SCE_TEX_2D || type == SCE_TEX_CUBE)
             make = (texsub ? SCE_RMakeTexture2DCompUp : SCE_RMakeTexture2DComp);
-        else if (type == SCE_TEX_3D)
+        else if (type == SCE_TEX_3D || type == SCE_TEX_2D_ARRAY)
             make = (texsub ? SCE_RMakeTexture3DCompUp : SCE_RMakeTexture3DComp);
     } else {
         if (type == SCE_TEX_1D)
             make = (texsub ? SCE_RMakeTexture1DUp : SCE_RMakeTexture1D);
         else if (type == SCE_TEX_2D || type == SCE_TEX_CUBE)
             make = (texsub ? SCE_RMakeTexture2DUp : SCE_RMakeTexture2D);
-        else if (type == SCE_TEX_3D)
+        else if (type == SCE_TEX_3D || type == SCE_TEX_2D_ARRAY)
             make = (texsub ? SCE_RMakeTexture3DUp : SCE_RMakeTexture3D);
     }
     /* NOTE: make may be NULL here */
