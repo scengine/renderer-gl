@@ -66,6 +66,7 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer *fb)
 
     fb->id = 0;
     for (i = 0; i < SCE_NUM_RENDER_BUFFERS; i++) {
+        fb->buffers[i].attach = 0;
         fb->buffers[i].id = 0;
         fb->buffers[i].tex = NULL;
         fb->buffers[i].user = SCE_TRUE;
@@ -73,6 +74,9 @@ void SCE_RInitFramebuffer (SCE_RFramebuffer *fb)
     }
     fb->x = fb->y = 0;
     fb->w = fb->h = 1;
+
+    fb->layered = SCE_FALSE;
+    fb->specific_layer_selected = SCE_FALSE;
 }
 
 /**
@@ -167,6 +171,9 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
  * call SCE_RAddRenderBuffer() to add a depth buffer.
  * This function will adapts the \p fb's viewport to the dimensions of \p tex.
  * \sa SCE_RAddRenderBuffer(), SCE_RAddNewRenderTexture()
+ *
+ * \todo Parameter mipmap is kinda deprecated: it will not be saved upon
+ * subsequent calls to SCE_RUseFramebuffer() _with_ layer selection.
  */
 int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
                            SCEenum target, SCE_RTexture *tex, int mipmap,
@@ -192,6 +199,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
 
     fb->buffers[id].user = !canfree;
     fb->buffers[id].tex = tex;
+    fb->buffers[id].attach = type;
 
     /* verification du target */
     if (target < SCE_TEX_POSX || target > SCE_TEX_NEGZ)
@@ -221,9 +229,10 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
         SCE_RGetTextureType (tex) == SCE_TEX_2D)
         glFramebufferTexture2D (GL_FRAMEBUFFER, type, target, tex->id, mipmap);
     else if (SCE_RGetTextureType (tex) == SCE_TEX_2D_ARRAY ||
-             SCE_RGetTextureType (tex) == SCE_TEX_3D)
+             SCE_RGetTextureType (tex) == SCE_TEX_3D) {
         glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
-    else                        /* herp. */
+        fb->layered = SCE_TRUE;
+    } else                        /* herp. */
         glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
 
     /* si aucune color render texture n'existe, on desactive le tampon */
@@ -297,6 +306,8 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
         SCE_RDeleteTexture (fb->buffers[id].tex);
         fb->buffers[id].tex = NULL;  /* ! important ! */
     }
+
+    fb->buffers[id].attach = type;
 
     /* I guess that it can be achieved later
        (like just before FramebufferRenderbuffer()) */
@@ -465,12 +476,14 @@ static void SCE_RSetDrawBuffers (SCE_RFramebuffer *fb)
  * \param fb the frame buffer on make the further renders,
  * set as NULL to set up the default OpenGL's render buffer
  * \param r gives the new viewport for the renders, can be NULL
+ * \param layer if using layered framebuffer, indicates the layer to target,
+ * set a negative value to let the geometry shader choose the layer.
  *
  * Calling this function when none frame buffer is used saves the viewport,
  * then the first call of this function with a null frame buffer will restore
  * the viewport.
  */
-void SCE_RUseFramebuffer (SCE_RFramebuffer *fb, SCE_SIntRect *r)
+void SCE_RUseFramebuffer (SCE_RFramebuffer *fb, SCE_SIntRect *r, int layer)
 {
     static int viewport[4];        /* save previous viewport */
     static int bound = SCE_FALSE;
@@ -484,6 +497,31 @@ void SCE_RUseFramebuffer (SCE_RFramebuffer *fb, SCE_SIntRect *r)
             glGetIntegerv (GL_VIEWPORT, viewport);
 
         glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
+        /* TODO: loops are so ugly */
+        /* TODO: doesn't work yet with depth buffers c: */
+        if (layer >= 0 && fb->layered) {
+            int i;
+            for (i = 0; i < SCE_DEPTH_BUFFER; i++) {
+                if (fb->buffers[i].activated) {
+                    glFramebufferTextureLayer (GL_FRAMEBUFFER,
+                                               fb->buffers[i].attach,
+                                               fb->buffers[i].tex->id,
+                                               0, layer);
+                }
+            }
+            fb->specific_layer_selected = SCE_TRUE;
+        } else if (fb->layered && fb->specific_layer_selected) {
+            int i;
+            for (i = 0; i < SCE_DEPTH_BUFFER; i++) {
+                if (fb->buffers[i].activated) {
+                    glFramebufferTexture (GL_FRAMEBUFFER, fb->buffers[i].attach,
+                                          fb->buffers[i].tex->id, 0);
+                }
+            }
+            fb->specific_layer_selected = SCE_FALSE;
+        }
+
+
         if (r)
             glViewport (p[0], p[1], SCE_Rectangle_GetWidth (r),
                         SCE_Rectangle_GetHeight (r));

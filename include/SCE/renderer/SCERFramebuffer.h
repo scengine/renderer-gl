@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 17/11/2011 */
+   updated: 06/02/2012 */
 
 #ifndef SCEFRAMEBUFFER_H
 #define SCEFRAMEBUFFER_H
@@ -63,6 +63,7 @@ typedef struct sce_rrenderbuffer SCE_RRenderBuffer;
  * This structure stores a texture or a OpenGL render buffer.
  */
 struct sce_rrenderbuffer {
+    SCEenum attach;    /**< Attach point */
     SCEuint id;        /**< OpenGL render buffer's identifier */
     SCE_RTexture *tex; /**< The render texture */
     int user;          /**< Is user the owner of \c tex ? */
@@ -83,6 +84,9 @@ struct sce_rframebuffer {
     /** All the targets of \c id, used for Multiple Render Targets extension */
     SCE_RRenderBuffer buffers[SCE_NUM_RENDER_BUFFERS];
     int x, y, w, h; /* TODO: use rectangle ? */
+
+    int layered;
+    int specific_layer_selected; /* HERP */
 };
 
 /** @} */
@@ -110,11 +114,9 @@ void SCE_RActivateRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType, int);
 void SCE_REnableRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType);
 void SCE_RDisableRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType);
 
-void SCE_RClearRenderbuffer (SCE_RFramebuffer*, SCEuint, int);
-
 unsigned int SCE_RGetMaxAttachmentBuffers (void);
 
-void SCE_RUseFramebuffer (SCE_RFramebuffer*, SCE_SIntRect*);
+void SCE_RUseFramebuffer (SCE_RFramebuffer*, SCE_SIntRect*, int);
 
 #ifdef __cplusplus
 } /* extern "C" */
