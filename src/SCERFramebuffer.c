@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 17/11/2011 */
+   updated: 06/02/2012 */
 
 #include <GL/glew.h>
 #include <SCE/core/SCECore.h>   /* SCE_STexData */
@@ -139,6 +139,8 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
         return "wrong dimensions";
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
         return "incomplete missing attachement";
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS_EXT:
+        return "incomplete layer targets";
     case GL_FRAMEBUFFER_COMPLETE_EXT:
         return "no error";
     default:
@@ -204,7 +206,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
 
     if (!SCE_RIsTextureUsingMipmaps (tex)) {
         SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
-        mipmap = SCE_FALSE; /* very important */
+        mipmap = 0; /* very important */
     }
     /* TODO: useless only if CTexture manager set some parameters */
     /*
@@ -214,23 +216,16 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
     SCE_RSetTextureParam (tex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     */
     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
-    /* TODO: add texture arrays, texture rectangle & 3D textures managment */
-#if 0
-    if (target == SCE_TEX_RECTANGLE_NV)
-    {
 
-    }
-    else if (target == SCE_TEX_2D_ARRAY || target == SCE_TEX_3D)
-        /* SCE_RIsTextureArray (tex) */
-    {
-        glFramebufferTextureLayerEXT (GL_FRAMEBUFFER_EXT, type, tex->id,
-                                      mipmap, layer);
-    }
-    else
-#endif
-    /* et on lui assigne notre jolie render texture */
-    glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, type,
-                               target, tex->id, mipmap);
+    if (SCE_RGetTextureType (tex) == SCE_TEX_CUBE ||
+        SCE_RGetTextureType (tex) == SCE_TEX_2D)
+        glFramebufferTexture2D (GL_FRAMEBUFFER, type, target, tex->id, mipmap);
+    else if (SCE_RGetTextureType (tex) == SCE_TEX_2D_ARRAY ||
+             SCE_RGetTextureType (tex) == SCE_TEX_3D)
+        glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
+    else                        /* herp. */
+        glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
+
     /* si aucune color render texture n'existe, on desactive le tampon */
     if (id == SCE_DEPTH_BUFFER &&
         !fb->buffers[SCE_COLOR_BUFFER0].tex &&
