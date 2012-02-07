@@ -457,6 +457,7 @@ unsigned int SCE_RGetMaxAttachmentBuffers (void)
     return max_attachement_buffers;
 }
 
+/* TODO: see SCE_RSetProgramOutputTarget() */
 static void SCE_RSetDrawBuffers (SCE_RFramebuffer *fb)
 {
     unsigned int i, j = 0;

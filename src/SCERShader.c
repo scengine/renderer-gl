@@ -156,6 +156,8 @@ SCE_RProgram* SCE_RCreateProgram (void)
     prog->fb_mode = SCE_FEEDBACK_INTERLEAVED;
     prog->fb_varyings = NULL;
     prog->n_varyings = 0;
+    for (i = 0; i < SCE_MAX_ATTACHMENT_BUFFERS; i++)
+        memset (prog->outputs[i], 0, SCE_SHADER_OUTPUT_LENGTH);
 
     return prog;
 }
@@ -236,6 +238,7 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
     int status = GL_TRUE;
     int loginfo_size = 0;
     char *loginfo = NULL;
+    int i, j;
 
     if (prog->linked)
         return SCE_OK;
@@ -245,6 +248,13 @@ int SCE_RBuildProgram (SCE_RProgram *prog)
         glTransformFeedbackVaryings (prog->id, prog->n_varyings,
                                      (const GLchar**)prog->fb_varyings,
                                      modes[prog->fb_mode]);
+    }
+
+    /* TODO: follows the same pattern as SCE_RSetDrawBuffers */
+    j = 0;
+    for (i = 0; i < SCE_MAX_ATTACHMENT_BUFFERS; i++) {
+        if (*prog->outputs[i])
+            glBindFragDataLocation (prog->id, j++, prog->outputs[i]);
     }
 
     glLinkProgram (prog->id);
@@ -448,6 +458,22 @@ void SCE_RSetProgramPatchVertices (SCE_RProgram *prog, int vertices)
     prog->patch_vertices = vertices;
 }
 
+/**
+ * \brief Binds an output variable from the pixel shader to the specified target
+ * \param prog a program
+ * \param output output variable name
+ * \param target buffer target, constants SCE_STENCIL_BUFFER and
+ * SCE_DEPTH_BUFFER are not allowed
+ */
+void SCE_RSetProgramOutputTarget (SCE_RProgram *prog, const char *output,
+                                  SCE_RBufferType target)
+{
+    if (output)
+        strncpy (prog->outputs[target], output, SCE_SHADER_OUTPUT_LENGTH - 1);
+    else
+        memset (prog->outputs[target], 0, SCE_SHADER_OUTPUT_LENGTH);
+    prog->linked = SCE_FALSE;
+}
 
 void SCE_RUseProgram (SCE_RProgram *prog)
 {

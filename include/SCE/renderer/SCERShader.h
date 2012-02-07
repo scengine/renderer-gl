@@ -25,6 +25,7 @@
 #include <SCE/core/SCECore.h>  /* SCE_EPrimitiveType */
 #include "SCE/renderer/SCERType.h"
 #include "SCE/renderer/SCERVertexArray.h" /* SCE_RVertexAttributesMap */
+#include "SCE/renderer/SCERFramebuffer.h" /* SCE_RBufferType */
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,6 +86,8 @@ struct sce_rshaderglsl {
     int compiled;               /**< Is the shader compiled? */
 };
 
+#define SCE_SHADER_OUTPUT_LENGTH 64
+
 /**
  * \brief GL program
  */
@@ -105,6 +108,7 @@ struct sce_rprogram {
     SCE_RFeedbackStorageMode fb_mode; /**< Transform feedback attribs storage */
     char **fb_varyings;     /**< Transform feedback output varyings */
     size_t n_varyings;
+    char outputs[SCE_MAX_ATTACHMENT_BUFFERS][SCE_SHADER_OUTPUT_LENGTH];
 };
 
 
@@ -136,6 +140,7 @@ void SCE_RSetupProgramMatricesMapping (SCE_RProgram*);
 void SCE_RActivateProgramMatricesMapping (SCE_RProgram*, int);
 
 void SCE_RSetProgramPatchVertices (SCE_RProgram*, int);
+void SCE_RSetProgramOutputTarget (SCE_RProgram*, const char*, SCE_RBufferType);
 
 void SCE_RUseProgram (SCE_RProgram*);
 
