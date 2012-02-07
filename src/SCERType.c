@@ -75,7 +75,8 @@ SCEenum sce_rpxf[SCE_NUM_PIXEL_FORMATS] = {
     /*GL_COMPRESSED_RGB_3DC_ATI*/ 0,
     GL_DEPTH_COMPONENT24,
     GL_DEPTH_COMPONENT32,
-    GL_R32UI
+    GL_R32UI,
+    GL_RGBA8UI
 };
 
 SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES] = {
