@@ -1018,7 +1018,8 @@ static void SCE_RMakeTexture2DUp (SCE_STexData *d)
 static void SCE_RMakeTexture3DUp (SCE_STexData *t)
 {
     int fmt = SCE_RSCEImgFormatToGL (SCE_TexData_GetDataFormat (t));
-    if (SCE_TexData_IsModified (t)) {
+#if 0
+    if (SCE_TexData_IsModified (t) && 0) {
         int x, y, z, w, h, d;
         SCE_TexData_GetModified3 (t, &x, &y, &z, &w, &h, &d);
         glTexSubImage3D (SCE_TexData_GetTarget(t),SCE_TexData_GetMipmapLevel(t),
@@ -1026,7 +1027,9 @@ static void SCE_RMakeTexture3DUp (SCE_STexData *t)
                          sce_rgltypes[SCE_TexData_GetDataType (t)],
                          SCE_TexData_GetData (t));
         SCE_TexData_Unmofidied (t);
-    } else {
+    } else
+#endif
+    {
         /* scumbag yno doesnt always update, but when he does he makes
            sure there's nothing to update */
         glTexSubImage3D (SCE_TexData_GetTarget(t),SCE_TexData_GetMipmapLevel(t),
