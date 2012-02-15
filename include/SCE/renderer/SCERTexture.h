@@ -157,6 +157,7 @@ int SCE_RIsTextureUsingMipmaps (SCE_RTexture*);
 int SCE_RGetTextureNumMipmaps (SCE_RTexture*, int);
 int SCE_RGetTextureWidth (SCE_RTexture*, int, int);
 int SCE_RGetTextureHeight (SCE_RTexture*, int, int);
+int SCE_RGetTextureDepth (SCE_RTexture*, int, int);
 
 int SCE_RGetTextureValidSize (int, int);
 

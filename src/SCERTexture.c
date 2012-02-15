@@ -511,6 +511,15 @@ int SCE_RGetTextureHeight (SCE_RTexture *tex, int target, int level)
 {
     return SCE_RGetTextureTexData (tex, target, level)->h;
 }
+/**
+ * \brief Gets the depth of a texture
+ *
+ * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->d
+ */
+int SCE_RGetTextureDepth (SCE_RTexture *tex, int target, int level)
+{
+    return SCE_RGetTextureTexData (tex, target, level)->d;
+}
 
 
 /**
