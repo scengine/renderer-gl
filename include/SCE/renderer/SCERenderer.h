@@ -33,7 +33,6 @@
 #include "SCE/renderer/SCERVertexArray.h"
 #include "SCE/renderer/SCERVertexBuffer.h"
 #include "SCE/renderer/SCERFeedback.h"
-#include "SCE/renderer/SCERImage.h"
 #include "SCE/renderer/SCERTexture.h"
 #include "SCE/renderer/SCERFramebuffer.h"
 #include "SCE/renderer/SCERShader.h"
