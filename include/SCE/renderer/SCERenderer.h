@@ -94,6 +94,11 @@ void SCE_RSetState6 (SCEenum, SCEenum, SCEenum, SCEenum, SCEenum, SCEenum, int);
 void SCE_RSetBlending (SCEenum, SCEenum);
 void SCE_RSetAlphaFunc (SCEenum, float);
 
+void SCE_REnableDepthTest (void);
+void SCE_RDisableDepthTest (void);
+void SCE_REnableStencilTest (void);
+void SCE_RDisableStencilTest (void);
+
 void SCE_RActivateColorBuffer (int);
 void SCE_RActivateDepthBuffer (int);
 void SCE_RDepthRange (SCEdouble, SCEdouble);

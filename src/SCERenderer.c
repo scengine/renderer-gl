@@ -280,6 +280,36 @@ void SCE_RSetAlphaFunc (SCEenum func, float ref)
 }
 
 /**
+ * \brief Enables depth test
+ */
+void SCE_REnableDepthTest (void)
+{
+    glEnable (GL_DEPTH_TEST);
+}
+/**
+ * \brief Disables depth test
+ */
+void SCE_RDisableDepthTest (void)
+{
+    glDisable (GL_DEPTH_TEST);
+}
+/**
+ * \brief Enables stencil test
+ */
+void SCE_REnableStencilTest (void)
+{
+    glEnable (GL_STENCIL_TEST);
+}
+/**
+ * \brief Disables stencil test
+ */
+void SCE_RDisableStencilTest (void)
+{
+    glDisable (GL_STENCIL_TEST);
+}
+
+
+/**
  * Enables/Disables color buffer writing
  * \param a can be SCE_TRUE or SCE_FALSE
  */
