@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 06/03/2007
-   updated: 23/01/2012 */
+   updated: 03/04/2012 */
 
 #ifndef SCERTYPES_H
 #define SCERTYPES_H
@@ -37,17 +37,6 @@ extern "C" {
 extern SCEenum sce_rgltypes[SCE_NUM_TYPES];
 extern SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES];
 extern SCEenum *sce_rprimtypes;
-
-/* TODO: what the hell are these doing here?? */
-/* types de culling */
-#define SCE_FRONT           GL_FRONT
-#define SCE_BACK            GL_BACK
-
-/* comparaisons */
-#define SCE_LESS            GL_LESS
-#define SCE_LEQUAL          GL_LEQUAL
-#define SCE_GREATER         GL_GREATER
-#define SCE_GEQUAL          GL_GEQUAL
 
 int SCE_RTypeInit (void);
 void SCE_RTypeQuit (void);

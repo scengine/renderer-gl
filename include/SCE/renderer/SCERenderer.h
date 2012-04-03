@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 06/02/2012 */
+   updated: 03/04/2012 */
 
 #ifndef SCERENDERER_H
 #define SCERENDERER_H
@@ -45,6 +45,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* faces */
+#define SCE_FRONT           GL_FRONT
+#define SCE_BACK            GL_BACK
+#define SCE_FRONT_AND_BACK  GL_FRONT_AND_BACK
+
+/* comparaisons */
+#define SCE_LESS            GL_LESS
+#define SCE_LEQUAL          GL_LEQUAL
+#define SCE_GREATER         GL_GREATER
+#define SCE_GEQUAL          GL_GEQUAL
 
 int SCE_RInit (FILE*, SCEbitfield);
 void SCE_RQuit (void);
