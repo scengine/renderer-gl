@@ -45,6 +45,11 @@
 extern "C" {
 #endif
 
+/* buffers */
+#define SCE_COLOR_BUFFER_BIT    GL_COLOR_BUFFER_BIT
+#define SCE_DEPTH_BUFFER_BIT    GL_DEPTH_BUFFER_BIT
+#define SCE_STENCIL_BUFFER_BIT  GL_STENCIL_BUFFER_BIT
+
 /* faces */
 #define SCE_FRONT           GL_FRONT
 #define SCE_BACK            GL_BACK
