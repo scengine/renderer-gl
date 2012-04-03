@@ -56,6 +56,16 @@ extern "C" {
 #define SCE_LEQUAL          GL_LEQUAL
 #define SCE_GREATER         GL_GREATER
 #define SCE_GEQUAL          GL_GEQUAL
+#define SCE_NOTEQUAL        GL_NOTEQUAL
+/* stencil stuff */
+#define SCE_KEEP            GL_KEEP
+#define SCE_ZERO            GL_ZERO
+#define SCE_REPLACE         GL_REPLACE
+#define SCE_INCR            GL_INCR
+#define SCE_INCR_WRAP       GL_INCR_WRAP
+#define SCE_DECR            GL_DECR
+#define SCE_DECR_WRAP       GL_DECR_WRAP
+#define SCE_INVERT          GL_INVERT
 
 int SCE_RInit (FILE*, SCEbitfield);
 void SCE_RQuit (void);
@@ -66,6 +76,7 @@ void SCE_RClearColor (float, float, float, float);
 void SCE_RClearColori (int, int, int, int);
 void SCE_RClearColorui (SCEuint, SCEuint, SCEuint, SCEuint);
 void SCE_RClearDepth (float);
+void SCE_RClearStencil (SCEuint);
 void SCE_RClear (const SCEbitfield);
 void SCE_RFlush (void);
 
@@ -85,6 +96,9 @@ void SCE_RDepthRange (SCEdouble, SCEdouble);
 
 void SCE_RSetCulledFaces (SCEenum);
 void SCE_RSetValidPixels (SCEenum);
+
+void SCE_RSetStencilOp (SCEenum, SCEenum, SCEenum);
+void SCE_RSetStencilFunc (SCEenum, SCEuint, SCEuint);
 
 #ifdef __cplusplus
 } /* extern "C" */

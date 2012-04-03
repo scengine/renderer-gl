@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 15/12/2006
-   updated: 06/02/2012 */
+   updated: 03/04/2012 */
 
 #include <pthread.h>
 #include "SCE/renderer/SCERenderer.h"
@@ -162,6 +162,10 @@ void SCE_RClearColorui (SCEuint r, SCEuint g, SCEuint b, SCEuint a)
 void SCE_RClearDepth (float d)
 {
     glClearDepth (d);
+}
+void SCE_RClearStencil (SCEuint s)
+{
+    glClearStencil (s);
 }
 
 /**
@@ -318,7 +322,8 @@ void SCE_RSetCulledFaces (SCEenum mode)
 
 /**
  * \brief Defines which faces will be culled by the backface culling
- * \param mode can be SCE_LESS, SCE_LEQUAL, SCE_GREATER or SCE_GEQUAL
+ * \param mode can be SCE_LESS, SCE_LEQUAL, SCE_GREATER, SCE_GEQUAL
+ * or SCE_NOTEQUAL
  *
  * This function calls glDepthFunc(\p mode).
  * \sa SCE_RDepthRange()
@@ -326,6 +331,23 @@ void SCE_RSetCulledFaces (SCEenum mode)
 void SCE_RSetValidPixels (SCEenum mode)
 {
     glDepthFunc (mode);
+}
+
+/**
+ * \brief Binding of glStencilOp()
+ * \sa SCE_RSetStencilFunc()
+ */
+void SCE_RSetStencilOp (SCEenum sfail, SCEenum dpfail, SCEenum dppass)
+{
+    glStencilOp (sfail, dpfail, dppass);
+}
+/**
+ * \brief Binding of glStencilFunc()
+ * \sa SCE_RSetStencilOp()
+ */
+void SCE_RSetStencilFunc (SCEenum func, SCEuint ref, SCEuint mask)
+{
+    glStencilFunc (func, ref, mask);
 }
 
 /** @} */
