@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 06/02/2012 */
+   updated: 08/04/2012 */
 
 #include <GL/glew.h>
 #include <SCE/core/SCECore.h>   /* SCE_STexData */
@@ -122,6 +122,7 @@ static int SCE_RIDToGLBuffer (SCEuint type)
     switch (type) {
     case SCE_DEPTH_BUFFER: return GL_DEPTH_ATTACHMENT_EXT;
     case SCE_STENCIL_BUFFER: return GL_STENCIL_ATTACHMENT_EXT;
+    case SCE_DEPTH_STENCIL_BUFFER: return GL_DEPTH_STENCIL_ATTACHMENT;
     default: return GL_COLOR_ATTACHMENT0_EXT + type;
     }
 }
@@ -156,8 +157,7 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
  * \brief Adds an existing texture as a new render target for \p fb
  * \param fb the frame buffer to which to add the new texture
  * \param id render target's identifier
- * \param target used only for cubemaps, determines the face
- * of the cubemap on which to make the render, can be 0
+ * \param face face of the cubemap to bind (ignored if \p tex is not a cubemap)
  * \param tex the texture that is the target of \p id. must be a 2D texture
  * or a cubemap
  * \param mipmap mipmap level on which to make the render (0 is recommanded)
@@ -176,10 +176,11 @@ static const char* SCE_RGetFramebufferError (SCEenum err)
  * subsequent calls to SCE_RUseFramebuffer() _with_ layer selection.
  */
 int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
-                           SCEenum target, SCE_RTexture *tex, int mipmap,
-                           int canfree)
+                           SCE_RTexCubeFace face, SCE_RTexture *tex,
+                           int mipmap, int canfree)
 {
     int type, status;
+    SCEenum target;
 
     /* TODO: verifier le nombre de render targets encore autorises et veiller
        a ne pas depasser SCE_RGetMaxAttachmentBuffers() */
@@ -201,16 +202,11 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
     fb->buffers[id].tex = tex;
     fb->buffers[id].attach = type;
 
-    /* verification du target */
-    if (target < SCE_TEX_POSX || target > SCE_TEX_NEGZ)
+    /* selecting cubemap face */
+    if (SCE_RGetTextureType (tex) == SCE_TEX_CUBE)
+        target = face;
+    else
         target = SCE_RGetTextureType (tex);
-    else if (SCE_RGetTextureType (tex) != SCE_TEX_CUBE) {
-        /* target designant une face de cubemap, mais la texture
-           n'est pas de type cubemap : erreur */
-        SCEE_Log (SCE_INVALID_ARG);
-        SCEE_LogMsg ("invalid target, the texture is not a cubemap");
-        return SCE_ERROR;
-    }
 
     if (!SCE_RIsTextureUsingMipmaps (tex)) {
         SCE_RSetTextureParam (tex, GL_TEXTURE_MAX_LEVEL, 0);
@@ -226,17 +222,16 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, fb->id);
 
     if (SCE_RGetTextureType (tex) == SCE_TEX_CUBE ||
-        SCE_RGetTextureType (tex) == SCE_TEX_2D)
+        SCE_RGetTextureType (tex) == SCE_TEX_2D) {
         glFramebufferTexture2D (GL_FRAMEBUFFER, type, target, tex->id, mipmap);
-    else if (SCE_RGetTextureType (tex) == SCE_TEX_2D_ARRAY ||
+    } else if (SCE_RGetTextureType (tex) == SCE_TEX_2D_ARRAY ||
              SCE_RGetTextureType (tex) == SCE_TEX_3D) {
         glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
         fb->layered = SCE_TRUE;
     } else                        /* herp. */
         glFramebufferTexture (GL_FRAMEBUFFER, type, tex->id, mipmap);
 
-    /* si aucune color render texture n'existe, on desactive le tampon */
-    if (id == SCE_DEPTH_BUFFER &&
+    if (id == SCE_DEPTH_BUFFER || id == SCE_DEPTH_STENCIL_BUFFER &&
         !fb->buffers[SCE_COLOR_BUFFER0].tex &&
         !fb->buffers[SCE_COLOR_BUFFER1].tex &&
         !fb->buffers[SCE_COLOR_BUFFER2].tex) { /* etc. */
@@ -278,18 +273,20 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
  * \sa SCE_RAddRenderTexture()
  */
 int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
-                          SCE_EImageFormat fmt, int w, int h)
+                          SCE_EPixelFormat pxf, int w, int h)
 {
     int type, status;
 
     type = SCE_RIDToGLBuffer (id);
 
     /* assignation des valeurs par defaut */
-    if (fmt == SCE_IMAGE_NONE) {
+    if (pxf == SCE_PXF_NONE) {
         if (id == SCE_DEPTH_BUFFER)
-            fmt = SCE_IMAGE_DEPTH;
+            pxf = SCE_PXF_DEPTH32; /* make it aligned */
         else if (id == SCE_STENCIL_BUFFER)
-            fmt = /* GL_STENCIL_INDEX8_EXT */SCE_IMAGE_RGB; /* TODO: lol */
+            pxf = SCE_PXF_STENCIL8; /* NOTE: doesn't work, wtf */
+        else if (id == SCE_DEPTH_STENCIL_BUFFER)
+            pxf = SCE_PXF_DEPTH_STENCIL;
     }
 
     if (w <= 0)
@@ -319,19 +316,18 @@ int SCE_RAddRenderBuffer (SCE_RFramebuffer *fb, SCE_RBufferType id,
 
     /* creation du render buffer */
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, fb->buffers[id].id);
-    glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT,
-                              SCE_RSCEImgFormatToGL (fmt), w, h);
+    glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, SCE_RSCEPxfToGL (pxf), w, h);
     glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, 0);
 
     /* on l'ajoute au FBO */
-    glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, type, GL_RENDERBUFFER_EXT,
-                                  fb->buffers[id].id);
+    glFramebufferRenderbuffer (GL_FRAMEBUFFER, type, GL_RENDERBUFFER,
+                               fb->buffers[id].id);
 
     status = glCheckFramebufferStatusEXT (GL_FRAMEBUFFER_EXT);
     if (status != GL_FRAMEBUFFER_COMPLETE_EXT) {
         SCEE_Log (status);
         SCEE_LogMsg ("framebuffer check failed: %s",
-                       SCE_RGetFramebufferError (status));
+                     SCE_RGetFramebufferError (status));
         return SCE_ERROR;
     }
 

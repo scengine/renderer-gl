@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 02/07/2007
-   updated: 06/02/2012 */
+   updated: 08/04/2012 */
 
 #ifndef SCEFRAMEBUFFER_H
 #define SCEFRAMEBUFFER_H
@@ -44,6 +44,7 @@ typedef enum {
     SCE_COLOR_BUFFER7,
     SCE_DEPTH_BUFFER,
     SCE_STENCIL_BUFFER,
+    SCE_DEPTH_STENCIL_BUFFER,
     SCE_NUM_RENDER_BUFFERS
 } SCE_RBufferType;
 
@@ -102,7 +103,7 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer*, SCE_RBufferType, SCEenum,
                            SCE_RTexture*, int, int);
 
 int SCE_RAddRenderBuffer (SCE_RFramebuffer*, SCE_RBufferType,
-                          SCE_EImageFormat, int, int);
+                          SCE_EPixelFormat, int, int);
 
 SCE_RTexture* SCE_RAddNewRenderTexture (SCE_RFramebuffer*, SCE_RBufferType,
                                         SCE_EPixelFormat, SCE_EImageFormat,
