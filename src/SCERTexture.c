@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 08/04/2012 */
+   updated: 09/04/2012 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -498,30 +498,30 @@ int SCE_RGetTextureNumMipmaps (SCE_RTexture *tex, SCE_RTexCubeFace face)
 
 /**
  * \brief Gets the width of a texture
- *
- * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->w
+ * \sa SCE_RGetTextureHeight(), SCE_RGetTextureDepth(), SCE_TexData_GetWidth()
  */
-int SCE_RGetTextureWidth (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
+int SCE_RGetTextureWidth (SCE_RTexture *tex)
 {
-    return SCE_RGetTextureTexData (tex, face, level)->w;
+    SCE_STexData *tc = SCE_RGetTextureTexData (tex, 0, 0);
+    return SCE_TexData_GetWidth (tc);
 }
 /**
  * \brief Gets the height of a texture
- *
- * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->h
+ * \sa SCE_RGetTextureWidth(), SCE_TexData_GetHeight()
  */
-int SCE_RGetTextureHeight (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
+int SCE_RGetTextureHeight (SCE_RTexture *tex)
 {
-    return SCE_RGetTextureTexData (tex, face, level)->h;
+    SCE_STexData *tc = SCE_RGetTextureTexData (tex, 0, 0);
+    return SCE_TexData_GetHeight (tc);
 }
 /**
  * \brief Gets the depth of a texture
- *
- * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->d
+ * \sa SCE_RGetTextureWidth(), SCE_TexData_GetDepth()
  */
-int SCE_RGetTextureDepth (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
+int SCE_RGetTextureDepth (SCE_RTexture *tex)
 {
-    return SCE_RGetTextureTexData (tex, face, level)->d;
+    SCE_STexData *tc = SCE_RGetTextureTexData (tex, 0, 0);
+    return SCE_TexData_GetDepth (tc);
 }
 
 

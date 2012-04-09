@@ -248,8 +248,8 @@ int SCE_RAddRenderTexture (SCE_RFramebuffer *fb, SCE_RBufferType id,
         return SCE_ERROR;
     }
 
-    fb->w = SCE_RGetTextureWidth (tex, target, 0);
-    fb->h = SCE_RGetTextureHeight (tex, target, 0);
+    fb->w = SCE_RGetTextureWidth (tex);
+    fb->h = SCE_RGetTextureHeight (tex);
     fb->buffers[id].activated = SCE_TRUE;
     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
 

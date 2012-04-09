@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 08/04/2012 */
+   updated: 09/04/2012 */
 
 #ifndef SCERTEXTURE_H
 #define SCERTEXTURE_H
@@ -155,9 +155,9 @@ int SCE_RHasTextureData (SCE_RTexture*);
 
 int SCE_RIsTextureUsingMipmaps (SCE_RTexture*);
 int SCE_RGetTextureNumMipmaps (SCE_RTexture*, SCE_RTexCubeFace);
-int SCE_RGetTextureWidth (SCE_RTexture*, SCE_RTexCubeFace, int);
-int SCE_RGetTextureHeight (SCE_RTexture*, SCE_RTexCubeFace, int);
-int SCE_RGetTextureDepth (SCE_RTexture*, SCE_RTexCubeFace, int);
+int SCE_RGetTextureWidth (SCE_RTexture*);
+int SCE_RGetTextureHeight (SCE_RTexture*);
+int SCE_RGetTextureDepth (SCE_RTexture*);
 
 int SCE_RGetTextureValidSize (int, int);
 
