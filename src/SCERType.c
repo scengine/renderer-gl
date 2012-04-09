@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 07/03/2006
-   updated: 05/02/2012 */
+   updated: 08/04/2012 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -35,7 +35,26 @@ SCEenum sce_rgltypes[SCE_NUM_TYPES] = {
     GL_UNSIGNED_INT,
     GL_FLOAT,
     GL_DOUBLE,
-    GL_UNSIGNED_INT             /* SCE_SIZE_T */
+    GL_UNSIGNED_INT,             /* SCE_SIZE_T */
+    0,                           /* SCE_NUM_NORMAL_TYPES */
+
+    GL_HALF_FLOAT,
+    GL_UNSIGNED_BYTE_3_3_2,
+    GL_UNSIGNED_BYTE_2_3_3_REV,
+    GL_UNSIGNED_SHORT_5_6_5,
+    GL_UNSIGNED_SHORT_5_6_5_REV,
+    GL_UNSIGNED_SHORT_4_4_4_4,
+    GL_UNSIGNED_SHORT_4_4_4_4_REV,
+    GL_UNSIGNED_SHORT_5_5_5_1,
+    GL_UNSIGNED_SHORT_1_5_5_5_REV,
+    GL_UNSIGNED_INT_8_8_8_8,
+    GL_UNSIGNED_INT_8_8_8_8_REV,
+    GL_UNSIGNED_INT_10_10_10_2,
+    GL_UNSIGNED_INT_2_10_10_10_REV,
+    GL_UNSIGNED_INT_24_8,
+    GL_UNSIGNED_INT_10F_11F_11F_REV,
+    GL_UNSIGNED_INT_5_9_9_9_REV,
+    GL_FLOAT_32_UNSIGNED_INT_24_8_REV
 };
 
 SCEenum sce_rtextype[3] = {
@@ -53,6 +72,8 @@ SCEenum sce_rtexformat[SCE_NUM_IMAGE_FORMATS] = {
     GL_RGBA,
     GL_BGRA,
     GL_DEPTH_COMPONENT,
+    GL_STENCIL_INDEX,           /* NOTE: not sure if accepted by TexImage() */
+    GL_DEPTH_STENCIL,
     GL_RED_INTEGER,
     GL_RG_INTEGER,
     GL_RGB_INTEGER,
@@ -75,6 +96,15 @@ SCEenum sce_rpxf[SCE_NUM_PIXEL_FORMATS] = {
     /*GL_COMPRESSED_RGB_3DC_ATI*/ 0,
     GL_DEPTH_COMPONENT24,
     GL_DEPTH_COMPONENT32,
+    GL_DEPTH_COMPONENT32F,
+    GL_STENCIL_INDEX,
+    GL_STENCIL_INDEX1,
+    GL_STENCIL_INDEX4,
+    GL_STENCIL_INDEX8,
+    GL_STENCIL_INDEX16,
+    GL_DEPTH_STENCIL,
+    GL_DEPTH24_STENCIL8,
+    GL_DEPTH32F_STENCIL8,
     GL_R32UI,
     GL_RGBA8UI
 };
