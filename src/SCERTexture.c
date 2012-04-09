@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 23/01/2012 */
+   updated: 08/04/2012 */
 
 #include <string.h>
 #include <GL/glew.h>
@@ -429,16 +429,15 @@ SCE_RTexType SCE_RGetTextureType (SCE_RTexture *tex)
 }
 
 
-/* TODO: wat? edit comment */
-/* retourne un identifiant valide pour le tableau des donnees
-   et assigne a 'target' la valeur adequat */
-static unsigned int SCE_RGetTextureTargetID (SCE_RTexture *tex, int *target)
+static unsigned int
+SCE_RGetTextureTargetID (SCE_RTexture *tex, SCE_RTexCubeFace face, SCEenum *target)
 {
     unsigned int i = 0;
-    if (*target >= SCE_TEX_POSX && *target <= SCE_TEX_NEGZ &&
-        tex->target == SCE_TEX_CUBE)
-        i = *target - SCE_TEX_POSX;
-    else
+    if (face >= SCE_TEX_POSX && face <= SCE_TEX_NEGZ &&
+        tex->target == SCE_TEX_CUBE) {
+        i = face - SCE_TEX_POSX;
+        *target = face;
+    } else
         *target = tex->target;
     return i;
 }
@@ -446,18 +445,20 @@ static unsigned int SCE_RGetTextureTargetID (SCE_RTexture *tex, int *target)
 
 /**
  * \brief Gets the texture's data of the specified target and mipmap level
- * \param target target of the texture, used only for cubemaps, determines
- * the cube face, can be 0
+ * \param tex a texture
+ * \param face cube face (ignored if \p tex is not a cubemap)
  * \param level mipmap level of the asked data
  * \returns the texture's data corresponding to the given parameters
  * \sa SCE_STexData
  */
-SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture *tex, int target, int level)
+SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture *tex,
+                                      SCE_RTexCubeFace face, int level)
 {
     unsigned int i;
     SCE_STexData *data = NULL;
+    SCEenum target;
 
-    i = SCE_RGetTextureTargetID (tex, &target);
+    i = SCE_RGetTextureTargetID (tex, face, &target);
     if (level > SCE_List_GetSize (&tex->data[i]))
         data = SCE_List_GetData (SCE_List_GetLast (&tex->data[i]));
     else
@@ -482,14 +483,16 @@ int SCE_RIsTextureUsingMipmaps (SCE_RTexture *tex)
 }
 
 /**
- * \brief Gets the number of mipmap levels of \p tex
- * \param target used only for cubemaps, determines the cube face, can be 0
+ * \brief Gets the number of mipmap levels of a texture
+ * \param tex a texture
+ * \param face cube face (ignored if \p tex is not a cubemap)
  * \returns the number of mipmap levels of \p tex
  */
-int SCE_RGetTextureNumMipmaps (SCE_RTexture *tex, int target)
+int SCE_RGetTextureNumMipmaps (SCE_RTexture *tex, SCE_RTexCubeFace face)
 {
     unsigned int i;
-    i = SCE_RGetTextureTargetID (tex, &target);
+    SCEenum target;
+    i = SCE_RGetTextureTargetID (tex, face, &target);
     return SCE_List_GetSize (&tex->data[i]);
 }
 
@@ -498,27 +501,27 @@ int SCE_RGetTextureNumMipmaps (SCE_RTexture *tex, int target)
  *
  * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->w
  */
-int SCE_RGetTextureWidth (SCE_RTexture *tex, int target, int level)
+int SCE_RGetTextureWidth (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
 {
-    return SCE_RGetTextureTexData (tex, target, level)->w;
+    return SCE_RGetTextureTexData (tex, face, level)->w;
 }
 /**
  * \brief Gets the height of a texture
  *
  * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->h
  */
-int SCE_RGetTextureHeight (SCE_RTexture *tex, int target, int level)
+int SCE_RGetTextureHeight (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
 {
-    return SCE_RGetTextureTexData (tex, target, level)->h;
+    return SCE_RGetTextureTexData (tex, face, level)->h;
 }
 /**
  * \brief Gets the depth of a texture
  *
  * This function returns SCE_RGetTextureTexData (\p tex, \p target, \p level)->d
  */
-int SCE_RGetTextureDepth (SCE_RTexture *tex, int target, int level)
+int SCE_RGetTextureDepth (SCE_RTexture *tex, SCE_RTexCubeFace face, int level)
 {
-    return SCE_RGetTextureTexData (tex, target, level)->d;
+    return SCE_RGetTextureTexData (tex, face, level)->d;
 }
 
 
@@ -631,7 +634,8 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
 
 /**
  * \brief Adds a new texture data to a texture
- * \param target the target where bind the new data
+ * \param tex a texture
+ * \param face cube face (ignored if \p tex is not a cubemap)
  * \param d the new data
  * \param canfree defines if \p d can be deleted on \p tex deletion
  *
@@ -639,11 +643,13 @@ int SCE_RAddTextureImage (SCE_RTexture *tex, int target,
  * 
  * \sa SCE_RAddTextureTexDataDup() SCE_STexData
  */
-void SCE_RAddTextureTexData (SCE_RTexture *tex, int target, SCE_STexData *d)
+void SCE_RAddTextureTexData (SCE_RTexture *tex, SCE_RTexCubeFace face,
+                             SCE_STexData *d)
 {
     unsigned int i;
+    SCEenum target;
 
-    i = SCE_RGetTextureTargetID (tex, &target);
+    i = SCE_RGetTextureTargetID (tex, face, &target);
     SCE_TexData_SetTarget (d, target);
     SCE_List_Appendl (&tex->data[i], SCE_TexData_GetIterator (d));
     tex->have_data = SCE_TRUE;
@@ -660,30 +666,34 @@ void SCE_RAddTextureTexData (SCE_RTexture *tex, int target, SCE_STexData *d)
  *
  * \sa SCE_RAddTextureTexData() SCE_STexData
  */
-SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture *tex, int target,
-                                         const SCE_STexData *d)
+SCE_STexData*
+SCE_RAddTextureTexDataDup (SCE_RTexture *tex, SCE_RTexCubeFace face,
+                           const SCE_STexData *d)
 {
     SCE_STexData *data = NULL;
     if (!(data = SCE_TexData_Dup (d))) {
         SCEE_LogSrc ();
         return NULL;
     }
-    SCE_RAddTextureTexData (tex, target, data);
+    SCE_RAddTextureTexData (tex, face, data);
     return data;
 }
 
 /**
  * \brief 
- * \param 
+ * \param tex a texture
+ * \param face cube face (ignored if \p tex is not a cubemap)
  */
-SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
+SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, SCE_RTexCubeFace face,
+                                     int level)
 {
     SCE_SImage *img = NULL;
     SCE_STexData *d = NULL;
     SCE_SListIterator *it = NULL;
     unsigned int i;
+    SCEenum target;
 
-    i = SCE_RGetTextureTargetID (tex, &target);
+    i = SCE_RGetTextureTargetID (tex, face, &target);
 
     /* si level n'existe pas, on prend le dernier */
     /* >= parce que level commence a 0 */
@@ -714,26 +724,29 @@ SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture *tex, int target, int level)
  * \brief 
  * \param 
  */
-void SCE_REraseTextureImage (SCE_RTexture *tex, int target, int level)
+void SCE_REraseTextureImage (SCE_RTexture *tex, SCE_RTexCubeFace face,
+                             int level)
 {
     SCE_SImage *img = NULL;
-    img = SCE_RRemoveTextureImage (tex, target, level);
+    img = SCE_RRemoveTextureImage (tex, face, level);
     if (SCE_Resource_Free (img))
         SCE_Image_Delete (img);
 }
 
 /**
  * \brief 
- * \param 
+ * \param tex a texture
+ * \param face cube face (ignored if \p tex is not a cubemap)
  */
 SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
-                                         int target, int level)
+                                         SCE_RTexCubeFace face, int level)
 {
     SCE_STexData *d = NULL, *data = NULL;
     SCE_SListIterator *pro = NULL, *it = NULL;
     unsigned int i;
+    SCEenum target;
 
-    i = SCE_RGetTextureTargetID (tex, &target);
+    i = SCE_RGetTextureTargetID (tex, face, &target);
 
     /* si level n'existe pas, on prend le dernier */
     if (level > SCE_List_GetSize (&tex->data[i]))
@@ -759,10 +772,11 @@ SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture *tex,
  * \brief 
  * \param 
  */
-void SCE_REraseTextureTexData (SCE_RTexture *tex, int target, int level)
+void SCE_REraseTextureTexData (SCE_RTexture *tex, SCE_RTexCubeFace face,
+                               int level)
 {
     SCE_STexData *d = NULL;
-    d = SCE_RRemoveTextureTexData (tex, target, level);
+    d = SCE_RRemoveTextureTexData (tex, face, level);
     /* TexData are no resources, so.. */
     SCE_RDeleteTexData (d);
 }

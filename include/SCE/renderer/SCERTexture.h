@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 14/01/2007
-   updated: 23/01/2012 */
+   updated: 08/04/2012 */
 
 #ifndef SCERTEXTURE_H
 #define SCERTEXTURE_H
@@ -149,15 +149,15 @@ void SCE_RForceTextureFormat (int, SCE_EImageFormat);
 
 SCE_RTexType SCE_RGetTextureType (SCE_RTexture*);
 
-SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture*, int, int);
+SCE_STexData* SCE_RGetTextureTexData (SCE_RTexture*, SCE_RTexCubeFace, int);
 
 int SCE_RHasTextureData (SCE_RTexture*);
 
 int SCE_RIsTextureUsingMipmaps (SCE_RTexture*);
-int SCE_RGetTextureNumMipmaps (SCE_RTexture*, int);
-int SCE_RGetTextureWidth (SCE_RTexture*, int, int);
-int SCE_RGetTextureHeight (SCE_RTexture*, int, int);
-int SCE_RGetTextureDepth (SCE_RTexture*, int, int);
+int SCE_RGetTextureNumMipmaps (SCE_RTexture*, SCE_RTexCubeFace);
+int SCE_RGetTextureWidth (SCE_RTexture*, SCE_RTexCubeFace, int);
+int SCE_RGetTextureHeight (SCE_RTexture*, SCE_RTexCubeFace, int);
+int SCE_RGetTextureDepth (SCE_RTexture*, SCE_RTexCubeFace, int);
 
 int SCE_RGetTextureValidSize (int, int);
 
@@ -165,15 +165,15 @@ void SCE_RResizeTextureImage (SCE_SImage*, int, int, int);
 
 int SCE_RAddTextureImage (SCE_RTexture*, int, SCE_SImage*, int);
 
-void SCE_RAddTextureTexData (SCE_RTexture*, int, SCE_STexData*);
-SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture*, int,
+void SCE_RAddTextureTexData (SCE_RTexture*, SCE_RTexCubeFace, SCE_STexData*);
+SCE_STexData* SCE_RAddTextureTexDataDup (SCE_RTexture*, SCE_RTexCubeFace,
                                          const SCE_STexData*);
 
-SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture*, int, int);
-void SCE_REraseTextureImage (SCE_RTexture*, int, int);
+SCE_SImage* SCE_RRemoveTextureImage (SCE_RTexture*, SCE_RTexCubeFace, int);
+void SCE_REraseTextureImage (SCE_RTexture*, SCE_RTexCubeFace, int);
 
-SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture*, int, int);
-void SCE_REraseTextureTexData (SCE_RTexture*, int, int);
+SCE_STexData* SCE_RRemoveTextureTexData (SCE_RTexture*, SCE_RTexCubeFace, int);
+void SCE_REraseTextureTexData (SCE_RTexture*, SCE_RTexCubeFace, int);
 
 SCE_RTexture* SCE_RLoadTexturev (int, int, int, int, int, const char**);
 SCE_RTexture* SCE_RLoadTexture (int, int, int, int, int, ...);
