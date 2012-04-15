@@ -380,4 +380,9 @@ void SCE_RSetStencilFunc (SCEenum func, SCEuint ref, SCEuint mask)
     glStencilFunc (func, ref, mask);
 }
 
+void SCE_RVertexAttrib4fv (SCEuint index, const SCEfloat *data)
+{
+    glVertexAttrib4fv (index, data);
+}
+
 /** @} */

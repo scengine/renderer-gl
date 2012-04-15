@@ -109,6 +109,8 @@ void SCE_RSetValidPixels (SCEenum);
 void SCE_RSetStencilOp (SCEenum, SCEenum, SCEenum);
 void SCE_RSetStencilFunc (SCEenum, SCEuint, SCEuint);
 
+void SCE_RVertexAttrib4fv (SCEuint, const SCEfloat*);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
