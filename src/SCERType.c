@@ -106,7 +106,9 @@ SCEenum sce_rpxf[SCE_NUM_PIXEL_FORMATS] = {
     GL_DEPTH24_STENCIL8,
     GL_DEPTH32F_STENCIL8,
     GL_R32UI,
-    GL_RGBA8UI
+    GL_RGBA8UI,
+    GL_R16UI,
+    GL_R8UI
 };
 
 SCEenum sce_rprimtypes_true[SCE_NUM_PRIMITIVE_TYPES] = {
