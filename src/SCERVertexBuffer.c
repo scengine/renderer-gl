@@ -144,7 +144,6 @@ int SCE_RAddVertexBufferDataArray (SCE_RVertexBufferData *vbd,
                                    SCE_RVertexArray *va,
                                    size_t n_vertices)
 {
-    size_t stride;
     SCE_SGeometryArrayData *data;
     if (SCE_List_AppendNewl (&vbd->arrays, va) < 0) {
         SCEE_LogSrc ();
@@ -160,12 +159,11 @@ int SCE_RAddVertexBufferDataArray (SCE_RVertexBufferData *vbd,
     }
     if (!data->data)
         data->data = (void*)vbd->stride;
-    if (data->stride)
+    if (!data->stride)
+        vbd->stride += SCE_Type_Sizeof (data->type) * data->size;
+    else
         vbd->stride += data->stride;
-    else {
-        stride = SCE_Type_Sizeof (data->type) * data->size;
-        vbd->stride += stride;
-    }
+
     vbd->data.size = vbd->stride * n_vertices;
     return SCE_OK;
 }
