@@ -62,6 +62,7 @@ void SCE_RVertexArrayQuit (void)
 
 static void SCE_RInitVertexArrayData (SCE_SGeometryArrayData *data)
 {
+    SCE_Geometry_InitArrayData (data);
     data->attrib = SCE_POSITION;
     data->type = SCE_FLOAT;
     data->stride = 0;
@@ -332,6 +333,7 @@ void SCE_RSetVertexArrayNewData (SCE_RVertexArray *va,
                                  SCEsizei stride, SCEint size, void *p)
 {
     SCE_SGeometryArrayData data;
+    SCE_Geometry_InitArrayData (&data);
     data.attrib = attrib;
     data.type = type;
     data.stride = stride;
