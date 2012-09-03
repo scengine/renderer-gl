@@ -353,6 +353,7 @@ void SCE_RSetVertexBufferRenderMode (SCE_RVertexBuffer *vb,
                     /* TODO: WTF?? */
                     data->data = (char*)vbd->data.data + (char*)data->data;
 #endif
+                    data->stride = vbd->stride;
                 }
             }
         }
