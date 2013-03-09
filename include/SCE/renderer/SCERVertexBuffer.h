@@ -124,6 +124,11 @@ void SCE_RAddVertexBufferData (SCE_RVertexBuffer*, SCE_RVertexBufferData*);
 void SCE_RRemoveVertexBufferData (SCE_RVertexBufferData*);
 void SCE_RSetVertexBufferNumVertices (SCE_RVertexBuffer*, size_t);
 
+void SCE_RInstantVertexBufferUpdate (SCE_RVertexBuffer*, const void*, size_t,
+                                     size_t);
+void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer*, const void*, size_t,
+                                    size_t);
+
 void SCE_RBuildVertexBuffer (SCE_RVertexBuffer*, SCE_RBufferUsage,
                              SCE_RBufferRenderMode);
 void SCE_RSetVertexBufferRenderMode (SCE_RVertexBuffer*, SCE_RBufferRenderMode);

@@ -266,6 +266,18 @@ void SCE_RSetVertexBufferNumVertices (SCE_RVertexBuffer *vb, size_t n)
     vb->n_vertices = n;
 }
 
+
+void SCE_RInstantVertexBufferUpdate (SCE_RVertexBuffer *vb, const void *data,
+                                     size_t first, size_t size)
+{
+    SCE_RInstantBufferUpdate (&vb->buf, data, first, size);
+}
+void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer *ib, const void *data,
+                                    size_t first, size_t size)
+{
+    SCE_RInstantBufferUpdate (&ib->buf, data, first, size);
+}
+
 /** \deprecated */
 static void SCE_RUseVAMode (SCE_RVertexBuffer *vb)
 {

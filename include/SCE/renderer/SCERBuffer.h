@@ -118,6 +118,7 @@ void SCE_RRemoveBufferData (SCE_RBufferData*);
 
 void SCE_RBuildBuffer (SCE_RBuffer*, SCEenum, SCE_RBufferUsage);
 extern void (*SCE_RUpdateBuffer) (SCE_RBuffer*);
+void SCE_RInstantBufferUpdate (SCE_RBuffer*, const void*, size_t, size_t);
 void SCE_RUpdateModifiedBuffers (void);
 void SCE_RUseBuffer (SCE_RBuffer*);
 

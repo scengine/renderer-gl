@@ -289,7 +289,8 @@ void SCE_RBuildBuffer (SCE_RBuffer *buf, SCEenum target, SCE_RBufferUsage usage)
     glBufferData (target, buf->size, NULL, usage);
     SCE_List_ForEach (it, &buf->data) {
         data = SCE_List_GetData (it);
-        glBufferSubData (target, data->first, data->size, data->data);
+        if (data->data)
+            glBufferSubData (target, data->first, data->size, data->data);
     }
     glBindBuffer (target, 0);
     buf->target = target;
@@ -390,6 +391,21 @@ static void SCE_RUpdateBufferMapRange (SCE_RBuffer *buf)
     glUnmapBuffer (target);
     glBindBuffer (target, 0);
     SCE_RResetBufferRange (buf);
+}
+
+/**
+ * \brief I present to you the ugliest way to update a buffer!
+ * \param buf dont
+ * \param data mind
+ * \param first the
+ * \param size parameters
+ */
+void SCE_RInstantBufferUpdate (SCE_RBuffer *buf, const void *data,
+                               size_t first, size_t size)
+{
+    glBindBuffer (buf->target, buf->id);
+    glBufferSubData (buf->target, first, size, data);
+    glBindBuffer (buf->target, 0);
 }
 
 /**
