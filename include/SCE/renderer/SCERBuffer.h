@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 29/01/2012 */
+   updated: 15/03/2013 */
 
 #ifndef SCERBUFFER_H
 #define SCERBUFFER_H
@@ -121,6 +121,8 @@ extern void (*SCE_RUpdateBuffer) (SCE_RBuffer*);
 void SCE_RInstantBufferUpdate (SCE_RBuffer*, const void*, size_t, size_t);
 void SCE_RUpdateModifiedBuffers (void);
 void SCE_RUseBuffer (SCE_RBuffer*);
+
+size_t SCE_RGetBufferUsedVRAM (const SCE_RBuffer*);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 10/01/2007
-   updated: 21/08/2009 */
+   updated: 15/03/2013 */
 
 #include <string.h>             /* memcpy */
 #include <GL/glew.h>
@@ -106,7 +106,7 @@ static void SCE_RFreeBufferBufferData (void *d)
 }
 void SCE_RInitBuffer (SCE_RBuffer *buf)
 {
-    glGenBuffers (1, &buf->id);
+    glGenBuffers (1, &buf->id); /* TODO: sucks to create GL object here */
     buf->target = GL_ARRAY_BUFFER;
     buf->size = 0;
     SCE_List_Init (&buf->data);
@@ -428,5 +428,21 @@ void SCE_RUseBuffer (SCE_RBuffer *buf)
 {
     glBindBuffer (buf->target, buf->id);
 }
+
+
+static size_t get_buffer_size (SCEenum target, SCEuint id)
+{
+    GLint size;
+    glBindBuffer (target, id);
+    glGetBufferParameteriv (target, GL_BUFFER_SIZE, &size);
+    glBindBuffer (target, 0);
+    return (size_t)size;
+}
+
+size_t SCE_RGetBufferUsedVRAM (const SCE_RBuffer *buf)
+{
+    return get_buffer_size (buf->target, buf->id);
+}
+
 
 /** @} */
