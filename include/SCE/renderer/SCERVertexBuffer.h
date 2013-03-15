@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2010  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 23/08/2009 */
+   updated: 15/03/2013 */
 
 #ifndef SCERVERTEXBUFFER_H
 #define SCERVERTEXBUFFER_H
@@ -75,7 +75,7 @@ typedef void (*SCE_FUseVBFunc)(SCE_RVertexBuffer*);
 struct sce_rvertexbuffer {
     SCE_RVertexArraySequence seq; /**< Global setup sequence (VAO) */
     SCE_RBuffer buf;            /**< Core buffer */
-    SCE_SList data;             /**< CVertexBufferData, memory managed by the
+    SCE_SList data;             /**< RVertexBufferData, memory managed by the
                                  * vertex buffer */
     SCE_FUseVBFunc use;         /**< Setup function */
     SCE_RBufferRenderMode rmode;/**< Render mode set when built */
@@ -128,6 +128,11 @@ void SCE_RInstantVertexBufferUpdate (SCE_RVertexBuffer*, const void*, size_t,
                                      size_t);
 void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer*, const void*, size_t,
                                     size_t);
+
+size_t SCE_RGetVertexBufferUsedVRAM (const SCE_RVertexBuffer*);
+size_t SCE_RGetIndexBufferUsedVRAM (const SCE_RIndexBuffer*);
+size_t SCE_RGetVertexBufferSize (const SCE_RVertexBuffer*);
+size_t SCE_RGetIndexBufferSize (const SCE_RIndexBuffer*);
 
 void SCE_RBuildVertexBuffer (SCE_RVertexBuffer*, SCE_RBufferUsage,
                              SCE_RBufferRenderMode);

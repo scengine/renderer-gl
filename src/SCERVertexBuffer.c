@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     SCEngine - A 3D real time rendering engine written in the C language
-    Copyright (C) 2006-2012  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
+    Copyright (C) 2006-2013  Antony Martin <martin(dot)antony(at)yahoo(dot)fr>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  -----------------------------------------------------------------------------*/
  
 /* created: 29/07/2009
-   updated: 29/01/2012 */
+   updated: 15/03/2013 */
 
 #include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
@@ -278,6 +278,36 @@ void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer *ib, const void *data,
     SCE_RInstantBufferUpdate (&ib->buf, data, first, size);
 }
 
+size_t SCE_RGetVertexBufferUsedVRAM (const SCE_RVertexBuffer *vb)
+{
+    return SCE_RGetBufferUsedVRAM (&vb->buf);
+}
+size_t SCE_RGetIndexBufferUsedVRAM (const SCE_RIndexBuffer *ib)
+{
+    return SCE_RGetBufferUsedVRAM (&ib->buf);
+}
+size_t SCE_RGetVertexBufferSize (const SCE_RVertexBuffer *vb)
+{
+    size_t stride = 0;
+    SCE_SListIterator *it, *it2;
+
+    SCE_List_ForEach (it, &vb->data) {
+        SCE_RVertexBufferData *vbd = SCE_List_GetData (it);
+        SCE_List_ForEach (it2, &vbd->arrays) {
+            SCE_SGeometryArrayData *data;
+            data = SCE_RGetVertexArrayData (SCE_List_GetData (it2));
+            stride += data->stride;
+        }
+    }
+
+    return stride * vb->n_vertices;
+}
+size_t SCE_RGetIndexBufferSize (const SCE_RIndexBuffer *ib)
+{
+    return ib->n_indices * SCE_Type_Sizeof (ib->ia.type);
+}
+
+
 /** \deprecated */
 static void SCE_RUseVAMode (SCE_RVertexBuffer *vb)
 {
@@ -319,8 +349,6 @@ static void SCE_RUseVAOMode (SCE_RVertexBuffer *vb)
 void SCE_RBuildVertexBuffer (SCE_RVertexBuffer *vb, SCE_RBufferUsage usage,
                              SCE_RBufferRenderMode mode)
 {
-    SCE_RVertexBufferData *data = NULL;
-
     vb->rmode = mode;
     if (usage == SCE_BUFFER_DEFAULT_USAGE)
         usage = SCE_BUFFER_STREAM_DRAW;
