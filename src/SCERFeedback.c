@@ -95,7 +95,7 @@ int SCE_RAddFeedbackStream (SCE_RFeedback *fb, const SCE_RBuffer *buf,
         /* found, edit range */
         s->range[0] = range[0];
         s->range[1] = range[1];
-        return;
+        return 0;               /* TODO: haha it aint what we want */
     }
     /* none found, add new stream */
     if (fb->n_streams < SCE_MAX_FEEDBACK_STREAMS) {
@@ -108,7 +108,10 @@ int SCE_RAddFeedbackStream (SCE_RFeedback *fb, const SCE_RBuffer *buf,
             fb->streams[fb->n_streams].range[1] = -1;
         }
         fb->n_streams++;
+        return fb->n_streams - 1;
     }
+
+    return 0;                   /* ? */
 }
 /**
  * \brief Removes a stream target
@@ -198,8 +201,8 @@ void SCE_REndFeedback (SCE_RFeedback *fb)
 
     /* glBindTransformFeedback (GL_TRANSFORM_FEEDBACK, 0); */
     for (i = 0; i < fb->n_streams; i++) {
-        SCE_RFeedbackStream *s = &fb->streams[i];
 #if 0
+        SCE_RFeedbackStream *s = &fb->streams[i];
         if (s->counting) {
             /* retrieve count result and unbind the query object */
             glGetQueryIndexediv (GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN,
