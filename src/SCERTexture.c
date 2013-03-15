@@ -183,7 +183,6 @@ static void SCE_RInitTexture (SCE_RTexture *tex)
  */
 SCE_RTexture* SCE_RCreateTexture (SCE_RTexType target)
 {
-    unsigned int i;
     SCE_RTexture *tex = NULL;
 
     if (!(tex = SCE_malloc (sizeof *tex))) {
@@ -194,6 +193,7 @@ SCE_RTexture* SCE_RCreateTexture (SCE_RTexType target)
 
     tex->target = target;
     /* assignation du type */
+    /* TODO: *_ARRAY not handled */
     switch (target) {
     case SCE_TEX_1D: tex->type = SCE_TEXTYPE_1D; break;
     case SCE_TEX_2D: tex->type = SCE_TEXTYPE_2D; break;
@@ -1092,7 +1092,6 @@ static void SCE_RMakeTexture (SCEenum textype, SCE_SList *data,
     SCE_SListIterator *it = NULL;
     SCE_STexData *d = NULL;
     SCE_RMakeTextureFunc make = NULL;
-    int n = 0;
 
     SCE_List_ForEach (it, data) {
         d = SCE_List_GetData (it);
