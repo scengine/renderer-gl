@@ -20,6 +20,7 @@ libscerenderer_la_SOURCES   = SCERType.c \
                               SCERPointSprite.c \
                               SCERMatrix.c \
                               SCERBuffer.c \
+                              SCERBufferPool.c \
                               SCERVertexArray.c \
                               SCERVertexBuffer.c \
                               SCERFeedback.c \

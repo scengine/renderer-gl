@@ -1,4 +1,5 @@
 sce_include_renderer_HEADERS = SCERBuffer.h \
+                               SCERBufferPool.h \
                                SCERVertexArray.h \
                                SCERVertexBuffer.h \
                                SCERFeedback.h \

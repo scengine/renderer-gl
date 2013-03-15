@@ -24,6 +24,7 @@
 
 #include <SCE/utils/SCEUtils.h>
 #include "SCE/renderer/SCERBuffer.h"
+#include "SCE/renderer/SCERBufferPool.h"
 #include "SCE/renderer/SCERVertexArray.h"
 
 #ifdef __cplusplus
@@ -133,6 +134,10 @@ size_t SCE_RGetVertexBufferUsedVRAM (const SCE_RVertexBuffer*);
 size_t SCE_RGetIndexBufferUsedVRAM (const SCE_RIndexBuffer*);
 size_t SCE_RGetVertexBufferSize (const SCE_RVertexBuffer*);
 size_t SCE_RGetIndexBufferSize (const SCE_RIndexBuffer*);
+int SCE_RReallocVertexBufferSize (SCE_RVertexBuffer*, SCE_RBufferPool*, size_t);
+int SCE_RReallocIndexBufferSize (SCE_RIndexBuffer*, SCE_RBufferPool*, size_t);
+int SCE_RReallocVertexBuffer (SCE_RVertexBuffer*, SCE_RBufferPool*);
+int SCE_RReallocIndexBuffer (SCE_RIndexBuffer*, SCE_RBufferPool*);
 
 void SCE_RBuildVertexBuffer (SCE_RVertexBuffer*, SCE_RBufferUsage,
                              SCE_RBufferRenderMode);

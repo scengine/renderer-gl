@@ -21,6 +21,7 @@
 
 #include <GL/glew.h>
 #include "SCE/renderer/SCERType.h"
+#include "SCE/renderer/SCERBufferPool.h"
 #include "SCE/renderer/SCERVertexBuffer.h"
 
 #define SCE_BUFFER_OFFSET(p) ((char*)NULL + (p))
@@ -305,6 +306,27 @@ size_t SCE_RGetVertexBufferSize (const SCE_RVertexBuffer *vb)
 size_t SCE_RGetIndexBufferSize (const SCE_RIndexBuffer *ib)
 {
     return ib->n_indices * SCE_Type_Sizeof (ib->ia.type);
+}
+
+int SCE_RReallocVertexBufferSize (SCE_RVertexBuffer *vb, SCE_RBufferPool *pool,
+                                  size_t size)
+{
+    return SCE_RReallocBufferPoolBuffer (pool, &vb->buf, size);
+}
+int SCE_RReallocIndexBufferSize (SCE_RIndexBuffer *ib, SCE_RBufferPool *pool,
+                                 size_t size)
+{
+    return SCE_RReallocBufferPoolBuffer (pool, &ib->buf, size);
+}
+int SCE_RReallocVertexBuffer (SCE_RVertexBuffer *vb, SCE_RBufferPool *pool)
+{
+    size_t size = SCE_RGetVertexBufferSize (vb);
+    return SCE_RReallocBufferPoolBuffer (pool, &vb->buf, size);
+}
+int SCE_RReallocIndexBuffer (SCE_RIndexBuffer *ib, SCE_RBufferPool *pool)
+{
+    size_t size = SCE_RGetIndexBufferSize (ib);
+    return SCE_RReallocBufferPoolBuffer (pool, &ib->buf, size);
 }
 
 
