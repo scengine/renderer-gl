@@ -167,10 +167,12 @@ fail:
 
 static size_t get_buffer_size (SCEenum target, SCEuint id)
 {
-    GLint size;
-    glBindBuffer (target, id);
-    glGetBufferParameteriv (target, GL_BUFFER_SIZE, &size);
-    glBindBuffer (target, 0);
+    GLint size = 0;
+    if (id) {
+        glBindBuffer (target, id);
+        glGetBufferParameteriv (target, GL_BUFFER_SIZE, &size);
+        glBindBuffer (target, 0);
+    }
     return (size_t)size;
 }
 
