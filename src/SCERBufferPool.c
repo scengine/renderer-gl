@@ -53,7 +53,9 @@ void SCE_RSetBufferPoolUsage (SCE_RBufferPool *pool, SCE_RBufferUsage usage)
 
 static SCEuint getindex (unsigned int size)
 {
-    return 1 + (SCEuint)(log ((double)size) / log (2.0));
+    SCEuint index = 0;
+    while (1 << index < size) index++;
+    return index;
 }
 
 
