@@ -70,7 +70,7 @@ int SCE_RFlushBufferPool (SCE_RBufferPool *pool, SCEuint max)
         size = SCE_Array_GetSize (a);
         if (size > max) {
             SCEubyte *ptr = SCE_Array_Get (a);
-            glDeleteBuffers (size - max, &ptr[max]);
+            glDeleteBuffers ((size - max) / sizeof (SCEuint), &ptr[max]);
             if (SCE_Array_PopBack (a, size - max) < 0) {
                 SCEE_LogSrc ();
                 return SCE_ERROR;
