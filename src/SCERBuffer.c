@@ -408,6 +408,14 @@ void SCE_RInstantBufferUpdate (SCE_RBuffer *buf, const void *data,
     glBindBuffer (buf->target, 0);
 }
 
+void SCE_RInstantBufferFetch (SCE_RBuffer *buf, void *data, size_t first,
+                              size_t size)
+{
+    glBindBuffer (buf->target, buf->id);
+    glGetBufferSubData (buf->target, first, size, data);
+    glBindBuffer (buf->target, 0);
+}
+
 /**
  * \brief Updates all buffers containing modified buffer data
  * \sa SCE_RModifiedBufferData(), SCE_RUpdateBuffer()

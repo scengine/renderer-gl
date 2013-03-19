@@ -129,6 +129,8 @@ void SCE_RInstantVertexBufferUpdate (SCE_RVertexBuffer*, const void*, size_t,
                                      size_t);
 void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer*, const void*, size_t,
                                     size_t);
+void SCE_RInstantVertexBufferFetch (SCE_RVertexBuffer*, void*, size_t, size_t);
+void SCE_RInstantIndexBufferFetch (SCE_RIndexBuffer*, void*, size_t, size_t);
 
 size_t SCE_RGetVertexBufferUsedVRAM (const SCE_RVertexBuffer*);
 size_t SCE_RGetIndexBufferUsedVRAM (const SCE_RIndexBuffer*);

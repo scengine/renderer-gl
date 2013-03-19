@@ -278,6 +278,16 @@ void SCE_RInstantIndexBufferUpdate (SCE_RIndexBuffer *ib, const void *data,
 {
     SCE_RInstantBufferUpdate (&ib->buf, data, first, size);
 }
+void SCE_RInstantVertexBufferFetch (SCE_RVertexBuffer *vb, void *data,
+                                    size_t first, size_t size)
+{
+    SCE_RInstantBufferFetch (&vb->buf, data, first, size);
+}
+void SCE_RInstantIndexBufferFetch (SCE_RIndexBuffer *ib, void *data,
+                                   size_t first, size_t size)
+{
+    SCE_RInstantBufferFetch (&ib->buf, data, first, size);
+}
 
 size_t SCE_RGetVertexBufferUsedVRAM (const SCE_RVertexBuffer *vb)
 {
