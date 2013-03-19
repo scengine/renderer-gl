@@ -297,7 +297,9 @@ size_t SCE_RGetVertexBufferSize (const SCE_RVertexBuffer *vb)
         SCE_List_ForEach (it2, &vbd->arrays) {
             SCE_SGeometryArrayData *data;
             data = SCE_RGetVertexArrayData (SCE_List_GetData (it2));
-            stride += data->stride;
+            /* data->stride is only to be used internally, it represents
+               the "total" stride and not just the stride of the array */
+            stride += data->size * SCE_Type_Sizeof (data->type);
         }
     }
 
