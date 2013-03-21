@@ -37,7 +37,8 @@ void SCE_RClearBufferPool (SCE_RBufferPool *pool)
     size_t i, size;
     for (i = 0; i < 32; i++) {
         size = SCE_Array_GetSize (&pool->buffers[i]) / sizeof (SCEuint);
-        glDeleteBuffers (size, SCE_Array_Get (&pool->buffers[i]));
+        if (size)
+            glDeleteBuffers (size, SCE_Array_Get (&pool->buffers[i]));
         SCE_Array_Clear (&pool->buffers[i]);
     }
 }
