@@ -95,7 +95,10 @@ int SCE_RTextureInit (void)
     size_t i;
 
     /* recuperation du nombre maximum d'unites de texture */
-    SCE_RGetIntegerv (GL_MAX_TEXTURE_UNITS, &max_tex_units);
+    /*SCE_RGetIntegerv (GL_MAX_TEXTURE_UNITS, &max_tex_units);*/
+    /* TODO: GL_MAX_TEXTURE_UNITS is deprecated afaik, use
+       GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS */
+    max_tex_units = 16;
     /* recuperation de la taille maximale d'une texture */
     SCE_RGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_dimensions);
     SCE_RGetIntegerv (GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_dimensions);
