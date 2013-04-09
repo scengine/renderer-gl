@@ -80,8 +80,7 @@ static int force_fmt = SCE_FALSE;
 static SCE_EImageType forced_fmt;
 
 
-/* nombre de textures utilisees de chaque type */
-static int n_textype[4];
+static int n_textype[SCE_NUM_TEXTYPE];
 
 
 static void* SCE_RLoadTextureResource (const char*, int, void*);
@@ -180,7 +179,7 @@ static void SCE_RInitTexture (SCE_RTexture *tex)
 /**
  * \brief Creates a core texture
  * \param target the type of the texture to create (can set SCE_TEX_1D,
- * SCE_TEX_2D, SCE_TEX_3D or SCE_TEX_CUBE)
+ * SCE_TEX_2D_ARRAY, SCE_TEX_2D, SCE_TEX_3D or SCE_TEX_CUBE)
  * \note If \p target is a non valid target, then... what ?
  * \todo que fait cette fonction quand \p target est non valide ?
  */
@@ -195,11 +194,10 @@ SCE_RTexture* SCE_RCreateTexture (SCE_RTexType target)
     SCE_RInitTexture (tex);
 
     tex->target = target;
-    /* assignation du type */
-    /* TODO: *_ARRAY not handled */
     switch (target) {
     case SCE_TEX_1D: tex->type = SCE_TEXTYPE_1D; break;
     case SCE_TEX_2D: tex->type = SCE_TEXTYPE_2D; break;
+    case SCE_TEX_2D_ARRAY: tex->type = SCE_TEXTYPE_2D_ARRAY; break;
     case SCE_TEX_3D: tex->type = SCE_TEXTYPE_3D; break;
     case SCE_TEX_CUBE: tex->type = SCE_TEXTYPE_CUBE;
     }
@@ -799,45 +797,55 @@ static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
     int resize;
     int type, w, h, d;
     SCE_RTexResInfo *rinfo = data;
+    SCE_STexData **tc = NULL;
 
     (void)name;
     type = rinfo->type;
     w = rinfo->w; h = rinfo->h; d = rinfo->d;
-    resize = (w > 0 || h > 0 || d > 0);
+    /* dont account d if 2D array */
+    resize = (w > 0 || h > 0 || (d > 0 && type != SCE_TEX_2D_ARRAY));
 
-    /* si type est egal a SCE_TEX_CUBE, 6 const char* seront recuperes,
-     * representant respectivement les 6 faces du cube. si des parametres
-     * manquent, seul le premier sera construit lors de la construction.
-     * sinon, chaque parametre representera un niveau de mipmap
-     */
+    if (type == SCE_TEX_2D_ARRAY) {
+        if (!(tc = SCE_malloc (d * sizeof *tc)))
+            goto fail;
+        for (i = 0; i < d; i++)
+            tc[i] = NULL;
+    }
 
     if (force > 0)
         force--;
-    for (j = 0; rinfo->names[j]; j++) {
+
+    for (j = 0; rinfo->names[j] && (j < d || type != SCE_TEX_2D_ARRAY); j++) {
         const char *fname = rinfo->names[j];
         if (!(img = SCE_Resource_Load (SCE_Image_GetResourceType (),
                                        fname, force, NULL)))
             goto fail;
 
         if (resize)
-            SCE_RResizeTextureImage (img, w, h, d);
+            SCE_RResizeTextureImage (img, w, h,
+                                     (type == SCE_TEX_2D_ARRAY ? 1 : d));
 
         if (!tex) {
             if (type <= 0)
                 type = SCE_Image_GetType (img);
-            tex = SCE_RCreateTexture (type);
-            if (!tex)
+            if (!(tex = SCE_RCreateTexture (type)))
                 goto fail;
         }
 
-        if (SCE_RAddTextureImage (tex, (type == SCE_TEX_CUBE ?
-                                  SCE_TEX_POSX + i : 0), img, SCE_TRUE) < 0)
-            goto fail;
+        if (type == SCE_TEX_2D_ARRAY) {
+            if (!(tc[j] = SCE_TexData_CreateFromImage (img, SCE_TRUE)))
+                goto fail;
+        } else {
+            int t = type == SCE_TEX_CUBE ? SCE_TEX_POSX + i : 0;
+            if (SCE_RAddTextureImage (tex, t, img, SCE_TRUE) < 0)
+                goto fail;
+        }
 
         /* cubemap..? */
         if (type == SCE_TEX_CUBE)
             i++;
-        else if (resize) {
+        /* && type != SCE_TEX_3D ? */
+        else if (resize && type != SCE_TEX_2D_ARRAY) {
             /* mipmapping */
             w = SCE_Image_GetWidth (img) / 2;
             h = SCE_Image_GetHeight (img) / 2;
@@ -848,9 +856,21 @@ static void* SCE_RLoadTextureResource (const char *name, int force, void *data)
             break;
     }
 
+    if (type == SCE_TEX_2D_ARRAY) {
+        SCE_STexData *final = NULL;
+        if (!(final = SCE_TexData_Merge2D (tc, j)))
+            goto fail;
+        /* remove original texdata and images (sad, but that's life.) */
+        for (i = 0; i < j; i++)
+            SCE_TexData_Delete (tc[i]);
+        SCE_RAddTextureTexData (tex, 0, final);
+    }
+
     return tex;
 fail:
     SCE_RDeleteTexture (tex);
+    for (i = 0; i < j; i++)
+        SCE_TexData_Delete (tc[i]);
     SCEE_LogSrc ();
     return NULL;
 }
@@ -863,13 +883,14 @@ SCE_RTexture* SCE_RLoadTexturev (int type, int w, int h, int d, int force,
                                  const char **names)
 {
     unsigned int i;
-    char buf[2048] = {0};       /* hahaha */
+    char buf[2048] = {0};       /* TODO: hahaha */
     SCE_RTexResInfo info;
     SCE_RTexture *tex;
 
     info.type = type;
     info.w = w; info.h = h; info.d = d;
     info.names = names;
+    /* TODO: omg just fix that. */
     for (i = 0; names[i]; i++)
         strcat (buf, names[i]);
 

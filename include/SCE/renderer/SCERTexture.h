@@ -110,7 +110,8 @@ struct sce_rtexture {
     SCEfloat aniso_level;       /**< Anisotropic filtering level */
 
     enum SCE_ETexType {
-        SCE_TEXTYPE_1D, SCE_TEXTYPE_2D, SCE_TEXTYPE_3D, SCE_TEXTYPE_CUBE
+        SCE_TEXTYPE_1D, SCE_TEXTYPE_2D, SCE_TEXTYPE_2D_ARRAY, SCE_TEXTYPE_3D,
+        SCE_TEXTYPE_CUBE, SCE_NUM_TEXTYPE
     } type;             /**< Dunno olol */
 };
 
